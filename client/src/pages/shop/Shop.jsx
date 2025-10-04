@@ -20,7 +20,7 @@ const Shop = () => {
       const categoryQuery =
         categories.length > 0 ? `&categories=${categories.join(",")}` : "";
       const res = await axios.get(
-        `http://localhost:5000/api/listings?limit=20&search=${query}${categoryQuery}`,
+        `https://sierra-catalogue.onrender.com/api/listings?limit=20&search=${query}${categoryQuery}`,
       );
       setListings(res.data.listings);
     } catch (error) {
@@ -33,7 +33,7 @@ const Shop = () => {
   // Fetch categories
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/category/");
+      const res = await axios.get("https://sierra-catalogue.onrender.com/api/category/");
       setCategories(res.data.categories);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -68,7 +68,7 @@ const Shop = () => {
       }
 
       const res = await axios.post(
-        "http://localhost:5000/api/cart/add",
+        "https://sierra-catalogue.onrender.com/api/cart/add",
         {
           listingId,
           quantity: 1,
