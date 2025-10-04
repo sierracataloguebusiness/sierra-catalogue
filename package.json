@@ -1,10 +1,25 @@
 {
-  "name": "${PROJECT_NAME}",
+  "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon server.js",
+    "build": "npm install --prefix ./client && npm run build --prefix ./client && npm install",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "seedCat": "node seed/seedCategories.js",
+    "seedPro": "node seed/seedProducts.js",
+    "seedBlog": "node seed/seedBlogs.js"
   },
-  "private": true
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.18.0",
+    "nodemon": "^3.1.10"
+  }
 }
