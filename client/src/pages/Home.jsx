@@ -26,8 +26,8 @@ const Home = () => {
     const fetchData = async () => {
       try {
         const [catRes, listRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/category"), //Get all categories
-          axios.get("http://localhost:5000/api/listings?limit=15"), //Get listings(15)
+          axios.get("https://sierra-catalogue.onrender.com/api/category"), //Get all categories
+          axios.get("https://sierra-catalogue.onrender.com/api/listings?limit=15"), //Get listings(15)
         ]);
 
         setCategories(catRes.data.categories || []);
@@ -52,7 +52,7 @@ const Home = () => {
       }
 
       const res = await axios.post(
-        "http://localhost:5000/api/cart/add",
+        "https://sierra-catalogue.onrender.com/api/cart/add",
         {
           listingId,
           quantity: 1,
