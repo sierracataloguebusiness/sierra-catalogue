@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { FaRegTrashCan } from "react-icons/fa6";
 import Button from "../../component/Button.jsx";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://sierra-catalogue.onrender.com/api";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
