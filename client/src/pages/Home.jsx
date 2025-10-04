@@ -26,7 +26,7 @@ const Home = () => {
     const fetchData = async () => {
       try {
         const [catRes, listRes] = await Promise.all([
-          axios.get("http://sierra-catalogue.onrender.com/api/category"), //Get all categories
+          axios.get("http://localhost:5000/api/category"), //Get all categories
           axios.get("http://localhost:5000/api/listings?limit=15"), //Get listings(15)
         ]);
 
