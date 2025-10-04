@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body{
+        @apply bg-black text-white min-h-screen;
+    }
+
+    a.link{
+        @apply max-md:text-xl hover:text-primary-gold font-semibold border-b-2 border-transparent hover:md:border-primary-gold transition-colors duration-300;
+    }
+}
+
+@layer utilities {
+    .container{
+        @apply max-w-7xl mx-auto;
+    }
+
+    .container-fluid{
+        @apply max-w-[864px] mx-6 md:mx-auto;
+    }
+
+    /* Typography */
+    .heading{
+        @apply text-3xl text-primary-gold font-bold;
+    }
+
+    .heading-large{
+        @apply text-5xl text-primary-gold font-semibold;
+    }
+
+    .text-light{
+        @apply font-light text-gray-500;
+    }
+
+    /* Navbar */
+    .navlinks a.active{
+        @apply text-primary-gold md:border-primary-gold;
+    }
+
+    /* blog */
+    .card{
+        @apply flex py-4 md:items-center md:justify-between max-md:flex-col max-md:gap-6;
+    }
+
+    /* Form */
+    .form{
+        @apply bg-[#111] max-md:p-4 md:p-8 mx-4 shadow-lg w-full max-w-md;
+    }
+
+    input.inputCap::placeholder{
+        @apply capitalize;
+    }
+
+    /* Footer */
+    .footerLink a{
+        @apply w-fit;
+    }
+}
