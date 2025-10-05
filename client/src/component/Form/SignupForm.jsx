@@ -38,6 +38,13 @@ const SignupForm = ({
     if (!signupForm.tel.trim()) {
       newErrors.tel = "Phone number is required";
     }
+    if (
+      !/^0\d{8}$/.test(signupForm.tel) &&
+      !/^\+232\d{8}$/.test(signupForm.tel)
+    ) {
+      newErrors.tel =
+        "Phone number must be in format 0xxxxxxxx or +232xxxxxxxx";
+    }
 
     setErrors((prev) => ({ ...prev, ...newErrors }));
     return Object.keys(newErrors).length === 0;
@@ -50,7 +57,7 @@ const SignupForm = ({
         nextStep();
       }
     } else {
-      onSubmit(e); // Calls actual fetch logic from AccountForm
+      onSubmit(e);
     }
   };
 
