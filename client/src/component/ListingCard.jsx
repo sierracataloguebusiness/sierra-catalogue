@@ -60,26 +60,23 @@ const ListingCard = ({ title, description, price, images, stock, id }) => {
       <h3 className="text-headline font-semibold text-white mb-1 truncate">
         {title}
       </h3>
-      <p className="text-subheadline text-gray-400 mb-1 line-clamp-1">
-        Category / Subhead
-      </p>
       <p className="text-body text-gray-300 line-clamp-2 mb-3">{description}</p>
       <p className="text-primary-gold font-semibold text-lg mb-4">
         Nle {price}
       </p>
 
       {/* Buttons */}
-      <div className="flex flex-col gap-3 mt-auto">
+      <div className="w-full grid grid-rows-2 justify-between gap-3">
         <Button
           onClick={handleAddToCart}
           disabled={stock === 0 || adding}
-          className={`flex items-center justify-center gap-2 py-2 rounded-xl font-medium text-button transition ${
+          className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-medium transition cursor-pointer ${
             stock === 0 || adding
-              ? "bg-gray-600 text-gray-300"
-              : "bg-primary-gold text-black hover:bg-yellow-400"
+              ? "bg-gray-500 text-gray-300"
+              : "bg-primary-gold text-black"
           }`}
         >
-          <FaShoppingCart />
+          <FaShoppingCart />{" "}
           {stock === 0 ? "Pre-order" : adding ? "Adding..." : "Add to Cart"}
         </Button>
 
@@ -87,13 +84,13 @@ const ListingCard = ({ title, description, price, images, stock, id }) => {
           <Button
             style="secondary"
             disabled={stock === 0}
-            className={`flex items-center justify-center gap-2 py-2 rounded-xl font-medium text-button transition ${
+            className={`flex items-center justify-center gap-2 rounded-xl cursor-pointer ${
               stock === 0
-                ? "bg-gray-600 text-gray-300"
-                : "bg-gray-900 text-primary-gold border border-primary-gold hover:bg-primary-gold hover:text-black"
+                ? "bg-gray-500 text-gray-300"
+                : "bg-primary-gold text-black"
             }`}
           >
-            View More
+            <FaShoppingCart /> View more
           </Button>
         </Link>
       </div>
