@@ -15,11 +15,14 @@ export const AuthProvider = ({ children }) => {
       if (!storedToken) return;
 
       try {
-        const res = await fetch("http://localhost:5000/api/auth/me", {
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
+        const res = await fetch(
+          "http://sierra-catalogue.onrender.com/api/auth/me",
+          {
+            headers: {
+              Authorization: `Bearer ${storedToken}`,
+            },
           },
-        });
+        );
 
         if (!res.ok) toast.error("Failed to fetch user");
 

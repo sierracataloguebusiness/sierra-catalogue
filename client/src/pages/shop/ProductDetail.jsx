@@ -14,7 +14,9 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`https://sierra-catalogue.onrender.com/api/listings/${id}`);
+        const res = await axios.get(
+          `https://sierra-catalogue.onrender.com/api/listings/${id}`,
+        );
         setProduct(res.data);
       } catch (error) {
         console.error("Error fetching product:", error);

@@ -46,11 +46,14 @@ const AccountForm = ({ onClose, isLoginForm, setIsLoginForm }) => {
 
     try {
       setLoading(true);
-      const response = await fetch("https://sierra-catalogue.onrender.com/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(loginForm),
-      });
+      const response = await fetch(
+        "https://sierra-catalogue.onrender.com/api/auth/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(loginForm),
+        },
+      );
 
       const data = await response.json();
 
@@ -146,11 +149,14 @@ const AccountForm = ({ onClose, isLoginForm, setIsLoginForm }) => {
 
     try {
       setLoading(true);
-      const response = await fetch("https://sierra-catalogue.onrender.com/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(signupForm),
-      });
+      const response = await fetch(
+        "https://sierra-catalogue.onrender.com/api/auth/signup",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(signupForm),
+        },
+      );
 
       const data = await response.json();
 

@@ -19,7 +19,7 @@ const ListingCard = ({ title, description, price, images, stock, id }) => {
       }
 
       const res = await axios.post(
-        "http://localhost:5000/api/cart/add",
+        "http://sierra-catalogue.onrender.com/api/cart/add",
         {
           listingId: id,
           quantity: 1,

@@ -33,7 +33,9 @@ const Shop = () => {
   // Fetch categories
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("https://sierra-catalogue.onrender.com/api/category/");
+      const res = await axios.get(
+        "https://sierra-catalogue.onrender.com/api/category/",
+      );
       setCategories(res.data.categories);
     } catch (error) {
       console.error("Error fetching categories:", error);
