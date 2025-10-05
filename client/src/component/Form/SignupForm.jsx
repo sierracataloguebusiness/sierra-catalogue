@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { IoClose } from "react-icons/io5";
 import FormTitle from "./FormComponents/FormTitle.jsx";
 import FormInput from "./FormComponents/FormInput.jsx";
@@ -58,6 +58,14 @@ const SignupForm = ({
     }
   };
 
+  useEffect(() => {
+    if (errors.general) {
+      toast.error(errors.general);
+    } else {
+      toast.success("Successfully registered user");
+    }
+  }, [errors.general]);
+
   return (
     <form onSubmit={handleSubmit} className="form top-5">
       <IoClose
@@ -66,9 +74,6 @@ const SignupForm = ({
       />
 
       <FormTitle text="Sign up" />
-      {errors.general
-        ? toast.error(`${errors.general}`)
-        : toast.success("Signed up successfully.")}
 
       {step === 1 && (
         <>
