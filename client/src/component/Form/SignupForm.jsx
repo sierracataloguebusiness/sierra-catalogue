@@ -20,10 +20,38 @@ const SignupForm = ({
   const nextStep = () => setStep((prev) => prev + 1);
   const prevStep = () => setStep((prev) => prev - 1);
 
+  const validateStep1 = () => {
+    const newErrors = {};
+
+    if (!signupForm.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    }
+
+    if (!signupForm.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    }
+
+    if (!signupForm.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(signupForm.email)) {
+      newErrors.email = "Email is invalid";
+    }
+
+    if (!signupForm.tel.trim()) {
+      newErrors.tel = "Phone number is required";
+    }
+
+    setErrors((prev) => ({ ...prev, ...newErrors }));
+
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (step === 1) {
-      nextStep();
+      if (validateStep1()) {
+        nextStep();
+      }
     } else {
       onSubmit(e);
     }
