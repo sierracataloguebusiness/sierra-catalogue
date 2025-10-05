@@ -69,7 +69,9 @@ const SignupForm = ({
       />
 
       <FormTitle text="Sign up" />
-
+      {errors.general && (
+        <p className="text-red-500 text-sm mt-2">{errors.general}</p>
+      )}
       {step === 1 && (
         <>
           <div className="flex items-center justify-between gap-2">
