@@ -4,6 +4,7 @@ import FormTitle from "./FormComponents/FormTitle.jsx";
 import FormInput from "./FormComponents/FormInput.jsx";
 import Button from "../Button.jsx";
 import FormSubtext from "./FormComponents/FormSubtext.jsx";
+import { toast } from "react-toastify";
 
 const SignupForm = ({
   onSubmit,
@@ -65,9 +66,9 @@ const SignupForm = ({
       />
 
       <FormTitle text="Sign up" />
-      {errors.general && (
-        <div className="text-red-500 text-sm mb-2">{errors.general}</div>
-      )}
+      {errors.general
+        ? toast.error(`${errors.general}`)
+        : toast.success("Signed up successfully.")}
 
       {step === 1 && (
         <>
