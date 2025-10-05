@@ -41,7 +41,7 @@ const ListingCard = ({ title, description, price, images, stock, id }) => {
   };
 
   return (
-    <div className="w-72 md:w-80 lg:w-96 h-auto border border-gray-800 bg-black/30 backdrop-blur-md p-4 flex flex-col rounded-2xl shadow-md hover:shadow-lg transition-all duration-300">
+    <div className="w-64 md:w-80 lg:w-96 h-auto border border-gray-800 bg-black/30 backdrop-blur-md p-4 flex flex-col rounded-2xl shadow-md hover:shadow-lg transition-all duration-300">
       {/* Image */}
       <div className="relative w-full h-48 mb-4">
         <img
