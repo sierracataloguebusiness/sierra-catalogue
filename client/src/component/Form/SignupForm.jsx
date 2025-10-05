@@ -43,7 +43,7 @@ const SignupForm = ({
       !/^\+232\d{8}$/.test(signupForm.tel)
     ) {
       newErrors.tel =
-        "Phone number must be in format 0xxxxxxxx or +232xxxxxxxx";
+        "Phone number must be in format 0XXXXXXXX or +232XXXXXXXX";
     }
 
     setErrors((prev) => ({ ...prev, ...newErrors }));
