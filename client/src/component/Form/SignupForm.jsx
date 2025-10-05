@@ -70,7 +70,10 @@ const SignupForm = ({
 
       <FormTitle text="Sign up" />
       {errors.general && (
-        <p className="text-red-500 text-sm mt-2">{errors.general}</p>
+        <p className="text-red-500 text-sm mt-2 mb-1">{errors.general}</p>
+      )}
+      {errors.email && (
+        <p className="text-red-500 text-sm mt-2 mb-1">{errors.email}</p>
       )}
       {step === 1 && (
         <>
