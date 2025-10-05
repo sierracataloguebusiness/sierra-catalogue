@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { IoClose } from "react-icons/io5";
 import FormTitle from "./FormComponents/FormTitle.jsx";
 import FormInput from "./FormComponents/FormInput.jsx";
 import Button from "../Button.jsx";
 import FormSubtext from "./FormComponents/FormSubtext.jsx";
-import { toast } from "react-toastify";
 
 const SignupForm = ({
   onSubmit,
@@ -18,6 +17,7 @@ const SignupForm = ({
   loading,
 }) => {
   const [step, setStep] = useState(1);
+
   const nextStep = () => setStep((prev) => prev + 1);
   const prevStep = () => setStep((prev) => prev - 1);
 
@@ -27,23 +27,19 @@ const SignupForm = ({
     if (!signupForm.firstName.trim()) {
       newErrors.firstName = "First name is required";
     }
-
     if (!signupForm.lastName.trim()) {
       newErrors.lastName = "Last name is required";
     }
-
     if (!signupForm.email.trim()) {
       newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(signupForm.email)) {
-      newErrors.email = "Email is invalid";
+      newErrors.email = "Invalid email format";
     }
-
     if (!signupForm.tel.trim()) {
       newErrors.tel = "Phone number is required";
     }
 
     setErrors((prev) => ({ ...prev, ...newErrors }));
-
     return Object.keys(newErrors).length === 0;
   };
 
@@ -54,17 +50,9 @@ const SignupForm = ({
         nextStep();
       }
     } else {
-      onSubmit(e);
+      onSubmit(e); // Calls actual fetch logic from AccountForm
     }
   };
-
-  useEffect(() => {
-    if (errors.general) {
-      toast.error(errors.general);
-    } else {
-      toast.success("Successfully registered user");
-    }
-  }, [errors.general]);
 
   return (
     <form onSubmit={handleSubmit} className="form top-5">
