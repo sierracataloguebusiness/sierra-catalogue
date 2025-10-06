@@ -175,7 +175,7 @@ const Home = () => {
             No products available yet.
           </p>
         ) : (
-          <div className="justify-evenly items-center grid grid-cols-[repeat(auto-fit,minmax(288px,max-content))] gap-6">
+          <div className="justify-center items-center grid grid-cols-[repeat(auto-fit,minmax(288px,max-content))] gap-6">
             {listings.map((listing) => (
               <ListingCard
                 key={listing._id}
