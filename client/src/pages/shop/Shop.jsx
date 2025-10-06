@@ -150,7 +150,7 @@ const Shop = () => {
         {listings.length === 0 ? (
           <p className="text-center text-gray-400">No products available.</p>
         ) : (
-          <div className="grid grid-cols-auto-fit gap-6 justify-evenly items-center">
+          <div className="justify-evenly items-center grid grid-cols-[repeat(auto-fit,minmax(288px,max-content))] gap-6">
             {listings.map((listing) => (
               <ListingCard
                 key={listing._id}
