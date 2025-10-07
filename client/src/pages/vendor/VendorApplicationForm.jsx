@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import FormInput from "../../component/Form/FormComponents/FormInput.jsx";
 import Button from "../../component/Button.jsx";
+import { toast } from "react-toastify";
 
 const VendorApplicationForm = () => {
   const [formData, setFormData] = useState({ name: "", phone: "", email: "" });
@@ -26,15 +27,17 @@ const VendorApplicationForm = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || "Something went wrong.");
+        toast.error(data.message || "Something went wrong.");
         return;
       }
 
-      alert("Your application has been submitted! We will contact you soon.");
+      toast.success(
+        "Your application has been submitted! We will contact you soon.",
+      );
       setFormData({ name: "", phone: "", email: "" });
     } catch (err) {
       console.error("Submission error:", err);
-      alert("Failed to submit application. Please try again.");
+      toast.error("Failed to submit application. Please try again.");
     }
   };
 
