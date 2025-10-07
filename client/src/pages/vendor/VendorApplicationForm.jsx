@@ -10,11 +10,32 @@ const VendorApplicationForm = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Vendor Application Submitted:", formData);
-    alert("Your application has been submitted! We will contact you soon.");
-    setFormData({ name: "", phone: "", email: "" });
+
+    try {
+      const response = await fetch(
+        "http://sierra-catalogue.onrender.com/api/postvendor-applications",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Something went wrong.");
+        return;
+      }
+
+      alert("Your application has been submitted! We will contact you soon.");
+      setFormData({ name: "", phone: "", email: "" });
+    } catch (err) {
+      console.error("Submission error:", err);
+      alert("Failed to submit application. Please try again.");
+    }
   };
 
   return (
