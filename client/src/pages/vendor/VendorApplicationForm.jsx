@@ -15,7 +15,7 @@ const VendorApplicationForm = () => {
 
     try {
       const response = await fetch(
-        "http://sierra-catalogue.onrender.com/api/postvendor-applications",
+        "https://sierra-catalogue.onrender.com/api/postvendor-applications",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
