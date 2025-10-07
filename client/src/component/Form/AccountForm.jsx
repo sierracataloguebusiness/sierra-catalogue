@@ -3,9 +3,11 @@ import LoginForm from "./LoginForm.jsx";
 import SignupForm from "./SignupForm.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const AccountForm = ({ onClose, isLoginForm, setIsLoginForm }) => {
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   /* Loading state */
   const [loading, setLoading] = useState(false);
@@ -74,6 +76,7 @@ const AccountForm = ({ onClose, isLoginForm, setIsLoginForm }) => {
 
       login(data.token);
       toast.success("Login successful");
+      navigate("/shop");
       onClose();
     } catch (err) {
       setLoginErrors({ email: "", password: "", general: err.message });
