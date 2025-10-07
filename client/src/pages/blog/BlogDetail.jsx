@@ -10,7 +10,7 @@ const BlogDetail = () => {
     const fetchBlog = async () => {
       try {
         const res = await axios.get(
-          `http://sierra-catalogue.onrender.com/api/blogs/${id}`,
+          `https://sierra-catalogue.onrender.com/api/blogs/${id}`,
         );
         setBlog(res.data);
       } catch (err) {

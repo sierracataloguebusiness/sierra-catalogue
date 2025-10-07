@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
 
       try {
         const res = await fetch(
-          "http://sierra-catalogue.onrender.com/api/auth/me",
+          "https://sierra-catalogue.onrender.com/api/auth/me",
           {
             headers: {
               Authorization: `Bearer ${storedToken}`,
