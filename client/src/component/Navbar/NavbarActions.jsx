@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { IoMenu } from "react-icons/io5";
 import { FaRegUser, FaUserCircle } from "react-icons/fa";
 import { BiShoppingBag } from "react-icons/bi";
@@ -11,9 +11,24 @@ const NavbarActions = ({
   onUserClick,
   isAuthenticated,
   logout,
-  user = { name: "Aaron Allieu", image: "/default-profile.jpg" },
+  user,
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const currentUser = user || {
+    name: "Guest User",
+    image: "/default-profile.jpg",
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="relative flex items-center gap-x-4">
@@ -22,22 +37,22 @@ const NavbarActions = ({
       </Link>
 
       {isAuthenticated ? (
-        <div className="relative">
+        <div ref={dropdownRef} className="relative">
           <FaUserCircle
             className="cursor-pointer size-7 text-gold-500"
-            onClick={() => setDropdownOpen(!dropdownOpen)}
+            onClick={() => setDropdownOpen((prev) => !prev)}
           />
 
           {dropdownOpen && (
             <div className="absolute right-0 mt-3 w-56 bg-black/95 text-gold-400 rounded-2xl shadow-lg border border-gold-700 p-3 z-50 transition-all duration-200 animate-fade-in">
               <div className="flex items-center gap-3 border-b border-gold-700 pb-3 mb-2">
                 <img
-                  src={user.image}
+                  src={currentUser.image}
                   alt="Profile"
                   className="w-10 h-10 rounded-full object-cover"
                 />
                 <div>
-                  <p className="font-semibold text-white">{user.name}</p>
+                  <p className="font-semibold text-white">{currentUser.name}</p>
                   <Link
                     to="/profile"
                     className="text-xs text-gold-400 hover:underline"
@@ -64,7 +79,10 @@ const NavbarActions = ({
               </Link>
 
               <button
-                onClick={logout}
+                onClick={() => {
+                  logout();
+                  setDropdownOpen(false);
+                }}
                 className="w-full text-left mt-2 py-2 text-red-500 hover:text-red-400"
               >
                 Logout
@@ -81,9 +99,10 @@ const NavbarActions = ({
 
       <Button
         to="/vendor-application"
-        children="List now"
         className="max-md:hidden bg-gold-500 text-black font-semibold"
-      />
+      >
+        List now
+      </Button>
 
       <IoMenu
         className={`cursor-pointer size-8 md:hidden text-gold-500 ${
