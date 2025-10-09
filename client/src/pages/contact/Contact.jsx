@@ -150,19 +150,19 @@ const Contact = () => {
             <div className="flex flex-col gap-4">
               <ContactStripElement
                 icon={<FaWhatsapp />}
-                to={
-                  "https://wa.me/23276325542?text=Hello%2C%20I%20would%20like%20to%20inquire%20about%20your%20services"
-                }
+                to={"https://wa.me/23276325542"}
                 content={"Message us on WhatsApp"}
               />
               <ContactStripElement
                 icon={<FaInstagram />}
-                to={"#"}
+                to={
+                  "https://www.instagram.com/sierracatalogue?igsh=NTZ0eWdlc2luOHJ4"
+                }
                 content={"Get a hold us on instagram"}
               />
               <ContactStripElement
                 icon={<FaTiktok />}
-                to={"#"}
+                to={"https://tiktok.com/@sierracatalogue"}
                 content={"View our tiktok page"}
               />
             </div>

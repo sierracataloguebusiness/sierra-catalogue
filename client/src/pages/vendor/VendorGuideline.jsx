@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import Button from "../../component/Button.jsx";
 
 const VendorGuidelinesMVP = () => {
@@ -86,7 +85,7 @@ const VendorGuidelinesMVP = () => {
             </a>{" "}
           </p>
           <p>
-            Email:{" "}
+            Phone number:{" "}
             <a
               href="tel:+23276325542"
               className="text-primary-gold hover:underline"
