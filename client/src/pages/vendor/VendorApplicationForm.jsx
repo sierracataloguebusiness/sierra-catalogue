@@ -32,6 +32,7 @@ const VendorApplicationForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(formData);
     if (!validateForm()) {
       toast.warning("Please fix the highlighted errors.");
       return;
