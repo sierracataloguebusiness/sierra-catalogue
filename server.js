@@ -12,7 +12,7 @@ import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import contactMessageRoutes from "./routes/contactMessageRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
-import vendorApplication from "./models/VendorApplication.js";
+import vendorApplicationRoutes from "./routes/vendorApplicationRoutes.js";
 
 dotenv.config();
 
@@ -43,7 +43,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/messages', contactMessageRoutes);
 app.use('/api/blogs', blogRoutes);
-app.use('/api/vendorApplication', vendorApplication);
+app.use('/api/vendorApplication', vendorApplicationRoutes);
 
 
 // Serve frontend
