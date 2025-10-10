@@ -8,43 +8,18 @@ import { useNavigate } from "react-router-dom";
 const AccountForm = ({ onClose, isLoginForm, setIsLoginForm }) => {
   const { login } = useAuth();
   const navigate = useNavigate();
-
-  /* Loading state */
   const [loading, setLoading] = useState(false);
 
-  /* Login */
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
-  const [loginErrors, setLoginErrors] = useState({
-    email: "",
-    password: "",
-    general: "",
-  });
+  const [loginErrors, setLoginErrors] = useState({});
 
   const handleLoginChange = (e) => {
     setLoginForm({ ...loginForm, [e.target.name]: e.target.value });
-    setLoginErrors((prev) => ({ ...prev, [e.target.name]: "" }));
+    setLoginErrors({});
   };
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    setLoginErrors({ email: "", password: "", general: "" });
-
-    let hasError = false;
-    const newErrors = { email: "", password: "", general: "" };
-
-    if (!loginForm.email) {
-      newErrors.email = "Email is required.";
-      hasError = true;
-    }
-    if (!loginForm.password) {
-      newErrors.password = "Password is required.";
-      hasError = true;
-    }
-
-    if (hasError) {
-      setLoginErrors(newErrors);
-      return;
-    }
 
     try {
       setLoading(true);
@@ -58,97 +33,48 @@ const AccountForm = ({ onClose, isLoginForm, setIsLoginForm }) => {
       );
 
       const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Login failed");
 
-      if (!response.ok) {
-        if (data.message?.includes("email")) {
-          setLoginErrors({ email: data.message, password: "", general: "" });
-        } else if (data.message?.includes("password")) {
-          setLoginErrors({ email: "", password: data.message, general: "" });
-        } else {
-          setLoginErrors({ email: "", password: "", general: data.message });
-        }
-        return;
+      login(data.token, data.user);
+      toast.success("Login successful");
+
+      switch (data.user.role) {
+        case "admin":
+          navigate("/dashboard/admin");
+          break;
+        case "vendor":
+          navigate("/dashboard/vendor");
+          break;
+        default:
+          navigate("/dashboard/customer");
       }
 
-      localStorage.setItem("token", data.token);
-      setLoginForm({ email: "", password: "" });
-      setLoginErrors({ email: "", password: "", general: "" });
-
-      login(data.token);
-      toast.success("Login successful");
-      navigate("/shop");
       onClose();
     } catch (err) {
-      setLoginErrors({ email: "", password: "", general: err.message });
-      toast.error("Login failed");
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  /* Signup */
-  const initialSignupState = {
+  const [signupForm, setSignupForm] = useState({
     firstName: "",
     lastName: "",
-    otherNames: "",
     tel: "",
     email: "",
     address: "",
     password: "",
     confirmPassword: "",
-  };
-
-  const [signupForm, setSignupForm] = useState(initialSignupState);
-  const [signupErrors, setSignupErrors] = useState({
-    ...initialSignupState,
-    general: "",
   });
+  const [signupErrors, setSignupErrors] = useState({});
 
   const handleSignupChange = (e) => {
     setSignupForm({ ...signupForm, [e.target.name]: e.target.value });
-    setSignupErrors({ ...signupErrors, [e.target.name]: "", general: "" });
+    setSignupErrors({});
   };
 
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
-    setSignupErrors({ ...initialSignupState, general: "" });
-
-    const newErrors = { ...initialSignupState, general: "" };
-    let hasError = false;
-
-    if (!signupForm.firstName) {
-      newErrors.firstName = "First name is required.";
-      hasError = true;
-    }
-    if (!signupForm.lastName) {
-      newErrors.lastName = "Last name is required.";
-      hasError = true;
-    }
-    if (!signupForm.email) {
-      newErrors.email = "Email is required.";
-      hasError = true;
-    }
-    if (!signupForm.address) {
-      newErrors.address = "Address is required.";
-      hasError = true;
-    }
-    if (!signupForm.tel) {
-      newErrors.tel = "Enter a valid phone number.";
-      hasError = true;
-    }
-    if (!signupForm.password) {
-      newErrors.password = "Password is required.";
-      hasError = true;
-    }
-    if (signupForm.password !== signupForm.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match.";
-      hasError = true;
-    }
-
-    if (hasError) {
-      setSignupErrors(newErrors);
-      return;
-    }
 
     try {
       setLoading(true);
@@ -162,63 +88,47 @@ const AccountForm = ({ onClose, isLoginForm, setIsLoginForm }) => {
       );
 
       const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Signup failed");
 
-      if (!response.ok) {
-        if (data.message?.includes("email")) {
-          setSignupErrors((prev) => ({ ...prev, email: data.message }));
-        } else if (data.message?.includes("Passwords")) {
-          setSignupErrors((prev) => ({
-            ...prev,
-            confirmPassword: data.message,
-          }));
-        } else {
-          setSignupErrors((prev) => ({ ...prev, general: data.message }));
-        }
-        return;
-      }
-
-      localStorage.setItem("token", data.token);
-      setSignupForm(initialSignupState);
-      setSignupErrors({ ...initialSignupState, general: "" });
-
-      toast.success("Signup successful");
-      onClose();
+      toast.success("Signup successful! Please login.");
+      setIsLoginForm(true);
+      setSignupForm({
+        firstName: "",
+        lastName: "",
+        tel: "",
+        email: "",
+        address: "",
+        password: "",
+        confirmPassword: "",
+      });
     } catch (err) {
-      setSignupErrors((prev) => ({
-        ...prev,
-        general: err.message || "Something went wrong",
-      }));
-      toast.error("Signup failed");
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="h-screen fixed top-0 w-full flex items-center justify-center z-50 backdrop-blur-sm">
+    <div className="fixed top-0 left-0 w-full h-screen flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
       {isLoginForm ? (
         <LoginForm
           onSubmit={handleLoginSubmit}
           onClose={onClose}
           onChange={handleLoginChange}
-          loginForm={loginForm}
-          setIsLoginForm={setIsLoginForm}
+          formData={loginForm}
           errors={loginErrors}
-          setErrors={setLoginErrors}
-          setLoginForm={setLoginForm}
           loading={loading}
+          setIsLoginForm={setIsLoginForm}
         />
       ) : (
         <SignupForm
           onSubmit={handleSignupSubmit}
           onClose={onClose}
           onChange={handleSignupChange}
-          signupForm={signupForm}
-          setIsLoginForm={setIsLoginForm}
+          formData={signupForm}
           errors={signupErrors}
-          setErrors={setSignupErrors}
-          setSignupForm={setSignupForm}
           loading={loading}
+          setIsLoginForm={setIsLoginForm}
         />
       )}
     </div>
