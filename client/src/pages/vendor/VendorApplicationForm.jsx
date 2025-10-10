@@ -40,7 +40,7 @@ const VendorApplicationForm = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(
+      const res = await fetch(
         "https://sierra-catalogue.onrender.com/api/vendorApplication/post-vendor-application",
         {
           method: "POST",
@@ -49,9 +49,9 @@ const VendorApplicationForm = () => {
         },
       );
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (!response.ok) {
+      if (!res.ok) {
         toast.error(data.message || "Something went wrong.");
         return;
       }
