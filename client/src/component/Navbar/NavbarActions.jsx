@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { IoMenu } from "react-icons/io5";
 import { FaRegUser, FaUserCircle } from "react-icons/fa";
 import { BiShoppingBag } from "react-icons/bi";
@@ -11,24 +11,45 @@ const NavbarActions = ({
   onUserClick,
   isAuthenticated,
   logout,
-  user,
+  user = {
+    name: "Aaron Allieu",
+    role: "customer", // can be "admin", "vendor", or "customer"
+    image: "/default-profile.jpg",
+  },
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
-  const currentUser = user || {
-    name: "Guest User",
-    image: "/default-profile.jpg",
+
+  // Define role-based menu items
+  const getMenuItems = () => {
+    switch (user.role) {
+      case "vendor":
+        return [
+          { name: "Dashboard", link: "/dashboard/vendor" },
+          { name: "Shop", link: "/dashboard/vendor/shop" },
+          { name: "Orders", link: "/dashboard/vendor/orders" },
+          { name: "Favorites", link: "/dashboard/vendor/favorites" },
+          { name: "Settings", link: "/dashboard/vendor/settings" },
+          { name: "Help", link: "/dashboard/vendor/help" },
+        ];
+      case "admin":
+        return [
+          { name: "Admin Panel", link: "/dashboard/admin" },
+          { name: "Manage Users", link: "/dashboard/admin/users" },
+          { name: "Manage Vendors", link: "/dashboard/admin/vendors" },
+          { name: "Settings", link: "/dashboard/admin/settings" },
+        ];
+      default: // customer
+        return [
+          { name: "Dashboard", link: "/dashboard/customer" },
+          { name: "Orders", link: "/dashboard/customer/orders" },
+          { name: "Favorites", link: "/dashboard/customer/favorites" },
+          { name: "Settings", link: "/dashboard/customer/settings" },
+          { name: "Help", link: "/dashboard/customer/help" },
+        ];
+    }
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const menuItems = getMenuItems();
 
   return (
     <div className="relative flex items-center gap-x-4">
@@ -37,24 +58,25 @@ const NavbarActions = ({
       </Link>
 
       {isAuthenticated ? (
-        <div ref={dropdownRef} className="relative">
+        <div className="relative">
           <FaUserCircle
             className="cursor-pointer size-7 text-gold-500"
-            onClick={() => setDropdownOpen((prev) => !prev)}
+            onClick={() => setDropdownOpen(!dropdownOpen)}
           />
 
           {dropdownOpen && (
-            <div className="absolute right-0 mt-3 w-56 bg-black/95 text-gold-400 rounded-2xl shadow-lg border border-gold-700 p-3 z-50 transition-all duration-200 animate-fade-in">
+            <div className="absolute right-0 mt-3 w-56 bg-black/95 text-gold-400 rounded-2xl shadow-lg border border-gold-700 p-3 z-50 animate-fade-in">
+              {/* Profile header */}
               <div className="flex items-center gap-3 border-b border-gold-700 pb-3 mb-2">
                 <img
-                  src={currentUser.image}
+                  src={user.image}
                   alt="Profile"
                   className="w-10 h-10 rounded-full object-cover"
                 />
                 <div>
-                  <p className="font-semibold text-white">{currentUser.name}</p>
+                  <p className="font-semibold text-white">{user.name}</p>
                   <Link
-                    to="/profile"
+                    to={`/dashboard/${user.role}/profile`}
                     className="text-xs text-gold-400 hover:underline"
                   >
                     View Profile
@@ -62,22 +84,19 @@ const NavbarActions = ({
                 </div>
               </div>
 
-              <Link to="/dashboard" className="block py-2 hover:text-white">
-                Dashboard
-              </Link>
-              <Link to="/orders" className="block py-2 hover:text-white">
-                Orders
-              </Link>
-              <Link to="/favorites" className="block py-2 hover:text-white">
-                Favorites
-              </Link>
-              <Link to="/settings" className="block py-2 hover:text-white">
-                Settings
-              </Link>
-              <Link to="/help" className="block py-2 hover:text-white">
-                Help
-              </Link>
+              {/* Dynamic links */}
+              {menuItems.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.link}
+                  className="block py-2 hover:text-white transition-colors"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              ))}
 
+              {/* Logout */}
               <button
                 onClick={() => {
                   logout();
@@ -99,10 +118,9 @@ const NavbarActions = ({
 
       <Button
         to="/vendor-application"
+        children="List now"
         className="max-md:hidden bg-gold-500 text-black font-semibold"
-      >
-        List now
-      </Button>
+      />
 
       <IoMenu
         className={`cursor-pointer size-8 md:hidden text-gold-500 ${
