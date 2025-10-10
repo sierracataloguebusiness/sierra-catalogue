@@ -1,58 +1,37 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
 
-  const isAuthenticated = !!token;
-
   useEffect(() => {
-    const fetchUser = async () => {
-      const storedToken = localStorage.getItem("token");
-      if (!storedToken) return;
+    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user");
 
-      try {
-        const res = await fetch(
-          "https://sierra-catalogue.onrender.com/api/auth/me",
-          {
-            headers: {
-              Authorization: `Bearer ${storedToken}`,
-            },
-          },
-        );
-
-        if (!res.ok) toast.error("Failed to fetch user");
-
-        const data = await res.json();
-
-        setUser(data.user);
-        setToken(storedToken);
-      } catch (err) {
-        logout();
-      }
-    };
-
-    fetchUser();
+    if (token && userData) {
+      setIsAuthenticated(true);
+      setUser(JSON.parse(userData));
+    }
   }, []);
 
-  const login = (token) => {
+  const login = (userData, token) => {
     localStorage.setItem("token", token);
-    setToken(token);
+    localStorage.setItem("user", JSON.stringify(userData));
+    setUser(userData);
+    setIsAuthenticated(true);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
-    setToken(null);
+    localStorage.removeItem("user");
     setUser(null);
+    setIsAuthenticated(false);
   };
 
   return (
-    <AuthContext.Provider
-      value={{ token, user, isAuthenticated, login, logout }}
-    >
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
