@@ -12,14 +12,13 @@ const NavbarActions = ({
   isAuthenticated,
   logout,
   user = {
-    name: "Aaron Allieu",
-    role: "customer", // can be "admin", "vendor", or "customer"
+    name: "Guest user",
+    role: "customer",
     image: "/default-profile.jpg",
   },
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // Define role-based menu items
   const getMenuItems = () => {
     switch (user.role) {
       case "vendor":
@@ -38,7 +37,7 @@ const NavbarActions = ({
           { name: "Manage Vendors", link: "/dashboard/admin/vendors" },
           { name: "Settings", link: "/dashboard/admin/settings" },
         ];
-      default: // customer
+      default:
         return [
           { name: "Dashboard", link: "/dashboard/customer" },
           { name: "Orders", link: "/dashboard/customer/orders" },
