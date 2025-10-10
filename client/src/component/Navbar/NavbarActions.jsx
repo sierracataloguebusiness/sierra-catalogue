@@ -11,16 +11,17 @@ const NavbarActions = ({
   onUserClick,
   isAuthenticated,
   logout,
-  user = {
+  user,
+}) => {
+  const currentUser = user || {
     name: "Guest user",
     role: "customer",
     image: "/default-profile.jpg",
-  },
-}) => {
+  };
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const getMenuItems = () => {
-    switch (user.role) {
+    switch (currentUser.role) {
       case "vendor":
         return [
           { name: "Dashboard", link: "/dashboard/vendor" },
@@ -68,14 +69,14 @@ const NavbarActions = ({
               {/* Profile header */}
               <div className="flex items-center gap-3 border-b border-gold-700 pb-3 mb-2">
                 <img
-                  src={user.image}
+                  src={currentUser.image}
                   alt="Profile"
                   className="w-10 h-10 rounded-full object-cover"
                 />
                 <div>
-                  <p className="font-semibold text-white">{user.name}</p>
+                  <p className="font-semibold text-white">{currentUser.name}</p>
                   <Link
-                    to={`/dashboard/${user.role}/profile`}
+                    to={`/dashboard/${currentUser.role}/profile`}
                     className="text-xs text-gold-400 hover:underline"
                   >
                     View Profile
