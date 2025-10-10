@@ -115,8 +115,10 @@ const AccountForm = ({ onClose, isLoginForm, setIsLoginForm }) => {
           onSubmit={handleLoginSubmit}
           onClose={onClose}
           onChange={handleLoginChange}
-          formData={loginForm}
+          loginForm={loginForm}
+          setLoginForm={setLoginForm}
           errors={loginErrors}
+          setErrors={setLoginErrors}
           loading={loading}
           setIsLoginForm={setIsLoginForm}
         />
@@ -125,8 +127,10 @@ const AccountForm = ({ onClose, isLoginForm, setIsLoginForm }) => {
           onSubmit={handleSignupSubmit}
           onClose={onClose}
           onChange={handleSignupChange}
-          formData={signupForm}
+          signupForm={signupForm}
+          setSignupForm={setSignupForm}
           errors={signupErrors}
+          setErrors={setSignupErrors}
           loading={loading}
           setIsLoginForm={setIsLoginForm}
         />
