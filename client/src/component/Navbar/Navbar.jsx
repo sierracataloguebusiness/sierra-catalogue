@@ -10,7 +10,7 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isLoginForm, setIsLoginForm] = useState(true);
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
 
   return (
     <>
@@ -30,9 +30,11 @@ const Navbar = () => {
                 setIsLoginForm(true);
               }
             }}
+            user={user}
             isAuthenticated={isAuthenticated}
             logout={() => {
               logout();
+              navigate("/");
             }}
           />
         </div>

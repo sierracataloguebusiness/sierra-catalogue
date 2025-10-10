@@ -46,7 +46,7 @@ const AccountForm = ({ onClose, isLoginForm, setIsLoginForm }) => {
           navigate("/dashboard/vendor");
           break;
         default:
-          navigate("/dashboard/customer");
+          navigate("/shop");
       }
 
       onClose();
