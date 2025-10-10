@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { IoMenu } from "react-icons/io5";
 import { FaRegUser, FaUserCircle } from "react-icons/fa";
 import { BiShoppingBag } from "react-icons/bi";
@@ -13,12 +13,30 @@ const NavbarActions = ({
   logout,
   user,
 }) => {
-  const currentUser = user || {
-    name: "Guest user",
-    role: "customer",
-    image: "/default-profile.jpg",
-  };
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const currentUser = user
+    ? {
+        name: `${user.firstName || ""}`.trim() || user.name || "Guest user",
+        role: user.role || "customer",
+        image: user.image || "/default-profile.jpg",
+      }
+    : {
+        name: "Guest user",
+        role: "customer",
+        image: "/default-profile.jpg",
+      };
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const getMenuItems = () => {
     switch (currentUser.role) {
@@ -58,10 +76,10 @@ const NavbarActions = ({
       </Link>
 
       {isAuthenticated ? (
-        <div className="relative">
+        <div className="relative" ref={dropdownRef}>
           <FaUserCircle
             className="cursor-pointer size-7 text-gold-500"
-            onClick={() => setDropdownOpen(!dropdownOpen)}
+            onClick={() => setDropdownOpen((prev) => !prev)}
           />
 
           {dropdownOpen && (
@@ -74,10 +92,13 @@ const NavbarActions = ({
                   className="w-10 h-10 rounded-full object-cover"
                 />
                 <div>
-                  <p className="font-semibold text-white">{currentUser.name}</p>
+                  <p className="font-semibold text-white truncate">
+                    {currentUser.name}
+                  </p>
                   <Link
                     to={`/dashboard/${currentUser.role}/profile`}
                     className="text-xs text-gold-400 hover:underline"
+                    onClick={() => setDropdownOpen(false)}
                   >
                     View Profile
                   </Link>
