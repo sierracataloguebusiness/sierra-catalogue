@@ -15,10 +15,13 @@ const AdminPanel = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
+        const token = localStorage.getItem("token"); // or from your auth context
         const res = await axios.get(
           "https://sierra-catalogue.onrender.com/api/admin/stats",
           {
-            withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
         );
         setStats(res.data);
