@@ -1,8 +1,12 @@
+import User from "../models/User.js";
+import Listing from "../models/Listing.js";
+import Order from "../models/Order.js";
+
 export const getAdminStats = async (req, res) => {
     try {
         const totalUsers = await User.countDocuments();
         const vendors = await User.countDocuments({ role: "vendor" });
-        const activeProducts = await Product.countDocuments({ status: "active" });
+        const activeProducts = await Listing.countDocuments({ status: "active" });
         const revenue = await Order.aggregate([
             { $group: { _id: null, total: { $sum: "$totalAmount" } } },
         ]);
