@@ -20,6 +20,7 @@ import ScrollToTop from "./component/ScrollToTop.jsx";
 import FAQ from "./pages/FAQ.jsx";
 import ComingSoon from "./pages/ComingSoon.jsx";
 import TermsOfService from "./pages/TermsOfService.jsx";
+import AccessDenied from "./pages/AccessDenied.jsx";
 
 const App = () => {
   function Layout() {
@@ -85,6 +86,7 @@ const App = () => {
           }
         />
         <Route path="*" element={<NotFound />} />
+        <Route path="/403" element={<AccessDenied />} />
       </Routes>
 
       <Footer />
