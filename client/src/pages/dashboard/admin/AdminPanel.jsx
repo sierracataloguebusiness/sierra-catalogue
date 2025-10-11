@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaUsers, FaStore, FaBoxOpen, FaDollarSign } from "react-icons/fa";
+import { useAuth } from "../../../context/AuthContext.jsx";
+import { toast } from "react-toastify";
 
 const AdminPanel = () => {
+  const { token } = useAuth();
   const [stats, setStats] = useState({
-    totalUsers: 0,
+    users: 0,
     vendors: 0,
-    activeProducts: 0,
+    products: 0,
     revenue: 0,
   });
-
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem("token"); // or from your auth context
         const res = await axios.get(
           "https://sierra-catalogue.onrender.com/api/admin/stats",
           {
@@ -25,20 +25,19 @@ const AdminPanel = () => {
           },
         );
         setStats(res.data);
-      } catch (error) {
-        console.error("Error fetching admin stats:", error);
-      } finally {
-        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching admin stats:", err);
+        toast.error("Failed to load admin stats");
       }
     };
 
-    fetchStats();
-  }, []);
+    if (token) fetchStats();
+  }, [token]);
 
-  const statCards = [
+  const cards = [
     {
       title: "Total Users",
-      value: stats.totalUsers,
+      value: stats.users,
       icon: <FaUsers />,
       color: "text-yellow-500",
     },
@@ -50,24 +49,17 @@ const AdminPanel = () => {
     },
     {
       title: "Active Products",
-      value: stats.activeProducts,
+      value: stats.products,
       icon: <FaBoxOpen />,
       color: "text-yellow-300",
     },
     {
       title: "Revenue",
-      value: `$${stats.revenue.toLocaleString()}`,
+      value: `Nle${stats.revenue}`,
       icon: <FaDollarSign />,
       color: "text-yellow-500",
     },
   ];
-
-  if (loading)
-    return (
-      <div className="text-center text-gray-400 py-10">
-        Loading dashboard...
-      </div>
-    );
 
   return (
     <div>
@@ -76,17 +68,17 @@ const AdminPanel = () => {
       </h1>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat, index) => (
+        {cards.map((card, i) => (
           <div
-            key={index}
+            key={i}
             className="bg-[#111] border border-gray-800 rounded-2xl p-6 flex items-center gap-4 shadow-lg hover:shadow-yellow-500/20 transition"
           >
-            <div className={`p-3 bg-black rounded-full text-lg ${stat.color}`}>
-              {stat.icon}
+            <div className={`p-3 bg-black rounded-full text-lg ${card.color}`}>
+              {card.icon}
             </div>
             <div>
-              <p className="text-gray-400 text-sm">{stat.title}</p>
-              <h2 className="text-2xl font-bold text-white">{stat.value}</h2>
+              <p className="text-gray-400 text-sm">{card.title}</p>
+              <h2 className="text-2xl font-bold text-white">{card.value}</h2>
             </div>
           </div>
         ))}
@@ -97,12 +89,9 @@ const AdminPanel = () => {
           Recent Activity
         </h2>
         <ul className="text-gray-400 text-sm space-y-2">
-          <li>
-            ✅ New vendor registered:{" "}
-            <span className="text-yellow-400">TechZone SL</span>
-          </li>
-          <li>📦 12 new products added today</li>
-          <li>💬 3 customer feedback messages received</li>
+          <li>✅ New vendor registered</li>
+          <li>📦 Products added</li>
+          <li>💬 Customer feedback received</li>
         </ul>
       </div>
     </div>
