@@ -1,40 +1,41 @@
 import React from "react";
-import Navbar from "./component/Navbar/Navbar.jsx";
 import { Route, Routes, useLocation } from "react-router-dom";
-import Home from "./pages/Home.jsx";
-import Shop from "./pages/shop/Shop.jsx";
-import Blog from "./pages/blog/Blog.jsx";
-import Contact from "./pages/contact/Contact.jsx";
-import Dashboard from "./pages/dashboard/Dashboard.jsx";
+import Navbar from "./component/Navbar/Navbar.jsx";
+import Footer from "./component/Footer/Footer.jsx";
+import ScrollToTop from "./component/ScrollToTop.jsx";
 import PrivateRoute from "./component/ProtectedRoute.jsx";
 import { ToastContainer, Slide } from "react-toastify";
-import BlogDetail from "./pages/blog/BlogDetail.jsx";
+
+// Layout
+import DashboardLayout from "./pages/dashboard/DashboardLayout.jsx";
+
+// Pages
+import Home from "./pages/Home.jsx";
+import Shop from "./pages/shop/Shop.jsx";
 import ProductDetail from "./pages/shop/ProductDetail.jsx";
+import Blog from "./pages/blog/Blog.jsx";
+import BlogDetail from "./pages/blog/BlogDetail.jsx";
+import Contact from "./pages/contact/Contact.jsx";
 import Cart from "./pages/shop/Cart.jsx";
-import Footer from "./component/Footer/Footer.jsx";
 import Checkout from "./pages/shop/CheckOut.jsx";
 import VendorGuideline from "./pages/vendor/VendorGuideline.jsx";
 import VendorApplicationForm from "./pages/vendor/VendorApplicationForm.jsx";
-import NotFound from "./pages/NotFound.jsx";
-import ScrollToTop from "./component/ScrollToTop.jsx";
 import FAQ from "./pages/FAQ.jsx";
 import ComingSoon from "./pages/ComingSoon.jsx";
 import TermsOfService from "./pages/TermsOfService.jsx";
 import AccessDenied from "./pages/AccessDenied.jsx";
+import NotFound from "./pages/NotFound.jsx";
+
+// Dashboard Pages
+import Dashboard from "./pages/dashboard/Dashboard.jsx";
 import AdminPanel from "./pages/dashboard/admin/AdminPanel.jsx";
 import AdminManageUsers from "./pages/dashboard/admin/AdminManageUsers.jsx";
 import AdminManageVendors from "./pages/dashboard/admin/AdminManageVendors.jsx";
 
 const App = () => {
-  function Layout() {
-    const location = useLocation();
+  const location = useLocation();
 
-    const hideNavbarRoutes = ["/dashboard"];
-
-    const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname);
-
-    return <>{!shouldHideNavbar && <Navbar />}</>;
-  }
+  const isDashboardRoute = location.pathname.startsWith("/dashboard");
 
   return (
     <>
@@ -52,8 +53,10 @@ const App = () => {
         transition={Slide}
       />
 
-      <Layout />
       <ScrollToTop />
+
+      {!isDashboardRoute && <Navbar />}
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/shop" element={<Shop />} />
@@ -66,60 +69,63 @@ const App = () => {
         <Route path="/vendor-guidelines" element={<VendorGuideline />} />
         <Route path="/vendor-application" element={<VendorApplicationForm />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
-        <Route
-          path="/dashboard"
-          element={<PrivateRoute children={<Dashboard />} />}
-        />
+        <Route path="/403" element={<AccessDenied />} />
+        <Route path="*" element={<NotFound />} />
+
+        {/* Cart & Checkout (protected) */}
         <Route
           path="/cart"
           element={
-            <PrivateRoute
-              allowedRoles={["customer", "vendor"]}
-              children={<Cart />}
-            />
+            <PrivateRoute allowedRoles={["customer", "vendor"]}>
+              <Cart />
+            </PrivateRoute>
           }
         />
         <Route
           path="/checkout"
           element={
-            <PrivateRoute
-              allowedRoles={["customer", "vendor"]}
-              children={<Checkout />}
-            />
+            <PrivateRoute allowedRoles={["customer", "vendor"]}>
+              <Checkout />
+            </PrivateRoute>
           }
         />
-        <Route path="*" element={<NotFound />} />
-        <Route path="/403" element={<AccessDenied />} />
 
-        {/* Admin Dashboard */}
         <Route
-          path="/dashboard/admin"
+          path="/dashboard/*"
           element={
-            <PrivateRoute allowedRoles={"admin"} children={<AdminPanel />} />
+            <PrivateRoute>
+              <DashboardLayout />
+            </PrivateRoute>
           }
-        />
-        <Route
-          path="/dashboard/admin/users"
-          element={
-            <PrivateRoute
-              allowedRoles={"admin"}
-              children={<AdminManageUsers />}
-            />
-          }
-        />
-        <Route
-          path="/dashboard/admin/vendors"
-          element={
-            <PrivateRoute
-              allowedRoles={"admin"}
-              children={<AdminManageVendors />}
-            />
-          }
-        />
+        >
+          <Route index element={<Dashboard />} />
+
+          {/* Admin Routes */}
+          <Route path="admin" element={<AdminPanel />} />
+          <Route path="admin/users" element={<AdminManageUsers />} />
+          <Route path="admin/vendors" element={<AdminManageVendors />} />
+
+          {/* Vendor Routes */}
+          <Route path="vendor" element={<Dashboard />} />
+          <Route path="vendor/shop" element={<div>Vendor Shop</div>} />
+          <Route path="vendor/orders" element={<div>Vendor Orders</div>} />
+          <Route
+            path="vendor/favorites"
+            element={<div>Vendor Favorites</div>}
+          />
+          <Route path="vendor/settings" element={<div>Vendor Settings</div>} />
+
+          {/* Customer Routes */}
+          <Route path="customer" element={<Dashboard />} />
+          <Route path="customer/orders" element={<div>Customer Orders</div>} />
+          <Route path="customer/favorites" element={<div>Favorites</div>} />
+          <Route path="customer/settings" element={<div>Settings</div>} />
+        </Route>
       </Routes>
 
-      <Footer />
+      {!isDashboardRoute && <Footer />}
     </>
   );
 };
+
 export default App;
