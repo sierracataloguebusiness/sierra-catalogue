@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import {
   FaUser,
@@ -12,8 +12,9 @@ import {
 } from "react-icons/fa";
 
 const DashboardLayout = () => {
+  const location = useLocation();
   const { user, logout } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const role = user?.role || "customer";
   const basePath = `/dashboard/${role}`;
@@ -53,7 +54,7 @@ const DashboardLayout = () => {
         <div className="flex items-center justify-between px-4 py-4 border-b border-gold-700">
           <h1
             className={`text-lg font-bold text-gold-500 transition-all ${
-              sidebarOpen ? "opacity-100" : "opacity-0 w-0"
+              sidebarOpen ? "opacity-100" : "hidden w-0"
             }`}
           >
             {role === "admin"
@@ -73,10 +74,18 @@ const DashboardLayout = () => {
         {/* Menu Items */}
         <nav className="flex-1 overflow-y-auto py-4">
           {currentMenu.map((item) => (
-            <NavLink key={item.name} to={item.link} className="link">
+            <Link
+              key={item.name}
+              to={item.link}
+              className={`flex items-center gap-3 px-5 py-3 rounded-lg mx-2 my-1 transition-colors ${
+                location.pathname.startsWith(item.link)
+                  ? "bg-primary-gold text-black font-semibold"
+                  : "hover:bg-primary-gold/20 hover:text-white"
+              }`}
+            >
               <span className="text-xl">{item.icon}</span>
               {sidebarOpen && <span>{item.name}</span>}
-            </NavLink>
+            </Link>
           ))}
         </nav>
 
