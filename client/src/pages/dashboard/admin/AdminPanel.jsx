@@ -14,7 +14,6 @@ const AdminPanel = () => {
   });
 
   useEffect(() => {
-    console.log("AdminPanel mounted. Token:", token);
     const fetchStats = async () => {
       try {
         const res = await axios.get(
@@ -25,7 +24,6 @@ const AdminPanel = () => {
             },
           },
         );
-        console.log(res.data);
         setStats(res.data);
       } catch (err) {
         console.error("Error fetching admin stats:", err);
