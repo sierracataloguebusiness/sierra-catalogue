@@ -1,5 +1,5 @@
-import React from "react";
-import { Outlet, useLocation, Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Outlet, NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import {
   FaUser,
@@ -7,14 +7,15 @@ import {
   FaCog,
   FaHeart,
   FaChartLine,
+  FaBars,
+  FaSignOutAlt,
 } from "react-icons/fa";
 
 const DashboardLayout = () => {
-  const location = useLocation();
   const { user, logout } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const role = user?.role || "customer";
-
   const basePath = `/dashboard/${role}`;
 
   const menuItems = {
@@ -42,34 +43,60 @@ const DashboardLayout = () => {
 
   return (
     <div className="flex min-h-screen bg-zinc-950 text-gold-400">
-      <aside className="fixed top-0 left-0 right-0 bg-black/90 border-b border-gold-700 flex items-center justify-between px-6 py-3 shadow-md z-50">
-        <div className="flex items-center gap-8 overflow-x-auto">
-          {currentMenu.map((item) => (
-            <Link
-              key={item.name}
-              to={item.link}
-              className={`flex items-center gap-2 px-3 py-1 rounded-lg hover:bg-gold-500 hover:text-black transition ${
-                location.pathname === item.link
-                  ? "bg-gold-500 text-black font-semibold"
-                  : ""
-              }`}
-            >
-              {item.icon}
-              <span>{item.name}</span>
-            </Link>
-          ))}
+      {/* Sidebar */}
+      <aside
+        className={`${
+          sidebarOpen ? "w-64" : "w-20"
+        } bg-black/90 border-r border-gold-700 flex flex-col transition-all duration-300`}
+      >
+        {/* Sidebar Header */}
+        <div className="flex items-center justify-between px-4 py-4 border-b border-gold-700">
+          <h1
+            className={`text-lg font-bold text-gold-500 transition-all ${
+              sidebarOpen ? "opacity-100" : "opacity-0 w-0"
+            }`}
+          >
+            {role === "admin"
+              ? "Admin Dashboard"
+              : role === "vendor"
+                ? "Vendor Panel"
+                : "Customer Dashboard"}
+          </h1>
+          <button
+            onClick={() => setSidebarOpen((prev) => !prev)}
+            className="text-gold-500 hover:text-gold-300"
+          >
+            <FaBars />
+          </button>
         </div>
 
-        <button
-          onClick={logout}
-          className="text-red-400 hover:text-red-300 transition"
-        >
-          Logout
-        </button>
+        {/* Menu Items */}
+        <nav className="flex-1 overflow-y-auto py-4">
+          {currentMenu.map((item) => (
+            <NavLink key={item.name} to={item.link} className="link">
+              <span className="text-xl">{item.icon}</span>
+              {sidebarOpen && <span>{item.name}</span>}
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* Logout Button */}
+        <div className="px-5 py-4 border-t border-gold-700">
+          <button
+            onClick={() => {
+              logout();
+              window.location.href = "/";
+            }}
+            className="flex items-center gap-3 text-red-400 hover:text-red-300 w-full"
+          >
+            <FaSignOutAlt className="text-lg" />
+            {sidebarOpen && <span>Logout</span>}
+          </button>
+        </div>
       </aside>
 
       {/* Main dashboard content */}
-      <main className="flex-1 pt-16 p-6 overflow-y-auto w-full">
+      <main className="flex-1 p-6 overflow-y-auto">
         <Outlet />
       </main>
     </div>
