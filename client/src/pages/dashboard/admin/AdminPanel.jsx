@@ -1,33 +1,70 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { FaUsers, FaStore, FaBoxOpen, FaDollarSign } from "react-icons/fa";
 
 const AdminPanel = () => {
-  const stats = [
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    vendors: 0,
+    activeProducts: 0,
+    revenue: 0,
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await axios.get(
+          "https://sierra-catalogue.onrender.com/api/admin/stats",
+          {
+            withCredentials: true,
+          },
+        );
+        setStats(res.data);
+      } catch (error) {
+        console.error("Error fetching admin stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  const statCards = [
     {
       title: "Total Users",
-      value: 1243,
+      value: stats.totalUsers,
       icon: <FaUsers />,
       color: "text-yellow-500",
     },
     {
       title: "Vendors",
-      value: 87,
+      value: stats.vendors,
       icon: <FaStore />,
       color: "text-yellow-400",
     },
     {
       title: "Active Products",
-      value: 534,
+      value: stats.activeProducts,
       icon: <FaBoxOpen />,
       color: "text-yellow-300",
     },
     {
       title: "Revenue",
-      value: "$12,430",
+      value: `$${stats.revenue.toLocaleString()}`,
       icon: <FaDollarSign />,
       color: "text-yellow-500",
     },
   ];
+
+  if (loading)
+    return (
+      <div className="text-center text-gray-400 py-10">
+        Loading dashboard...
+      </div>
+    );
 
   return (
     <div>
@@ -36,7 +73,7 @@ const AdminPanel = () => {
       </h1>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
+        {statCards.map((stat, index) => (
           <div
             key={index}
             className="bg-[#111] border border-gray-800 rounded-2xl p-6 flex items-center gap-4 shadow-lg hover:shadow-yellow-500/20 transition"

@@ -18,6 +18,7 @@ dotenv.config();
 
 import path from 'path';
 import { fileURLToPath } from 'url';
+import adminRoutes from "./routes/adminRoutes.js";
 
 
 // Resolve dirname (for ES Modules)
@@ -44,6 +45,7 @@ app.use('/api/order', orderRoutes);
 app.use('/api/messages', contactMessageRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/vendorApplication', vendorApplicationRoutes);
+app.use('/api/admin', adminRoutes)
 
 
 // Serve frontend
