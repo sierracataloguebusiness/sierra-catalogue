@@ -21,6 +21,9 @@ import FAQ from "./pages/FAQ.jsx";
 import ComingSoon from "./pages/ComingSoon.jsx";
 import TermsOfService from "./pages/TermsOfService.jsx";
 import AccessDenied from "./pages/AccessDenied.jsx";
+import AdminPanel from "./pages/dashboard/admin/AdminPanel.jsx";
+import AdminManageUsers from "./pages/dashboard/admin/AdminManageUsers.jsx";
+import AdminManageVendors from "./pages/dashboard/admin/AdminManageVendors.jsx";
 
 const App = () => {
   function Layout() {
@@ -87,6 +90,32 @@ const App = () => {
         />
         <Route path="*" element={<NotFound />} />
         <Route path="/403" element={<AccessDenied />} />
+
+        {/* Admin Dashboard */}
+        <Route
+          path="/dashboard/admin"
+          element={
+            <PrivateRoute allowedRoles={"admin"} children={<AdminPanel />} />
+          }
+        />
+        <Route
+          path="/dashboard/admin/users"
+          element={
+            <PrivateRoute
+              allowedRoles={"admin"}
+              children={<AdminManageUsers />}
+            />
+          }
+        />
+        <Route
+          path="/dashboard/admin/vendors"
+          element={
+            <PrivateRoute
+              allowedRoles={"admin"}
+              children={<AdminManageVendors />}
+            />
+          }
+        />
       </Routes>
 
       <Footer />
