@@ -34,7 +34,6 @@ import AdminManageVendors from "./pages/dashboard/admin/AdminManageVendors.jsx";
 
 const App = () => {
   const location = useLocation();
-
   const isDashboardRoute = location.pathname.startsWith("/dashboard");
 
   return (
@@ -58,6 +57,7 @@ const App = () => {
       {!isDashboardRoute && <Navbar />}
 
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/shop/product/:id" element={<ProductDetail />} />
@@ -72,7 +72,7 @@ const App = () => {
         <Route path="/403" element={<AccessDenied />} />
         <Route path="*" element={<NotFound />} />
 
-        {/* Cart & Checkout (protected) */}
+        {/* Cart & Checkout (Protected) */}
         <Route
           path="/cart"
           element={
@@ -90,6 +90,7 @@ const App = () => {
           }
         />
 
+        {/* Dashboard Layout (Protected) */}
         <Route
           path="/dashboard/*"
           element={
@@ -98,29 +99,30 @@ const App = () => {
             </PrivateRoute>
           }
         >
+          {/* Default dashboard */}
           <Route index element={<Dashboard />} />
 
           {/* Admin Routes */}
           <Route
-            path="dashboard/admin"
+            path="admin"
             element={
-              <PrivateRoute allowedRoles={"admin"}>
+              <PrivateRoute allowedRoles={["admin"]}>
                 <AdminPanel />
               </PrivateRoute>
             }
           />
           <Route
-            path="dashboard/admin/users"
+            path="admin/users"
             element={
-              <PrivateRoute allowedRoles={"admin"}>
+              <PrivateRoute allowedRoles={["admin"]}>
                 <AdminManageUsers />
               </PrivateRoute>
             }
           />
           <Route
-            path="dashboard/admin/vendors"
+            path="admin/vendors"
             element={
-              <PrivateRoute allowedRoles={"admin"}>
+              <PrivateRoute allowedRoles={["admin"]}>
                 <AdminManageVendors />
               </PrivateRoute>
             }
