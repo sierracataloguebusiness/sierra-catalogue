@@ -101,9 +101,30 @@ const App = () => {
           <Route index element={<Dashboard />} />
 
           {/* Admin Routes */}
-          <Route path="admin" element={<AdminPanel />} />
-          <Route path="admin/users" element={<AdminManageUsers />} />
-          <Route path="admin/vendors" element={<AdminManageVendors />} />
+          <Route
+            path="admin"
+            element={
+              <PrivateRoute allowedRoles={"admin"} children={<AdminPanel />} />
+            }
+          />
+          <Route
+            path="admin/users"
+            element={
+              <PrivateRoute
+                allowedRoles={"admin"}
+                children={<AdminManageUsers />}
+              />
+            }
+          />
+          <Route
+            path="admin/vendors"
+            element={
+              <PrivateRoute
+                allowedRoles={"admin"}
+                children={<AdminManageVendors />}
+              />
+            }
+          />
 
           {/* Vendor Routes */}
           <Route path="vendor" element={<Dashboard />} />
