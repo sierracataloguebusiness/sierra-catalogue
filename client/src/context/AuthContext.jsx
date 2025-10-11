@@ -5,13 +5,16 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null); // ✅ add this
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const storedToken = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
-    if (token && userData) {
+
+    if (storedToken && userData) {
       setIsAuthenticated(true);
       setUser(JSON.parse(userData));
+      setToken(storedToken);
     }
   }, []);
 
@@ -20,6 +23,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("user", JSON.stringify(userData));
     setIsAuthenticated(true);
     setUser(userData);
+    setToken(token);
   };
 
   const logout = () => {
@@ -27,10 +31,13 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
     setIsAuthenticated(false);
     setUser(null);
+    setToken(null);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, user, token, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
