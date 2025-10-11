@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { IoMenu } from "react-icons/io5";
 import { FaRegUser, FaUserCircle } from "react-icons/fa";
 import { BiShoppingBag } from "react-icons/bi";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Button from "../Button.jsx";
 
 const NavbarActions = ({
@@ -15,7 +15,6 @@ const NavbarActions = ({
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const navigate = useNavigate();
 
   const currentUser = user
     ? {
@@ -123,7 +122,7 @@ const NavbarActions = ({
                 onClick={() => {
                   logout();
                   setDropdownOpen(false);
-                  navigate("/");
+                  window.location.href = "/";
                 }}
                 className="w-full text-left mt-2 py-2 text-red-500 hover:text-red-400"
               >

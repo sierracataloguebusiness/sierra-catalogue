@@ -51,7 +51,9 @@ const DashboardLayout = () => {
         } bg-black/90 border-r border-gold-700 flex flex-col transition-all duration-300`}
       >
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-gold-700">
+        <div
+          className={`flex items-center ${sidebarOpen ? "justify-between" : "justify-center"} px-4 py-4 border-b border-gold-700`}
+        >
           <h1
             className={`text-lg font-bold text-gold-500 transition-all ${
               sidebarOpen ? "opacity-100" : "hidden w-0"
