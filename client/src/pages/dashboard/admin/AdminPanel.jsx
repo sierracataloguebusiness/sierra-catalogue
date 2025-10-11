@@ -55,16 +55,16 @@ const AdminPanel = () => {
     },
     {
       title: "Revenue",
-      value: `Nle${stats.revenue}`,
+      value: `NLe ${stats.revenue.toLocaleString()}`,
       icon: <FaDollarSign />,
       color: "text-yellow-500",
     },
   ];
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-primary-gold mb-6">
-        Admin Dashboard
+    <div className="p-6">
+      <h1 className="text-3xl font-bold text-yellow-400 mb-8">
+        Sierra Catalogue Admin Dashboard
       </h1>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">

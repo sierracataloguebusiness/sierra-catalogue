@@ -6,15 +6,15 @@ export const getAdminStats = async (req, res) => {
     try {
         const totalUsers = await User.countDocuments();
         const vendors = await User.countDocuments({ role: "vendor" });
-        const activeProducts = await Listing.countDocuments({ status: "active" });
+        const activeProducts = await Listing.countDocuments({ isActive: true });
         const revenue = await Order.aggregate([
             { $group: { _id: null, total: { $sum: "$totalAmount" } } },
         ]);
 
         res.json({
-            totalUsers,
+            users: totalUsers,
             vendors,
-            activeProducts,
+            products: activeProducts,
             revenue: revenue[0]?.total || 0,
         });
     } catch (error) {
