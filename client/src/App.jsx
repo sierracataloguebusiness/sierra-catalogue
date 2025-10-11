@@ -66,10 +66,23 @@ const App = () => {
           path="/dashboard"
           element={<PrivateRoute children={<Dashboard />} />}
         />
-        <Route path="/cart" element={<PrivateRoute children={<Cart />} />} />
+        <Route
+          path="/cart"
+          element={
+            <PrivateRoute
+              allowedRoles={["customer", "vendor"]}
+              children={<Cart />}
+            />
+          }
+        />
         <Route
           path="/checkout"
-          element={<PrivateRoute children={<Checkout />} />}
+          element={
+            <PrivateRoute
+              allowedRoles={["customer", "vendor"]}
+              children={<Checkout />}
+            />
+          }
         />
         <Route path="*" element={<NotFound />} />
       </Routes>
