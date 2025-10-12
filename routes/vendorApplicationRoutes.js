@@ -4,7 +4,7 @@ import {
     approveVendor,
     rejectVendor,
     submitVendorApplication,
-} from "../controllers/VendorApplicationController.js";
+} from "../controllers/vendorApplicationController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { authorize } from "../middleware/roleMiddleware.js";
 
