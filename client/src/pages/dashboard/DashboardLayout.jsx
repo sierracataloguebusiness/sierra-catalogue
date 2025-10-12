@@ -36,6 +36,11 @@ const DashboardLayout = () => {
       { name: "Admin Panel", icon: <FaChartLine />, link: `${basePath}` },
       { name: "Users", icon: <FaUser />, link: `${basePath}/users` },
       { name: "Vendors", icon: <FaUser />, link: `${basePath}/vendors` },
+      {
+        name: "Vendors",
+        icon: <FaUser />,
+        link: `${basePath}/vendor-application`,
+      },
       { name: "Settings", icon: <FaCog />, link: `${basePath}/settings` },
     ],
   };
