@@ -68,10 +68,18 @@ export const changeVendorRole = async (req, res) => {
 
 export const submitVendorApplication = async (req, res) => {
     try {
-        const { name, email, tel, shopName, shopDescription, address } = req.body;
+        let { name, email, tel, shopName, shopDescription, address } = req.body;
 
         if (!name || !email || !tel || !shopName || !address) {
             return res.status(400).json({ message: "All required fields must be filled." });
+        }
+
+        if (/^0\d{8}$/.test(tel)) {
+            tel = `+232${tel.slice(1)}`;
+        } else if (!/^\+232\d{8}$/.test(tel)) {
+            return res.status(400).json({
+                message: "Invalid phone number format. Must be +232XXXXXXXX or 0XXXXXXXX.",
+            });
         }
 
         const existing = await VendorApplication.findOne({
@@ -92,7 +100,7 @@ export const submitVendorApplication = async (req, res) => {
             shopName,
             shopDescription,
             address,
-            appliedBy: req.user?._id || null, // optional if not logged in
+            appliedBy: req.user?._id || null,
         });
 
         res.status(201).json({
@@ -100,10 +108,13 @@ export const submitVendorApplication = async (req, res) => {
             application,
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Failed to submit vendor application." });
+        console.error("Error submitting vendor application:", error.message);
+        res.status(500).json({
+            message: error.message || "Failed to submit vendor application.",
+        });
     }
 };
+
 
 export const getAllApplications = async (req, res) => {
     try {
