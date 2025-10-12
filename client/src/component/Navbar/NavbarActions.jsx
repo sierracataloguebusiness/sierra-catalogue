@@ -54,6 +54,10 @@ const NavbarActions = ({
           { name: "Admin Panel", link: "/dashboard/admin" },
           { name: "Manage Users", link: "/dashboard/admin/users" },
           { name: "Manage Vendors", link: "/dashboard/admin/vendors" },
+          {
+            name: "Vendor Applications",
+            link: "/dashboard/admin/vendor-application",
+          },
           { name: "Settings", link: "/dashboard/admin/settings" },
         ];
       default:
