@@ -146,6 +146,7 @@ const AdminManageUsers = () => {
             <tr>
               <th className="p-3 text-left">Name</th>
               <th className="p-3 text-left">Email</th>
+              <th className="p-3 text-left">Telephone</th>
               <th className="p-3 text-left">Role</th>
               <th className="p-3 text-left">Status</th>
               <th className="p-3 text-left">Action</th>
@@ -162,6 +163,7 @@ const AdminManageUsers = () => {
                   {u.firstName} {u.otherNames} {u.lastName}
                 </td>
                 <td className="p-3">{u.email}</td>
+                <td className="p-3">{u.tel}</td>
                 <td className="p-3 capitalize">
                   <select
                     value={u.role}
