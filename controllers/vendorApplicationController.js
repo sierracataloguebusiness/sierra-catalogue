@@ -1,38 +1,155 @@
 import VendorApplication from "../models/VendorApplication.js";
-import AppError from "../utils/AppError.js";
+import User from "../models/User.js";
 
-export const postApplication = async (req, res) => {
+export const getAllVendors = async (req, res) => {
     try {
-        const { name, email } = req.body;
-        let { tel } = req.body;
+        const { search, status } = req.query;
+        const query = { role: "vendor" };
 
-        if (!name || !tel || !email) {
-            throw new AppError("All fields are required", 400);
+        if (search) {
+            query.$or = [
+                { firstName: new RegExp(search, "i") },
+                { lastName: new RegExp(search, "i") },
+                { email: new RegExp(search, "i") },
+                { tel: new RegExp(search, "i") },
+            ];
         }
 
-        tel = tel.trim();
-        if (/^0\d{8}$/.test(tel)) {
-            tel = "+232" + tel.slice(1);
-        } else if (!/^\+232\d{8}$/.test(tel)) {
-            throw new AppError("Phone number is invalid (099XXXXXX or +2329XXXXXXX)", 400);
+        if (status) {
+            query.isActive = status === "active";
         }
 
-        const existing = await VendorApplication.findOne({ $or: [{ tel }, { email }] });
+        const vendors = await User.find(query).select("-password");
+        res.json(vendors);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to fetch vendors" });
+    }
+};
+
+export const toggleVendorStatus = async (req, res) => {
+    try {
+        const vendor = await User.findById(req.params.id);
+        if (!vendor || vendor.role !== "vendor") {
+            return res.status(404).json({ message: "Vendor not found" });
+        }
+
+        vendor.isActive = !vendor.isActive;
+        await vendor.save();
+        res.json({ message: "Vendor status updated", vendor });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to update vendor status" });
+    }
+};
+
+export const changeVendorRole = async (req, res) => {
+    try {
+        const { newRole } = req.body;
+        const vendor = await User.findById(req.params.id);
+
+        if (!vendor) {
+            return res.status(404).json({ message: "Vendor not found" });
+        }
+
+        if (!["customer", "vendor", "admin"].includes(newRole)) {
+            return res.status(400).json({ message: "Invalid role" });
+        }
+
+        vendor.role = newRole;
+        await vendor.save();
+
+        res.json({ message: "Role updated successfully", vendor });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to change vendor role" });
+    }
+};
+
+export const submitVendorApplication = async (req, res) => {
+    try {
+        const { name, email, tel, shopName, shopDescription, address } = req.body;
+
+        if (!name || !email || !tel || !shopName || !address) {
+            return res.status(400).json({ message: "All required fields must be filled." });
+        }
+
+        const existing = await VendorApplication.findOne({
+            email,
+            status: { $in: ["pending", "approved"] },
+        });
+
         if (existing) {
-            throw new AppError("An application with this email or phone already exists", 400);
+            return res.status(400).json({
+                message: "You already have a pending or approved vendor application.",
+            });
         }
 
-        const application = new VendorApplication({ name, tel, email });
+        const application = await VendorApplication.create({
+            name,
+            email,
+            tel,
+            shopName,
+            shopDescription,
+            address,
+            appliedBy: req.user?._id || null, // optional if not logged in
+        });
+
+        res.status(201).json({
+            message: "Vendor application submitted successfully!",
+            application,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to submit vendor application." });
+    }
+};
+
+export const getAllApplications = async (req, res) => {
+    try {
+        const { status } = req.query;
+        const query = status ? { status } : {};
+        const applications = await VendorApplication.find(query);
+        res.json(applications);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to fetch vendor applications" });
+    }
+};
+
+export const approveVendor = async (req, res) => {
+    try {
+        const application = await VendorApplication.findById(req.params.id);
+        if (!application) return res.status(404).json({ message: "Application not found" });
+
+        const user = await User.findOne({ email: application.email });
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        user.role = "vendor";
+        user.isActive = true;
+        await user.save();
+
+        application.status = "approved";
         await application.save();
 
-        res.status(201).json({ message: "Application submitted successfully." });
+        res.json({ message: "Vendor approved successfully", application });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to approve vendor" });
+    }
+};
 
-    } catch (err) {
-        if (err) {
-            return res.status(err.statusCode).json({ message: err.message });
-        }
+export const rejectVendor = async (req, res) => {
+    try {
+        const application = await VendorApplication.findById(req.params.id);
+        if (!application) return res.status(404).json({ message: "Application not found" });
 
-        console.error("Server error:", err);
-        res.status(500).json({ message: "Server error sending application." });
+        application.status = "rejected";
+        await application.save();
+
+        res.json({ message: "Vendor application rejected", application });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to reject vendor" });
     }
 };
