@@ -35,7 +35,7 @@ const VendorApplicationForm = () => {
     if (!formData.tel.trim()) {
       newErrors.tel = "Phone number is required";
     } else if (!/^\+232\d{8}$/.test(formData.tel)) {
-      newErrors.tel = "Invalid phone number (must start with 0 or +232)";
+      newErrors.tel = "Invalid phone number";
     }
 
     if (!formData.shopName.trim()) newErrors.shopName = "Shop name is required";
@@ -55,7 +55,7 @@ const VendorApplicationForm = () => {
     }
 
     setFormData({ ...formData, [name]: value });
-    setErrors({ ...errors, [name]: "" }); // clear individual field error
+    setErrors({ ...errors, [name]: "" });
   };
 
   const handleSubmit = async (e) => {
@@ -105,7 +105,7 @@ const VendorApplicationForm = () => {
           Vendor Application Form
         </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit}>
           <FormInput
             type="text"
             name="name"
@@ -127,7 +127,7 @@ const VendorApplicationForm = () => {
           <FormInput
             type="tel"
             name="tel"
-            placeholder="Phone Number (0XXXXXXXX or +232XXXXXXXX)"
+            placeholder="Phone Number"
             value={formData.tel}
             onChange={handleChange}
             error={errors.tel}
