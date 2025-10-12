@@ -24,7 +24,7 @@ router.delete("/users/:id", deleteUser);
 router.patch("/users/:id/role", updateUserRole);
 
 router.get("/vendors", protect, authorize("admin"), getAllVendors);
-router.patch("/:id/toggle", protect, authorize("admin"), toggleVendorStatus);
-router.patch("/:id/role", protect, authorize("admin"), changeVendorRole);
+router.patch("vendors/:id/toggle", protect, authorize("admin"), toggleVendorStatus);
+router.patch("vendors/:id/role", protect, authorize("admin"), changeVendorRole);
 
 export default router;
