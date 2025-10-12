@@ -31,6 +31,7 @@ import Dashboard from "./pages/dashboard/Dashboard.jsx";
 import AdminPanel from "./pages/dashboard/admin/AdminPanel.jsx";
 import AdminManageUsers from "./pages/dashboard/admin/AdminManageUsers.jsx";
 import AdminManageVendors from "./pages/dashboard/admin/AdminManageVendors.jsx";
+import AdminManageVendorApplications from "./pages/dashboard/admin/AdminManageVendorApplications.js";
 
 const App = () => {
   const location = useLocation();
@@ -124,6 +125,14 @@ const App = () => {
             element={
               <PrivateRoute allowedRoles={["admin"]}>
                 <AdminManageVendors />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="admin/vendor-application"
+            element={
+              <PrivateRoute allowedRoles={["admin"]}>
+                <AdminManageVendorApplications />
               </PrivateRoute>
             }
           />
