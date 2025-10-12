@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useAuth } from "../../../context/AuthContext.jsx";
 import { toast } from "react-toastify";
-import { FaTrash, FaEdit, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { useAuth } from "../../../context/AuthContext.jsx";
+import { FaUserAlt, FaTrash, FaLock, FaUnlock, FaSearch } from "react-icons/fa";
 
 const AdminManageUsers = () => {
   const { token } = useAuth();
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filterRole, setFilterRole] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
 
-  /* Fetch users */
   const fetchUsers = async () => {
     try {
-      setLoading(true);
       const res = await axios.get(
         "https://sierra-catalogue.onrender.com/api/admin/users",
         {
@@ -20,34 +20,53 @@ const AdminManageUsers = () => {
         },
       );
       setUsers(res.data);
-    } catch (err) {
+    } catch {
       toast.error("Failed to load users");
-      console.error(err);
-    } finally {
-      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (token) fetchUsers();
-  }, [token]);
-
-  /* Update role or status */
-  const handleUpdate = async (id, updates) => {
+  const handleRoleChange = async (id, role) => {
     try {
-      const res = await axios.put(
-        `https://sierra-catalogue.onrender.com/api/admin/users/${id}`,
-        updates,
+      await axios.patch(
+        `https://sierra-catalogue.onrender.com/api/admin/users/${id}/role`,
+        { role },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      toast.success("User updated");
+      toast.success("User role updated");
       fetchUsers();
-    } catch (err) {
-      toast.error("Failed to update user");
+    } catch {
+      toast.error("Role update failed");
     }
   };
 
-  /* Delete user */
+  const handleDeactivate = async (id) => {
+    try {
+      await axios.patch(
+        `https://sierra-catalogue.onrender.com/api/admin/users/${id}/deactivate`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      toast.info("User deactivated");
+      fetchUsers();
+    } catch {
+      toast.error("Action failed");
+    }
+  };
+
+  const handleActivate = async (id) => {
+    try {
+      await axios.patch(
+        `https://sierra-catalogue.onrender.com/api/admin/users/${id}/activate`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      toast.success("User activated");
+      fetchUsers();
+    } catch {
+      toast.error("Action failed");
+    }
+  };
+
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
@@ -57,112 +76,151 @@ const AdminManageUsers = () => {
       );
       toast.success("User deleted");
       fetchUsers();
-    } catch (err) {
-      toast.error("Failed to delete user");
+    } catch {
+      toast.error("Delete failed");
     }
   };
 
-  return (
-    <div className="text-white">
-      <h1 className="text-2xl font-bold text-primary-gold mb-6">
-        Manage Users
-      </h1>
+  useEffect(() => {
+    if (token) fetchUsers();
+  }, [token]);
 
-      {loading ? (
-        <p className="text-gray-400">Loading users...</p>
-      ) : (
-        <div className="overflow-x-auto bg-[#0d0d0d] border border-gray-800 rounded-2xl shadow-lg">
-          <table className="min-w-full border-collapse">
-            <thead className="bg-black text-yellow-400 text-sm">
-              <tr>
-                <th className="p-4 text-left">Name</th>
-                <th className="p-4 text-left">Email</th>
-                <th className="p-4 text-left">Tel</th>
-                <th className="p-4 text-left">Role</th>
-                <th className="p-4 text-left">Status</th>
-                <th className="p-4 text-left">Joined</th>
-                <th className="p-4 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.length > 0 ? (
-                users.map((u) => (
-                  <tr
-                    key={u._id}
-                    className="border-t border-gray-800 hover:bg-gray-900/60 transition"
-                  >
-                    <td className="p-4">
-                      {[u.firstName, u.lastName, u.otherNames]
-                        .filter(Boolean)
-                        .join(" ")}
-                    </td>
-                    <td className="p-4">{u.email}</td>
-                    <td className="p-4">{u.tel || "N/A"}</td>
-                    <td className="p-4 capitalize">{u.role}</td>
-                    <td className="p-4">
-                      {u.isActive ? (
-                        <FaCheckCircle className="text-green-400 inline" />
-                      ) : (
-                        <FaTimesCircle className="text-red-400 inline" />
-                      )}
-                    </td>
-                    <td className="p-4 text-gray-400">
-                      {new Date(u.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="p-4 flex gap-3 justify-center">
-                      <button
-                        onClick={() =>
-                          handleUpdate(u._id, {
-                            role:
-                              u.role === "customer"
-                                ? "vendor"
-                                : u.role === "vendor"
-                                  ? "admin"
-                                  : "customer",
-                          })
-                        }
-                        className="text-yellow-400 hover:text-yellow-300"
-                        title="Change Role"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleUpdate(u._id, { isActive: !u.isActive })
-                        }
-                        className={`${
-                          u.isActive
-                            ? "text-green-400 hover:text-green-300"
-                            : "text-gray-500 hover:text-gray-400"
-                        }`}
-                        title="Toggle Active"
-                      >
-                        {u.isActive ? <FaCheckCircle /> : <FaTimesCircle />}
-                      </button>
-                      <button
-                        onClick={() => handleDelete(u._id)}
-                        className="text-red-500 hover:text-red-400"
-                        title="Delete"
-                      >
-                        <FaTrash />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan={7}
-                    className="p-6 text-center text-gray-400 italic"
-                  >
-                    No users found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+  const filteredUsers = users.filter((u) => {
+    const matchesSearch =
+      u.firstName?.toLowerCase().includes(search.toLowerCase()) ||
+      u.lastName?.toLowerCase().includes(search.toLowerCase()) ||
+      u.email?.toLowerCase().includes(search.toLowerCase()) ||
+      u.tel?.includes(search);
+
+    const matchesRole = filterRole === "all" || u.role === filterRole;
+    const matchesStatus =
+      filterStatus === "all" ||
+      (filterStatus === "active" && u.isActive) ||
+      (filterStatus === "inactive" && !u.isActive);
+
+    return matchesSearch && matchesRole && matchesStatus;
+  });
+
+  return (
+    <div className="p-6 bg-black min-h-screen text-white">
+      <h1 className="text-2xl font-bold text-yellow-500 mb-6">Manage Users</h1>
+
+      <div className="flex flex-wrap gap-3 mb-6 items-center">
+        <div className="flex items-center bg-[#111] border border-gray-700 rounded-xl px-3 py-2">
+          <FaSearch className="text-gray-400 mr-2" />
+          <input
+            type="text"
+            placeholder="Search name, email, or phone..."
+            className="bg-transparent outline-none text-gray-300 w-48 sm:w-64"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
-      )}
+
+        <select
+          value={filterRole}
+          onChange={(e) => setFilterRole(e.target.value)}
+          className="bg-[#111] border border-gray-700 rounded-xl px-3 py-2 text-gray-300"
+        >
+          <option value="all">All Roles</option>
+          <option value="admin">Admin</option>
+          <option value="vendor">Vendor</option>
+          <option value="customer">Customer</option>
+        </select>
+
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="bg-[#111] border border-gray-700 rounded-xl px-3 py-2 text-gray-300"
+        >
+          <option value="all">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+
+      {/* 🧾 Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-800 rounded-2xl overflow-hidden">
+          <thead className="bg-[#111] text-yellow-400">
+            <tr>
+              <th className="p-3 text-left">Name</th>
+              <th className="p-3 text-left">Email</th>
+              <th className="p-3 text-left">Role</th>
+              <th className="p-3 text-left">Status</th>
+              <th className="p-3 text-left">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredUsers.map((u) => (
+              <tr
+                key={u._id}
+                className="border-t border-gray-800 hover:bg-[#1a1a1a] transition"
+              >
+                <td className="p-3 flex items-center gap-2">
+                  <FaUserAlt className="text-yellow-500" />
+                  {u.firstName} {u.otherNames} {u.lastName}
+                </td>
+                <td className="p-3">{u.email}</td>
+                <td className="p-3 capitalize">
+                  <select
+                    value={u.role}
+                    onChange={(e) => handleRoleChange(u._id, e.target.value)}
+                    className="bg-black border border-gray-700 rounded-lg px-2 py-1 text-yellow-400"
+                  >
+                    <option value="customer">Customer</option>
+                    <option value="vendor">Vendor</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </td>
+                <td className="p-3">
+                  <span
+                    className={`px-2 py-1 text-sm rounded-lg ${
+                      u.isActive
+                        ? "bg-green-600/20 text-green-400"
+                        : "bg-red-600/20 text-red-400"
+                    }`}
+                  >
+                    {u.isActive ? "Active" : "Inactive"}
+                  </span>
+                </td>
+                <td className="p-3 flex gap-3">
+                  {u.isActive ? (
+                    <button
+                      onClick={() => handleDeactivate(u._id)}
+                      className="text-red-400 hover:text-red-300"
+                      title="Deactivate"
+                    >
+                      <FaLock />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleActivate(u._id)}
+                      className="text-green-400 hover:text-green-300"
+                      title="Activate"
+                    >
+                      <FaUnlock />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleDelete(u._id)}
+                    className="text-gray-400 hover:text-yellow-400"
+                    title="Delete User"
+                  >
+                    <FaTrash />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {filteredUsers.length === 0 && (
+          <p className="text-center text-gray-500 mt-6">
+            No users match your criteria.
+          </p>
+        )}
+      </div>
     </div>
   );
 };
