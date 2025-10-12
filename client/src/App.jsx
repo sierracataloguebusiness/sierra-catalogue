@@ -31,7 +31,7 @@ import Dashboard from "./pages/dashboard/Dashboard.jsx";
 import AdminPanel from "./pages/dashboard/admin/AdminPanel.jsx";
 import AdminManageUsers from "./pages/dashboard/admin/AdminManageUsers.jsx";
 import AdminManageVendors from "./pages/dashboard/admin/AdminManageVendors.jsx";
-import AdminManageVendorApplications from "./pages/dashboard/admin/AdminManageVendorApplications.js";
+import AdminManageVendorApplications from "./pages/dashboard/admin/AdminManageVendorApplications.jsx";
 
 const App = () => {
   const location = useLocation();

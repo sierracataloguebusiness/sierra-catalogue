@@ -18,6 +18,7 @@ const AdminManageVendorApplications = () => {
       );
       setApplications(res.data);
     } catch (err) {
+      console.error("Error fetching applications:", err);
       toast.error("Failed to fetch applications");
     }
   };
@@ -36,6 +37,7 @@ const AdminManageVendorApplications = () => {
       toast.success("Vendor approved successfully");
       fetchApplications();
     } catch (err) {
+      console.error("Error approving vendor:", err);
       toast.error("Failed to approve vendor");
     }
   };
@@ -50,6 +52,7 @@ const AdminManageVendorApplications = () => {
       toast.success("Vendor rejected");
       fetchApplications();
     } catch (err) {
+      console.error("Error rejecting vendor:", err);
       toast.error("Failed to reject vendor");
     }
   };
