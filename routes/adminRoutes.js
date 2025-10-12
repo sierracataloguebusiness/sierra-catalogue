@@ -21,3 +21,5 @@ router.patch("/users/:id/deactivate", deactivateUser);
 router.patch("/users/:id/activate", activateUser);
 router.delete("/users/:id", deleteUser);
 router.patch("/users/:id/role", updateUserRole);
+
+export default router;
