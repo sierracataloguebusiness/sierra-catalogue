@@ -13,22 +13,73 @@ const VendorApplicationForm = () => {
     address: "",
   });
 
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
+  const formatPhoneNumber = (value) => {
+    if (/^0\d{8}$/.test(value)) {
+      return "+232" + value.slice(1);
+    }
+    if (/^\+232\d{8}$/.test(value)) {
+      return value;
+    }
+    return value;
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) newErrors.name = "Full name is required";
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+
+    if (!formData.tel.trim()) {
+      newErrors.tel = "Phone number is required";
+    } else if (!/^\+232\d{8}$/.test(formData.tel)) {
+      newErrors.tel = "Invalid phone number (must start with 0 or +232)";
+    }
+
+    if (!formData.shopName.trim()) newErrors.shopName = "Shop name is required";
+    if (!formData.shopDescription.trim())
+      newErrors.shopDescription = "Shop description is required";
+    if (!formData.address.trim()) newErrors.address = "Address is required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    let { name, value } = e.target;
+
+    if (name === "tel") {
+      value = formatPhoneNumber(value);
+    }
+
+    setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: "" }); // clear individual field error
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const formattedTel = formatPhoneNumber(formData.tel);
+    const updatedData = { ...formData, tel: formattedTel };
+
+    setFormData(updatedData);
+
+    if (!validateForm()) {
+      toast.error("Please fix the highlighted errors.");
+      return;
+    }
+
     try {
       setLoading(true);
       const res = await axios.post(
-        "https://sierra-catalogue.onrender.com/api/vendorApplications/apply",
-        formData,
+        "https://sierra-catalogue.onrender.com/api/vendorApplication/apply",
+        updatedData,
       );
-      toast.success(res.data.message);
+
+      toast.success(res.data.message || "Application submitted successfully!");
+
       setFormData({
         name: "",
         email: "",
@@ -37,10 +88,11 @@ const VendorApplicationForm = () => {
         shopDescription: "",
         address: "",
       });
+      setErrors({});
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || "Failed to submit application",
-      );
+      const message =
+        err.response?.data?.message || "Failed to submit application";
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -52,78 +104,77 @@ const VendorApplicationForm = () => {
         <h1 className="text-3xl font-bold text-center text-yellow-400 mb-8">
           Vendor Application Form
         </h1>
+
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block mb-1 text-gray-400">Full Name</label>
-            <FormInput
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
+          <FormInput
+            type="text"
+            name="name"
+            placeholder="Full Name"
+            value={formData.name}
+            onChange={handleChange}
+            error={errors.name}
+          />
+
+          <FormInput
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            error={errors.email}
+          />
+
+          <FormInput
+            type="tel"
+            name="tel"
+            placeholder="Phone Number (0XXXXXXXX or +232XXXXXXXX)"
+            value={formData.tel}
+            onChange={handleChange}
+            error={errors.tel}
+          />
+
+          <FormInput
+            type="text"
+            name="shopName"
+            placeholder="Shop Name"
+            value={formData.shopName}
+            onChange={handleChange}
+            error={errors.shopName}
+          />
 
           <div>
-            <FormInput
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <FormInput
-              type="tel"
-              name="tel"
-              placeholder="Phone Number"
-              value={formData.tel}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <FormInput
-              type="text"
-              name="shopName"
-              placeholder="Shop Name"
-              value={formData.shopName}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 text-gray-400">Shop Description</label>
+            <label className="block mb-1">Shop Description</label>
             <textarea
               name="shopDescription"
               value={formData.shopDescription}
               onChange={handleChange}
-              className="w-full bg-black border border-gray-700 px-4 py-2 rounded-lg text-white h-24"
+              className={`w-full bg-black border rounded-lg px-4 py-2 text-white h-24 focus:outline-none focus:border-yellow-400 ${
+                errors.shopDescription ? "border-red-500" : "border-gray-700"
+              }`}
               placeholder="Tell us about your shop"
             />
+            {errors.shopDescription && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.shopDescription}
+              </p>
+            )}
           </div>
 
-          <div>
-            <FormInput
-              type="text"
-              name="address"
-              placeholder="Address"
-              value={formData.address}
-              onChange={handleChange}
-              className="w-full bg-black border border-gray-700 px-4 py-2 rounded-lg text-white"
-              required
-            />
-          </div>
+          <FormInput
+            type="text"
+            name="address"
+            placeholder="Address"
+            value={formData.address}
+            onChange={handleChange}
+            error={errors.address}
+          />
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3 rounded-lg mt-4 transition"
+            className={`w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3 rounded-lg mt-4 transition ${
+              loading ? "opacity-75 cursor-not-allowed" : ""
+            }`}
           >
             {loading ? "Submitting..." : "Submit Application"}
           </button>
