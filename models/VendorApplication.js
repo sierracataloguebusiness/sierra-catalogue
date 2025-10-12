@@ -1,17 +1,18 @@
 import mongoose from "mongoose";
 
 const vendorApplicationSchema = new mongoose.Schema({
-    name: { type: String, required: true, trim: true },
-    tel: {
+    name: { type: String, required: true },
+    email: { type: String, required: true, lowercase: true },
+    tel: { type: String, required: true, match: [/^\+232\d{8}$/, 'Invalid phone number format (must be +2329XXXXXXX)'] },
+    shopName: { type: String, required: true },
+    shopDescription: { type: String },
+    address: { type: String, required: true },
+    status: {
         type: String,
-        required: true,
-        unique: true,
-        match: [/^\+232\d{8}$/, "Invalid phone number format (must be +2329XXXXXXX)"],
+        enum: ["pending", "approved", "rejected"],
+        default: "pending",
     },
-    email: { type: String, required: true, trim: true, lowercase: true, unique: true },
-    submittedAt: { type: Date, default: Date.now },
-});
+    appliedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+}, { timestamps: true });
 
-const VendorApplication = mongoose.model("VendorApplication", vendorApplicationSchema);
-
-export default VendorApplication;
+export default mongoose.model("VendorApplication", vendorApplicationSchema);
