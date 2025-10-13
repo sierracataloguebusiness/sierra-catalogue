@@ -9,29 +9,33 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="p-6 bg-white shadow-md rounded-xl max-w-lg mx-auto">
+    <div className="p-6 bg-gray-700 shadow-md rounded-xl max-w-lg">
       <h1 className="text-2xl font-bold mb-6 text-gold">My Profile</h1>
 
       <div className="space-y-3">
         <p>
-          <strong>Name:</strong> ${user.firstName || ""} $
-          {user.otherNames || ""} ${user.lastName || ""}{" "}
+          <strong className="text-primary-gold">Name:</strong> $
+          {user.firstName || ""} ${user.otherNames || ""} $
+          {user.lastName || ""}{" "}
         </p>
 
         <p>
-          <strong>Email:</strong> {user.email}
+          <strong className="text-primary-gold">Email:</strong> {user.email}
         </p>
 
         <p>
-          <strong>Phone:</strong> {user.tel || "N/A"}
+          <strong className="text-primary-gold">Phone:</strong>{" "}
+          {user.tel || "N/A"}
         </p>
 
         <p>
-          <strong>Address:</strong> {user.address || "N/A"}
+          <strong className="text-primary-gold">Address:</strong>{" "}
+          {user.address || "N/A"}
         </p>
 
         <p>
-          <strong>Account Type:</strong> {user.role || "Customer"}
+          <strong className="text-primary-gold">Account Type:</strong>{" "}
+          {user.role || "Customer"}
         </p>
       </div>
     </div>
