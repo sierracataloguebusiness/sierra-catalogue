@@ -97,7 +97,7 @@ const NavbarActions = ({
                 />
                 <div>
                   <p className="font-semibold text-white truncate">
-                    {currentUser.name}
+                    Hello {currentUser.name}
                   </p>
                   <Link
                     to={`/dashboard/${currentUser.role}/profile`}
