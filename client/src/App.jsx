@@ -164,7 +164,7 @@ const App = () => {
           <Route path="customer/settings" element={<div>Settings</div>} />
 
           {/* General Routes */}
-          <Route path="/:role/profile" element={<ProfilePage />} />
+          <Route path=":role/profile" element={<ProfilePage />} />
         </Route>
       </Routes>
 
