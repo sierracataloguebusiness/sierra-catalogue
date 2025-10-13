@@ -97,7 +97,10 @@ export const login = async (formData) => {
             email: existingUser.email,
             firstName: existingUser.firstName,
             lastName: existingUser.lastName,
+            otherNames: existingUser.otherNames,
             role: existingUser.role,
+            tel: existingUser.tel,
+            address: existingUser.address,
         },
         token,
     };
