@@ -96,7 +96,7 @@ const AdminManageVendors = () => {
             {vendors.map((vendor) => (
               <tr key={vendor._id} className="border-t border-gray-800">
                 <td className="px-4 py-2">
-                  {vendor.firstName} {vendor.lastName}
+                  {vendor.firstName} {vendor.otherNames} {vendor.lastName}
                 </td>
                 <td className="px-4 py-2">{vendor.email}</td>
                 <td className="px-4 py-2">{vendor.tel}</td>

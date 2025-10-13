@@ -13,7 +13,6 @@ const AdminSettings = () => {
     newPassword: "",
   });
 
-  // Fetch profile and security settings
   useEffect(() => {
     const fetchAll = async () => {
       try {
@@ -41,11 +40,10 @@ const AdminSettings = () => {
     fetchAll();
   }, [token]);
 
-  // Update profile
   const updateProfile = async () => {
     try {
       await axios.put(
-        "https://sierra-catalogue.onrender.com/api/admin/settings/profile",
+        "https://sierra-catalogue.onrender.com/api/admin/settings/profile/update",
         profile,
         { headers: { Authorization: `Bearer ${token}` } },
       );
@@ -55,7 +53,6 @@ const AdminSettings = () => {
     }
   };
 
-  // Update password
   const updatePassword = async () => {
     try {
       await axios.put(

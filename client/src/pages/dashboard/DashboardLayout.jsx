@@ -2,13 +2,15 @@ import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import {
-  FaUser,
   FaShoppingBag,
   FaCog,
   FaHeart,
   FaChartLine,
   FaBars,
   FaSignOutAlt,
+  FaUsers,
+  FaStore,
+  FaClipboardList,
 } from "react-icons/fa";
 
 const DashboardLayout = () => {
@@ -34,11 +36,11 @@ const DashboardLayout = () => {
     ],
     admin: [
       { name: "Admin Panel", icon: <FaChartLine />, link: `${basePath}` },
-      { name: "Users", icon: <FaUser />, link: `${basePath}/users` },
-      { name: "Vendors", icon: <FaUser />, link: `${basePath}/vendors` },
+      { name: "Users", icon: <FaUsers />, link: `${basePath}/users` },
+      { name: "Vendors", icon: <FaStore />, link: `${basePath}/vendors` },
       {
-        name: "Vendors",
-        icon: <FaUser />,
+        name: "Vendor Applications",
+        icon: <FaClipboardList />,
         link: `${basePath}/vendor-application`,
       },
       { name: "Settings", icon: <FaCog />, link: `${basePath}/settings` },

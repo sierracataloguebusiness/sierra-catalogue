@@ -188,7 +188,7 @@ const AdminManageUsers = () => {
                 >
                   <td className="p-3 flex items-center gap-2">
                     <FaUserAlt className="text-yellow-500" />
-                    {u.firstName} {u.lastName}
+                    {u.firstName} {u.otherNames} {u.lastName}
                   </td>
                   <td className="p-3">{u.email}</td>
                   <td className="p-3">{u.tel}</td>

@@ -36,7 +36,7 @@ router.patch("vendors/:id/role", changeVendorRole);
 router.get("/security", getSecuritySettings);
 router.post("/security/timeout", updateSessionTimeout);
 router.get("/profile", getAdminProfile);
-router.put("/profile", updateAdminProfile);
+router.put("/profile/update", updateAdminProfile);
 router.put("/password", changePassword);
 router.post("/logout-all", logoutAllSessions);
 
