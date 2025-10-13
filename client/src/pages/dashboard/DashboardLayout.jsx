@@ -11,6 +11,7 @@ import {
   FaUsers,
   FaStore,
   FaClipboardList,
+  FaUser,
 } from "react-icons/fa";
 
 const DashboardLayout = () => {
@@ -24,18 +25,22 @@ const DashboardLayout = () => {
   const menuItems = {
     customer: [
       { name: "Dashboard", icon: <FaChartLine />, link: `${basePath}` },
+      { name: "Profile", icon: <FaUser />, link: `${basePath}/profile` },
       { name: "Orders", icon: <FaShoppingBag />, link: `${basePath}/orders` },
       { name: "Favorites", icon: <FaHeart />, link: `${basePath}/favorites` },
       { name: "Settings", icon: <FaCog />, link: `${basePath}/settings` },
     ],
     vendor: [
       { name: "Dashboard", icon: <FaChartLine />, link: `${basePath}` },
+      { name: "Profile", icon: <FaUser />, link: `${basePath}/profile` },
       { name: "Shop", icon: <FaShoppingBag />, link: `${basePath}/shop` },
       { name: "Orders", icon: <FaShoppingBag />, link: `${basePath}/orders` },
+      { name: "Favorites", icon: <FaHeart />, link: `${basePath}/favorites` },
       { name: "Settings", icon: <FaCog />, link: `${basePath}/settings` },
     ],
     admin: [
       { name: "Admin Panel", icon: <FaChartLine />, link: `${basePath}` },
+      { name: "Profile", icon: <FaUser />, link: `${basePath}/profile` },
       { name: "Users", icon: <FaUsers />, link: `${basePath}/users` },
       { name: "Vendors", icon: <FaStore />, link: `${basePath}/vendors` },
       {

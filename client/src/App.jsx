@@ -33,6 +33,7 @@ import AdminManageUsers from "./pages/dashboard/admin/AdminManageUsers.jsx";
 import AdminManageVendors from "./pages/dashboard/admin/AdminManageVendors.jsx";
 import AdminManageVendorApplications from "./pages/dashboard/admin/AdminManageVendorApplications.jsx";
 import AdminSettings from "./pages/dashboard/admin/AdminSettings.jsx";
+import ProfilePage from "./pages/dashboard/ProfilePage.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -161,6 +162,9 @@ const App = () => {
           <Route path="customer/orders" element={<div>Customer Orders</div>} />
           <Route path="customer/favorites" element={<div>Favorites</div>} />
           <Route path="customer/settings" element={<div>Settings</div>} />
+
+          {/* General Routes */}
+          <Route path="/:role/profile" element={<ProfilePage />} />
         </Route>
       </Routes>
 
