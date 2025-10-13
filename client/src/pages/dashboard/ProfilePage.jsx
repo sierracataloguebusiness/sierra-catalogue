@@ -14,9 +14,9 @@ const ProfilePage = () => {
 
       <div className="space-y-3">
         <p>
-          <strong className="text-primary-gold">Name:</strong> $
-          {user.firstName || ""} ${user.otherNames || ""} $
-          {user.lastName || ""}{" "}
+          <strong className="text-primary-gold">Name:</strong>{" "}
+          {`${user.firstName || ""} ${user.otherNames || ""} ${user.lastName || ""}`.trim() ||
+            "N/A"}
         </p>
 
         <p>
