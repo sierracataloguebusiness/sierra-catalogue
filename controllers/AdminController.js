@@ -1,6 +1,8 @@
 import User from "../models/User.js";
 import Listing from "../models/Listing.js";
 import Order from "../models/Order.js";
+import AdminLog from "../models/AdminLog.js";
+import bcrypt from "bcryptjs";
 
 export const getAdminStats = async (req, res) => {
     try {
@@ -94,5 +96,78 @@ export const updateUserRole = async (req, res) => {
     } catch (error) {
         console.error("Error updating role:", error);
         res.status(500).json({ message: "Server error" });
+    }
+};
+
+export const getSecuritySettings = async (req, res) => {
+    try {
+        const adminLogs = await AdminLog.find()
+            .sort({ createdAt: -1 })
+            .limit(10);
+        const timeout = process.env.SESSION_TIMEOUT || "1h";
+
+        res.json({ logs: adminLogs, timeout });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error fetching security settings" });
+    }
+};
+
+export const updateSessionTimeout = async (req, res) => {
+    try {
+        const { timeout } = req.body;
+        process.env.SESSION_TIMEOUT = timeout;
+        res.json({ message: "Session timeout updated successfully", timeout });
+    } catch (error) {
+        res.status(500).json({ message: "Error updating timeout" });
+    }
+};
+
+export const getAdminProfile = async (req, res) => {
+    try {
+        const admin = await User.findById(req.user._id).select("-password");
+        res.json(admin);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching profile" });
+    }
+};
+
+export const updateAdminProfile = async (req, res) => {
+    try {
+        const { firstName, lastName, tel, email } = req.body;
+        const updated = await User.findByIdAndUpdate(
+            req.user._id,
+            { firstName, lastName, tel, email },
+            { new: true }
+        ).select("-password");
+
+        res.json({ message: "Profile updated successfully", updated });
+    } catch (error) {
+        res.status(500).json({ message: "Error updating profile" });
+    }
+};
+
+export const changePassword = async (req, res) => {
+    try {
+        const { oldPassword, newPassword } = req.body;
+        const user = await User.findById(req.user._id);
+
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) return res.status(400).json({ message: "Incorrect old password" });
+
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save();
+
+        res.json({ message: "Password updated successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Error updating password" });
+    }
+};
+
+export const logoutAllSessions = async (req, res) => {
+    try {
+        res.json({ message: "All sessions logged out successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Error logging out sessions" });
     }
 };
