@@ -8,6 +8,11 @@ const ProfilePage = () => {
   const { user, login } = useAuth();
   const [editingField, setEditingField] = useState(null);
   const [newValue, setNewValue] = useState("");
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwords, setPasswords] = useState({
+    newPassword: "",
+    confirmPassword: "",
+  });
 
   if (!user) {
     return (
@@ -85,11 +90,39 @@ const ProfilePage = () => {
           onClick={() => handleEdit(field, value)}
           className="mt-2 sm:mt-0 text-yellow-400 hover:text-yellow-300 text-sm font-semibold"
         >
-          <HiPencilAlt />
+          <HiPencilAlt className="size-4" />
         </button>
       )}
     </div>
   );
+
+  const handleChangePassword = async () => {
+    const { newPassword, confirmPassword } = passwords;
+
+    if (!newPassword || !confirmPassword) {
+      toast.error("Please fill in both fields");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.put(
+        "https://sierra-catalogue.onrender.com/api/user/profile/password",
+        { newPassword, confirmPassword },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      toast.success(res.data.message || "Password changed successfully!");
+      setShowPasswordModal(false);
+      setPasswords({ newPassword: "", confirmPassword: "" });
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Failed to change password. Try again.",
+      );
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black flex justify-center items-start py-10 px-4 sm:px-6">
@@ -110,8 +143,8 @@ const ProfilePage = () => {
 
         <div className="text-center mt-10">
           <button
-            onClick={() => toast.info("Password change coming soon!")}
-            className="px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold rounded-lg transition"
+            onClick={() => setShowPasswordModal(true)}
+            className="px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold rounded-lg transition w-full sm:w-auto"
           >
             Change Password
           </button>
@@ -141,6 +174,55 @@ const ProfilePage = () => {
               </button>
               <button
                 onClick={handleSave}
+                className="w-full sm:w-auto px-4 py-2 bg-yellow-500 text-black rounded-md font-semibold hover:bg-yellow-400 transition"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPasswordModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 w-full max-w-sm shadow-lg">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-yellow-400 text-center">
+              Change Password
+            </h2>
+
+            <div className="space-y-4">
+              <input
+                type="password"
+                placeholder="New Password"
+                value={passwords.newPassword}
+                onChange={(e) =>
+                  setPasswords({ ...passwords, newPassword: e.target.value })
+                }
+                className="w-full bg-gray-900 border border-gray-700 text-white p-3 rounded-md focus:outline-none focus:border-yellow-400"
+              />
+              <input
+                type="password"
+                placeholder="Confirm Password"
+                value={passwords.confirmPassword}
+                onChange={(e) =>
+                  setPasswords({
+                    ...passwords,
+                    confirmPassword: e.target.value,
+                  })
+                }
+                className="w-full bg-gray-900 border border-gray-700 text-white p-3 rounded-md focus:outline-none focus:border-yellow-400"
+              />
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
+              <button
+                onClick={() => setShowPasswordModal(false)}
+                className="w-full sm:w-auto px-4 py-2 bg-gray-600 rounded-md hover:bg-gray-500 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleChangePassword}
                 className="w-full sm:w-auto px-4 py-2 bg-yellow-500 text-black rounded-md font-semibold hover:bg-yellow-400 transition"
               >
                 Save

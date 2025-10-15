@@ -51,26 +51,25 @@ export const updateProfile = async  (req, res) => {
     })
 }
 
-export const changePassword = async  (req, res) => {
+export const changePassword = async (req, res) => {
     const userId = req.user.id;
-
-    const { oldPassword, newPassword, confirmPassword } = req.body;
+    const { newPassword, confirmPassword } = req.body;
 
     const user = await User.findById(userId);
     if (!user) {
         throw new AppError('User not found', 404);
     }
 
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) {
-        throw new AppError('Old password is incorrect', 401);
+    const isSame = await bcrypt.compare(newPassword, user.password);
+    if (isSame) {
+        throw new AppError('Password cannot be the same as old password', 400);
     }
 
-    if(newPassword !== confirmPassword) {
+    if (newPassword !== confirmPassword) {
         throw new AppError('Passwords do not match', 400);
     }
 
-    if(newPassword.length < 8) {
+    if (newPassword.length < 8) {
         throw new AppError('Password must be at least 8 characters', 400);
     }
 
@@ -78,6 +77,6 @@ export const changePassword = async  (req, res) => {
     await user.save();
 
     res.status(200).json({
-        message: 'Password changed successfully'
-    })
-}
+        message: 'Password changed successfully',
+    });
+};
