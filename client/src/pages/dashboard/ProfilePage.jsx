@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { HiPencilAlt } from "react-icons/hi";
 
 const ProfilePage = () => {
   const { user, login } = useAuth();
@@ -84,7 +85,7 @@ const ProfilePage = () => {
           onClick={() => handleEdit(field, value)}
           className="mt-2 sm:mt-0 text-yellow-400 hover:text-yellow-300 text-sm font-semibold"
         >
-          ✏️ Edit
+          <HiPencilAlt /> Edit
         </button>
       )}
     </div>
@@ -92,7 +93,7 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-black flex justify-center items-start py-10 px-4 sm:px-6">
-      <div className="w-full max-w-2xl bg-gray-900 border border-gray-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+      <div className="w-full max-w-2xl bg-gray-700 border border-gray-600 rounded-2xl p-6 sm:p-8 shadow-xl">
         <h1 className="text-2xl sm:text-3xl font-bold mb-8 text-yellow-400 text-center">
           My Profile
         </h1>
