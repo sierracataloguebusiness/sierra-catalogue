@@ -85,7 +85,7 @@ const ProfilePage = () => {
           onClick={() => handleEdit(field, value)}
           className="mt-2 sm:mt-0 text-yellow-400 hover:text-yellow-300 text-sm font-semibold"
         >
-          <HiPencilAlt /> Edit
+          <HiPencilAlt />
         </button>
       )}
     </div>
@@ -118,7 +118,6 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* Edit Modal */}
       {editingField && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
           <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 w-full max-w-sm shadow-lg">
