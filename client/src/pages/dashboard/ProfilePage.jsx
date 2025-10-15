@@ -2,32 +2,35 @@ import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { HiPencilAlt } from "react-icons/hi";
 
 const ProfilePage = () => {
   const { user, login } = useAuth();
   const [editingField, setEditingField] = useState(null);
-  let [newValue, setNewValue] = useState("");
+  const [newValue, setNewValue] = useState("");
 
   if (!user) {
-    return <p className="p-4 text-gray-400">Loading profile...</p>;
+    return (
+      <div className="flex justify-center items-center min-h-screen text-gray-400">
+        Loading profile...
+      </div>
+    );
   }
 
   const handleEdit = (field, currentValue) => {
+    if (field === "role") return;
     setEditingField(field);
     setNewValue(currentValue || "");
   };
 
   const formatPhone = (input) => {
     const clean = input.trim();
-
     if (/^0\d{8}$/.test(clean)) {
       return "+232" + clean.slice(1);
     } else if (/^\+232\d{8}$/.test(clean)) {
       return clean;
     } else {
       throw new Error(
-        "Invalid phone number format (099XXXXXX or +2329XXXXXXX)",
+        "Invalid phone number format (099XXXXXXX or +2329XXXXXXX)",
       );
     }
   };
@@ -39,13 +42,14 @@ const ProfilePage = () => {
     }
 
     let payload = {};
+    let formattedValue = newValue.trim();
 
     try {
       if (editingField === "tel") {
-        newValue = formatPhone(newValue);
+        formattedValue = formatPhone(formattedValue);
       }
 
-      payload[editingField] = newValue;
+      payload[editingField] = formattedValue;
 
       const token = localStorage.getItem("token");
       const res = await axios.put(
@@ -57,7 +61,6 @@ const ProfilePage = () => {
       );
 
       login(token, res.data.user);
-
       toast.success("Profile updated successfully!");
       setEditingField(null);
     } catch (err) {
@@ -70,42 +73,55 @@ const ProfilePage = () => {
     }
   };
 
-  const renderField = (label, field, value) => (
-    <div className="flex items-center justify-between bg-gray-800 p-3 rounded-md">
-      <div>
-        <p className="text-gray-400 text-sm">{label}</p>
-        <p className="text-white font-medium">{value || "N/A"}</p>
+  const renderField = (label, field, value, editable = true) => (
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-800/80 border border-gray-700 p-3 sm:p-4 rounded-lg transition hover:border-yellow-500/40">
+      <div className="flex-1">
+        <p className="text-gray-400 text-xs sm:text-sm">{label}</p>
+        <p className="text-white font-medium break-words">{value || "N/A"}</p>
       </div>
-      <button
-        onClick={() => handleEdit(field, value)}
-        className="text-yellow-400 hover:text-yellow-300 text-sm font-semibold"
-      >
-        <HiPencilAlt />️ Edit
-      </button>
+      {editable && (
+        <button
+          onClick={() => handleEdit(field, value)}
+          className="mt-2 sm:mt-0 text-yellow-400 hover:text-yellow-300 text-sm font-semibold"
+        >
+          ✏️ Edit
+        </button>
+      )}
     </div>
   );
 
   return (
-    <div className="p-6 bg-gray-900 shadow-md rounded-xl max-w-lg mx-auto text-white">
-      <h1 className="text-2xl font-bold mb-6 text-yellow-400 text-center">
-        My Profile
-      </h1>
+    <div className="min-h-screen bg-black flex justify-center items-start py-10 px-4 sm:px-6">
+      <div className="w-full max-w-2xl bg-gray-900 border border-gray-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-8 text-yellow-400 text-center">
+          My Profile
+        </h1>
 
-      <div className="space-y-4">
-        {renderField("First Name", "firstName", user.firstName)}
-        {renderField("Other Names", "otherNames", user.otherNames)}
-        {renderField("Last Name", "lastName", user.lastName)}
-        {renderField("Email", "email", user.email)}
-        {renderField("Phone", "tel", user.tel)}
-        {renderField("Address", "address", user.address)}
-        {renderField("Account Type", "role", user.role || "Customer")}
+        <div className="flex flex-col gap-4">
+          {renderField("First Name", "firstName", user.firstName)}
+          {renderField("Other Names", "otherNames", user.otherNames)}
+          {renderField("Last Name", "lastName", user.lastName)}
+          {renderField("Email", "email", user.email)}
+          {renderField("Phone", "tel", user.tel)}
+          {renderField("Address", "address", user.address)}
+          {renderField("Account Type", "role", user.role || "Customer", false)}
+        </div>
+
+        <div className="text-center mt-10">
+          <button
+            onClick={() => toast.info("Password change coming soon!")}
+            className="px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold rounded-lg transition"
+          >
+            Change Password
+          </button>
+        </div>
       </div>
 
       {/* Edit Modal */}
       {editingField && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-          <div className="bg-gray-800 rounded-xl p-6 w-80 shadow-lg">
-            <h2 className="text-xl font-bold mb-4 text-yellow-400 capitalize">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 w-full max-w-sm shadow-lg">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-yellow-400 capitalize text-center">
               Edit {editingField}
             </h2>
 
@@ -116,16 +132,16 @@ const ProfilePage = () => {
               className="w-full bg-gray-900 border border-gray-700 text-white p-3 rounded-md focus:outline-none focus:border-yellow-400"
             />
 
-            <div className="flex justify-end gap-3 mt-4">
+            <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
               <button
                 onClick={() => setEditingField(null)}
-                className="px-4 py-2 bg-gray-600 rounded-md hover:bg-gray-500"
+                className="w-full sm:w-auto px-4 py-2 bg-gray-600 rounded-md hover:bg-gray-500 transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="px-4 py-2 bg-yellow-500 text-black rounded-md font-semibold hover:bg-yellow-400"
+                className="w-full sm:w-auto px-4 py-2 bg-yellow-500 text-black rounded-md font-semibold hover:bg-yellow-400 transition"
               >
                 Save
               </button>
