@@ -12,6 +12,8 @@ import {
   FaStore,
   FaClipboardList,
   FaUser,
+  FaBoxOpen,
+  FaShoppingCart,
 } from "react-icons/fa";
 
 const DashboardLayout = () => {
@@ -33,9 +35,9 @@ const DashboardLayout = () => {
     vendor: [
       { name: "Dashboard", icon: <FaChartLine />, link: `${basePath}` },
       { name: "Profile", icon: <FaUser />, link: `${basePath}/profile` },
-      { name: "Shop", icon: <FaShoppingBag />, link: `${basePath}/shop` },
-      { name: "Orders", icon: <FaShoppingBag />, link: `${basePath}/orders` },
-      { name: "Favorites", icon: <FaHeart />, link: `${basePath}/favorites` },
+      { name: "My Shop", icon: <FaStore />, link: `${basePath}/shop` },
+      { name: "Products", icon: <FaBoxOpen />, link: `${basePath}/products` },
+      { name: "Orders", icon: <FaShoppingCart />, link: `${basePath}/orders` },
       { name: "Settings", icon: <FaCog />, link: `${basePath}/settings` },
     ],
     admin: [
