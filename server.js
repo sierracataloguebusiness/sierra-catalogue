@@ -13,12 +13,13 @@ import orderRoutes from "./routes/orderRoutes.js";
 import contactMessageRoutes from "./routes/contactMessageRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
 import vendorApplicationRoutes from "./routes/vendorApplicationRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import vendorRoutes from "./routes/vendorRoutes.js";
 
 dotenv.config();
 
 import path from 'path';
 import { fileURLToPath } from 'url';
-import adminRoutes from "./routes/adminRoutes.js";
 
 
 // Resolve dirname (for ES Modules)
@@ -45,7 +46,8 @@ app.use('/api/order', orderRoutes);
 app.use('/api/messages', contactMessageRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/vendorApplication', vendorApplicationRoutes);
-app.use('/api/admin', adminRoutes)
+app.use('/api/admin', adminRoutes);
+app.use('/api/vendor', vendorRoutes);
 
 
 // Serve frontend
