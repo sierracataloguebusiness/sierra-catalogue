@@ -6,6 +6,7 @@ const OrderSchema = new mongoose.Schema(
         items: [
             {
                 listingId: { type: mongoose.Schema.Types.ObjectId, ref: "Listing" },
+                vendor: { type: mongoose.Schema.Types.ObjectId, ref: "Vendor" },
                 title: String,
                 price: Number,
                 quantity: Number,
@@ -15,18 +16,29 @@ const OrderSchema = new mongoose.Schema(
             firstName: String,
             lastName: String,
             phone: String,
-            method: { type: String, enum: ["delivery", "pickup"], default: "delivery" },
+            method: {
+                type: String,
+                enum: ["delivery", "pickup"],
+                default: "delivery",
+            },
             address: String,
             instructions: String,
         },
         total: { type: Number, required: true },
         status: {
             type: String,
-            enum: ["pending", "paid", "shipped", "completed"],
+            enum: ["pending", "completed"],
             default: "pending",
         },
+        vendorOrders: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "VendorOrder",
+            },
+        ],
     },
     { timestamps: true }
 );
 
-export default mongoose.model("Order", OrderSchema);
+const Order = mongoose.model("Order", OrderSchema);
+export default Order;

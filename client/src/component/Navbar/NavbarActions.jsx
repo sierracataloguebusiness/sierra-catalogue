@@ -44,10 +44,9 @@ const NavbarActions = ({
         return [
           { name: "Dashboard", link: "/dashboard/vendor" },
           { name: "Shop", link: "/dashboard/vendor/shop" },
+          { name: "Products", link: "/dashboard/vendor/favorites" },
           { name: "Orders", link: "/dashboard/vendor/orders" },
-          { name: "Favorites", link: "/dashboard/vendor/favorites" },
           { name: "Settings", link: "/dashboard/vendor/settings" },
-          { name: "Help", link: "/dashboard/vendor/help" },
         ];
       case "admin":
         return [
