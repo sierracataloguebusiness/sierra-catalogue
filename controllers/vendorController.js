@@ -8,7 +8,7 @@ export const getVendorStats = async (req, res) => {
         const totalProducts = await Listing.countDocuments({ vendor: vendorId });
         const activeProducts = await Listing.countDocuments({
             vendor: vendorId,
-            status: "active",
+            isActive: true,
         });
 
         const totalOrders = await VendorOrder.countDocuments({ vendor: vendorId });
