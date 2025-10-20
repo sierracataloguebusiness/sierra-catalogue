@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import FormInput from "../../../component/Form/FormComponents/FormInput.jsx";
 import Button from "../../../component/Button.jsx";
 import axios from "axios";
@@ -14,6 +14,22 @@ const VendorProduct = () => {
     image: null,
   });
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get(
+          "https://sierra-catalogue.onrender.com/api/categories",
+        );
+        setCategories(res.data.categories || []);
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+        toast.error("Unable to load categories");
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -128,9 +144,11 @@ const VendorProduct = () => {
           <option value="" disabled>
             Select Category
           </option>
-          <option value="671a1109e6b8f3b1f44ab7c3">Food & Drinks</option>
-          <option value="671a1123e6b8f3b1f44ab7c4">Fashion</option>
-          <option value="671a113ae6b8f3b1f44ab7c5">Electronics</option>
+          {categories.map((cat) => (
+            <option key={cat._id} value={cat._id}>
+              {cat.name}
+            </option>
+          ))}
         </select>
 
         <input
