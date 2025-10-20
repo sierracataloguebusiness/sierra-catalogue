@@ -7,17 +7,20 @@ export const createListing = async (req, res, next) => {
         const { title, categoryId, description, price, stock } = req.body;
         const vendor = req.user.id;
 
+        const priceNum = Number(price);
+        const stockNum = Number(stock) || 0;
+
         if (!title || !categoryId || !price) {
-            throw new AppError("Title, category, and price are required", 400);
+            return res.status(400).json({ message: "Title, category, and price are required" });
         }
+
+        if (priceNum < 0) return res.status(400).json({ message: "Price cannot be below 0" });
+        if (stockNum < 0) return res.status(400).json({ message: "Stock cannot be below 0" });
 
         const categoryExists = await Category.findById(categoryId);
         if (!categoryExists) {
-            throw new AppError("Invalid category selected", 400);
+            return res.status(400).json({ message: "Invalid category selected" });
         }
-
-        if (price < 0) throw new AppError("Price cannot be below 0", 400);
-        if (stock !== undefined && stock < 0) throw new AppError("Stock cannot be below 0", 400);
 
         const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
@@ -25,8 +28,8 @@ export const createListing = async (req, res, next) => {
             title,
             description,
             images: imagePath ? [imagePath] : [],
-            price,
-            stock: stock || 0,
+            price: priceNum,
+            stock: stockNum,
             vendor,
             categoryId,
         });
@@ -36,7 +39,8 @@ export const createListing = async (req, res, next) => {
             listing: newListing,
         });
     } catch (err) {
-        next(err);
+        console.error("Create Listing Error:", err);
+        res.status(500).json({ message: "Internal Server Error" });
     }
 };
 

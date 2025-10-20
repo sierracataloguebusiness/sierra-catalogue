@@ -52,8 +52,8 @@ const VendorProduct = () => {
       setLoading(true);
       const formData = new FormData();
       formData.append("title", form.title);
-      formData.append("price", form.price);
-      formData.append("stock", form.stock);
+      formData.append("price", Number(form.price));
+      formData.append("stock", Number(form.stock) || 0);
       formData.append("categoryId", form.categoryId);
       formData.append("description", form.description);
       formData.append("image", form.image);
