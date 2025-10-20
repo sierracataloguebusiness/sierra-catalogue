@@ -8,66 +8,86 @@ const VendorProduct = () => {
     price: "",
     stock: 1,
     category: "",
-    image: "",
+    image: null,
   });
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
+
+  const handleFileChange = (e) => {
+    setForm((prev) => ({ ...prev, image: e.target.files[0] }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(form);
   };
 
   return (
-    <div>
-      {/* upload product   */}
-      <div>
-        <form
-          onSubmit={handleSubmit}
-          className="w-full flex flex-col space-y-3 max-w-2xl bg-gray-700 border border-gray-600 rounded-2xl p-6 sm:p-8 shadow-xl"
+    <div className="flex justify-center mt-10">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full flex flex-col space-y-4 max-w-2xl bg-gray-700 border border-gray-600 rounded-2xl p-6 sm:p-8 shadow-xl"
+      >
+        <h3 className="text-xl font-semibold text-white mb-2">
+          Upload Product
+        </h3>
+
+        <FormInput
+          placeholder="Product Name"
+          name="title"
+          value={form.title}
+          onChange={handleChange}
+          hasLabel={false}
+          hasError={false}
+        />
+
+        <FormInput
+          placeholder="Price"
+          name="price"
+          value={form.price}
+          onChange={handleChange}
+          hasLabel={false}
+          hasError={false}
+        />
+
+        <FormInput
+          placeholder="Stock Quantity"
+          name="stock"
+          type="number"
+          value={form.stock}
+          onChange={handleChange}
+          hasLabel={false}
+          hasError={false}
+        />
+
+        <select
+          name="category"
+          value={form.category}
+          onChange={handleChange}
+          className="bg-gray-800 text-white px-3 py-2 rounded-md outline-none"
         >
-          <h3 className="heading">Upload Products</h3>
-          <FormInput
-            placeholder="Product Name"
-            hasLabel={false}
-            onChange={handleChange}
-            hasError={false}
-            name={form.title}
-            value={form.title}
-          />
+          <option value="" disabled>
+            Select Category
+          </option>
+          <option value="category1">Category 1</option>
+          <option value="category2">Category 2</option>
+          <option value="category3">Category 3</option>
+        </select>
 
-          <select
-            value={form.category}
-            name={form.category}
-            onChange={handleChange}
-            defaultValue=""
-            className="bg-gray-800 text-white px-2 py-1 rounded-md"
-          >
-            <option value="" disabled>
-              Select Category
-            </option>
-            <option value="customer">Category 1</option>
-            <option value="vendor">Category 2</option>
-            <option value="admin">Category 3</option>
-          </select>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="text-white"
+        />
 
-          <FormInput
-            placeholder="Price"
-            hasLabel={false}
-            onChange={handleChange}
-            hasError={false}
-            name={form.price}
-            value={form.price}
-          />
-
-          <input type="file" accept="image/*" value={form.image} />
-
-          <Button>Add Product</Button>
-        </form>
-      </div>
-      {/*  edit products  */}
-      {/*  view all products  */}
+        <Button type="submit">Add Product</Button>
+      </form>
     </div>
   );
 };
+
 export default VendorProduct;
