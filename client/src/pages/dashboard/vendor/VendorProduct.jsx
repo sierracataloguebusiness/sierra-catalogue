@@ -32,12 +32,14 @@ const VendorProduct = () => {
             hasLabel={false}
             onChange={handleChange}
             hasError={false}
-            name="productName"
+            name={form.title}
             value={form.title}
           />
 
           <select
             value={form.category}
+            name={form.category}
+            onChange={handleChange}
             defaultValue=""
             className="bg-gray-800 text-white px-2 py-1 rounded-md"
           >
@@ -54,9 +56,10 @@ const VendorProduct = () => {
             hasLabel={false}
             onChange={handleChange}
             hasError={false}
-            name="price"
+            name={form.price}
             value={form.price}
           />
+
           <input type="file" accept="image/*" value={form.image} />
 
           <Button>Add Product</Button>
