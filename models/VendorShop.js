@@ -37,4 +37,6 @@ const VendorShopSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-export default mongoose.model("VendorShop", VendorShopSchema);
+const VendorShop = mongoose.model("VendorShop", VendorShopSchema);
+
+export default VendorShop;

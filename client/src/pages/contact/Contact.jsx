@@ -1,3 +1,21 @@
+/**
+ * Contact.jsx
+ * -----------------------------------------------------
+ * Sierra Catalogue Contact Page
+ *
+ * Description:
+ * - Displays a contact form with a contact info component.
+ * - Contains links to our WhatsApp, instagram, and TikTok pages as well as our phone number and location.
+ * - Also has a banner ("PageFlyer") introducing the contact section.
+ *
+ * Features:
+ * - Sends contact form data to the database
+ *
+ * Dependencies:
+ * - React (for component logic) & React Icons
+ * - Custom components (PageFlyer, FormInput, Button, ContactStrip, and ContactStripElement)
+ */
+
 import React, { useState } from "react";
 import PageFlyer from "../../component/PageFlyer.jsx";
 import FormInput from "../../component/Form/FormComponents/FormInput.jsx";
@@ -10,19 +28,28 @@ import { MdLocationPin } from "react-icons/md";
 import { toast } from "react-toastify";
 
 const Contact = () => {
+  // =========================================================
+  // STATE MANAGEMENT
+  // =========================================================
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     tel: "",
     message: "",
-  });
-  const [loading, setLoading] = useState(false);
+  }); // Stores the contact form data
+  const [loading, setLoading] = useState(false); // Loading state
 
+  // =========================================================
+  // HANDLE CHANGE IN THE CONTACT FORM
+  // =========================================================
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // =========================================================
+  // HANDLE SUBMIT OF THE CONTACT FORM
+  // =========================================================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -71,8 +98,12 @@ const Contact = () => {
     }
   };
 
+  // =========================================================
+  // RENDER CONTACT PAGE
+  // =========================================================
   return (
     <div className="pb-10">
+      {/* ======================== PAGE FLYER ======================== */}
       <PageFlyer
         heading="Contact Page"
         subheading="Got any questions on how the catalogue works or how to make your business stand out on our platform? We're here to help."
@@ -81,7 +112,9 @@ const Contact = () => {
 
       <h2 className="heading text-center my-4 md:my-6">Leave us a message</h2>
 
+      {/* ======================== CONTACT FORM + CONTACT INFO ======================== */}
       <div className="container-fluid min-h-[80vh] grid items-center md:grid-cols-2 gap-8">
+        {/* ======================== CONTACT FORM ======================== */}
         <form className="flex flex-col gap-4 md:ml-12" onSubmit={handleSubmit}>
           <div className="flex max-sm:flex-col items-center gap-6">
             <FormInput
@@ -141,6 +174,7 @@ const Contact = () => {
           </Button>
         </form>
 
+        {/* ======================== CONTACT INFO ======================== */}
         <div className="flex flex-col justify-center gap-10 py-6 ml-3">
           <div className="flex flex-col gap-4">
             <ContactStrip

@@ -1,3 +1,28 @@
+/**
+ * Home.jsx
+ * -----------------------------------------------
+ * Sierra Catalogue Homepage
+ *
+ * Description:
+ * The main landing page for Sierra Catalogue. Displays:
+ * - Hero banner introducing the platform
+ * - “How it works” section explaining steps
+ * - Top product categories and listings from backend API
+ * - Contact information and social links
+ *
+ * Features:
+ * - Fetches categories and listings via Axios
+ * - Allows logged-in users to add products to cart
+ * - Uses Toastify for user feedback
+ * - Shows loading state via a Loader component
+ *
+ * Dependencies:
+ * - React & React Icons
+ * - Axios (HTTP requests)
+ * - React-Toastify (notifications)
+ * - Custom UI components (Button, ListingCard, ContactStrip, etc.)
+ */
+
 import React, { useEffect, useState } from "react";
 import Button from "../component/Button.jsx";
 import { MdLocationPin, MdPersonAddAlt1 } from "react-icons/md";
@@ -8,34 +33,47 @@ import {
   FaTiktok,
   FaWhatsapp,
 } from "react-icons/fa";
+import { BiPhone } from "react-icons/bi";
 import ContactStrip from "./contact/ContactStrip.jsx";
 import ContactStripElement from "./contact/ContactStripElemet.jsx";
-import { BiPhone } from "react-icons/bi";
 import ListingCard from "../component/ListingCard.jsx";
-import axios from "axios";
 import Loader from "../component/Loader.jsx";
+import axios from "axios";
 import { toast } from "react-toastify";
 
 const Home = () => {
-  const [categories, setCategories] = useState([]);
-  const [listings, setListings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [addingId, setAddingId] = useState(null);
+  // =========================================================
+  // STATE MANAGEMENT
+  // =========================================================
+  const [categories, setCategories] = useState([]); // Stores all fetched product categories
+  const [listings, setListings] = useState([]); // Stores fetched product listings
+  const [loading, setLoading] = useState(true); // Controls loading spinner
+  const [addingId, setAddingId] = useState(null); // Tracks which item is being added to cart
 
+  // =========================================================
+  // FETCH DATA ON COMPONENT MOUNT
+  // =========================================================
   useEffect(() => {
+    /**
+     * Fetches categories and listings from the backend API
+     * Executes once when the component mounts.
+     */
     const fetchData = async () => {
       try {
+        // Fetch both categories and listings in parallel
         const [catRes, listRes] = await Promise.all([
-          axios.get("https://sierra-catalogue.onrender.com/api/category"), //Get all categories
+          axios.get("https://sierra-catalogue.onrender.com/api/category"),
           axios.get(
             "https://sierra-catalogue.onrender.com/api/listings?limit=15",
-          ), //Get listings(15)
+          ),
         ]);
 
+        // Update state with fetched data
         setCategories(catRes.data.categories || []);
         setListings(listRes.data.listings || []);
       } catch (error) {
         console.error("Error fetching home data:", error);
+        toast.error("Failed to load homepage data.");
       } finally {
         setLoading(false);
       }
@@ -44,10 +82,18 @@ const Home = () => {
     fetchData();
   }, []);
 
+  // =========================================================
+  // HANDLE ADD TO CART FUNCTIONALITY
+  // =========================================================
+  /**
+   * Adds an item to the user's cart.
+   * @param {string} listingId - The ID of the listing being added.
+   */
   const handleAddToCart = async (listingId) => {
     try {
       setAddingId(listingId);
       const token = localStorage.getItem("token");
+
       if (!token) {
         toast.error("You must be logged in to add to cart.");
         return;
@@ -55,15 +101,8 @@ const Home = () => {
 
       const res = await axios.post(
         "https://sierra-catalogue.onrender.com/api/cart/add",
-        {
-          listingId,
-          quantity: 1,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+        { listingId, quantity: 1 },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       toast.success(res.data.message || "Added to cart!");
@@ -75,16 +114,22 @@ const Home = () => {
     }
   };
 
-  if (loading) {
-    return <Loader />;
-  }
+  // =========================================================
+  // LOADING STATE
+  // =========================================================
+  if (loading) return <Loader />;
 
+  // =========================================================
+  //️ RENDER HOME PAGE
+  // =========================================================
   return (
     <>
-      {/* Hero Banner*/}
+      {/* ======================== HERO BANNER ======================== */}
       <div className="relative px-4 min-h-[85vh] bg-[url('/assets/bg-sec.jpg')] bg-cover bg-center flex flex-col gap-6 justify-center items-center text-white">
+        {/* Overlay for dark effect */}
         <div className="absolute inset-0 bg-black/40" aria-hidden="true"></div>
 
+        {/* Hero Text Content */}
         <div className="relative flex flex-col gap-4 md:w-3/4 mx-auto text-center">
           <h1 className="heading md:heading-large">
             Welcome to Sierra Catalogue
@@ -97,6 +142,7 @@ const Home = () => {
           </p>
         </div>
 
+        {/* Hero Buttons */}
         <div className="relative flex max-sm:flex-col gap-6 md:gap-10 max-sm:text-sm">
           <Button to="/vendor-application" className="px-6 py-4 max-md:text-lg">
             List your business
@@ -111,8 +157,8 @@ const Home = () => {
         </div>
       </div>
 
-      {/* How it works */}
-      <div className="px-4 py-20 container mx-auto min-h-[50vh] flex flex-col items-center gap-10">
+      {/* ======================== HOW IT WORKS ======================== */}
+      <section className="px-4 py-20 container mx-auto min-h-[50vh] flex flex-col items-center gap-10">
         <h2 className="heading text-center">How it works</h2>
         <div className="grid md:grid-cols-3 gap-6 w-full">
           {[
@@ -147,10 +193,10 @@ const Home = () => {
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* Categories */}
-      <div className="px-4 py-20 container mx-auto">
+      {/* ======================== CATEGORIES ======================== */}
+      <section className="px-4 py-20 container mx-auto">
         <h2 className="heading text-center mb-10">Top Categories</h2>
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 text-lg text-center">
           {categories.length === 0 ? (
@@ -165,10 +211,10 @@ const Home = () => {
             ))
           )}
         </div>
-      </div>
+      </section>
 
-      {/* Listings */}
-      <div className="px-4 py-20 container mx-auto">
+      {/* ======================== LISTINGS ======================== */}
+      <section className="px-4 py-20 container mx-auto">
         <h2 className="heading text-center mb-10">Top Listings</h2>
         {listings.length === 0 ? (
           <p className="text-center text-gray-400">
@@ -187,15 +233,17 @@ const Home = () => {
             ))}
           </div>
         )}
-      </div>
+      </section>
 
-      {/* Contact Section */}
-      <div className="flex flex-col items-center px-4 py-20 container mx-auto">
+      {/* ======================== CONTACT SECTION ======================== */}
+      <section className="flex flex-col items-center px-4 py-20 container mx-auto">
         <h2 className="heading mb-6">Contact Us</h2>
         <p className="mb-4 text-gray-300 text-center">
           Got questions or need support? We’re here to help!
         </p>
+
         <div className="flex max-md:flex-col justify-center gap-10 py-6">
+          {/* Contact - Chat Section */}
           <div className="flex flex-col gap-4">
             <ContactStrip
               heading={"Chat with us"}
@@ -212,16 +260,17 @@ const Home = () => {
                 to={
                   "https://www.instagram.com/sierracatalogue?igsh=NTZ0eWdlc2luOHJ4"
                 }
-                content={"Message on instagram"}
+                content={"Message on Instagram"}
               />
               <ContactStripElement
                 icon={<FaTiktok />}
                 to={"https://tiktok.com/@sierracatalogue"}
-                content={"View our tiktok page"}
+                content={"View our TikTok page"}
               />
             </div>
           </div>
 
+          {/* Contact - Call Section */}
           <div className="flex flex-col gap-4">
             <ContactStrip
               heading={"Call us"}
@@ -234,6 +283,7 @@ const Home = () => {
             />
           </div>
 
+          {/* Contact - Visit Section */}
           <div className="flex flex-col gap-4">
             <ContactStrip
               heading={"Visit us"}
@@ -245,10 +295,11 @@ const Home = () => {
             />
           </div>
         </div>
+
         <Button to="/contact" className="max-md:w-full">
           Get in Touch
         </Button>
-      </div>
+      </section>
     </>
   );
 };
