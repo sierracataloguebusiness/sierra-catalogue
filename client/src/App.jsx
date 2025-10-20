@@ -173,7 +173,7 @@ const App = () => {
             path="vendor/products"
             element={
               <PrivateRoute allowedRoles={["vendor"]}>
-                <VendorShop />
+                <VendorProduct />
               </PrivateRoute>
             }
           />

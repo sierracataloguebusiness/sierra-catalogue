@@ -26,10 +26,10 @@ const VendorProduct = () => {
           />
 
           <select>
-            <option value="">Select Product</option>
-            <option value="">Select Product</option>
-            <option value="">Select Product</option>
-            <option value="">Select Product</option>
+            <option value="">Category 1</option>
+            <option value="">Category 2</option>
+            <option value="">Category 3</option>
+            <option value="">Category 4</option>
           </select>
         </form>
       </div>
