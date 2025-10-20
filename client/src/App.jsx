@@ -36,6 +36,7 @@ import AdminSettings from "./pages/dashboard/admin/AdminSettings.jsx";
 import ProfilePage from "./pages/dashboard/ProfilePage.jsx";
 import VendorDashboard from "./pages/dashboard/vendor/VendorDashboard.jsx";
 import VendorShop from "../../models/VendorShop.js";
+import VendorProduct from "./pages/dashboard/vendor/VendorProduct.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -161,6 +162,15 @@ const App = () => {
 
           <Route
             path="vendor/shop"
+            element={
+              <PrivateRoute allowedRoles={["vendor"]}>
+                <VendorShop />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="vendor/products"
             element={
               <PrivateRoute allowedRoles={["vendor"]}>
                 <VendorShop />
