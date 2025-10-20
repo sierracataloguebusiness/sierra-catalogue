@@ -2,7 +2,7 @@ import Listing from "../models/Listing.js";
 import Category from "../models/Category.js";
 import AppError from "../utils/AppError.js";
 
-export const createListing = async (req, res, next) => {
+export const createListing = async (req, res) => {
     try {
         const { title, categoryId, description, price, stock } = req.body;
         const vendor = req.user.id;
@@ -127,5 +127,17 @@ export const getListing = async (req, res) => {
         res.json(product);
     } catch (err) {
         res.status(500).json({ message: "Server error" });
+    }
+};
+
+export const getVendorListings = async (req, res, next) => {
+    try {
+        const listings = await Listing.find({ vendor: req.user._id })
+            .populate("categoryId", "name")
+            .sort({ createdAt: -1 });
+
+        res.json({ listings });
+    } catch (err) {
+        next(err);
     }
 };
