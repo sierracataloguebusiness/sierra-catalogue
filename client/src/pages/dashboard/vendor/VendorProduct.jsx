@@ -60,7 +60,7 @@ const VendorProduct = () => {
             value={form.stock}
           />
 
-          <input type={"image"} value={form.image} />
+          <input type="file" value={form.image} />
         </form>
       </div>
       {/*  edit products  */}
