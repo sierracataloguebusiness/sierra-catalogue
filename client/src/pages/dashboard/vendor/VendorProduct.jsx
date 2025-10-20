@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import FormInput from "../../../component/Form/FormComponents/FormInput.jsx";
+import Button from "../../../component/Button.jsx";
 
 const VendorProduct = () => {
   const [form, setForm] = useState({
@@ -12,14 +13,20 @@ const VendorProduct = () => {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log(form);
+  };
 
   return (
     <div>
       {/* upload product   */}
       <div>
-        <h3 className="heading text-prim">Upload Products</h3>
-
-        <form className="w-full max-w-2xl bg-gray-700 border border-gray-600 rounded-2xl p-6 sm:p-8 shadow-xl">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full flex flex-col space-y-3 max-w-2xl bg-gray-700 border border-gray-600 rounded-2xl p-6 sm:p-8 shadow-xl"
+        >
+          <h3 className="heading">Upload Products</h3>
           <FormInput
             placeholder="Product Name"
             hasLabel={false}
@@ -50,17 +57,9 @@ const VendorProduct = () => {
             name="price"
             value={form.price}
           />
+          <input type="file" accept="image/*" value={form.image} />
 
-          <FormInput
-            placeholder="Stock"
-            hasLabel={false}
-            onChange={handleChange}
-            hasError={false}
-            name="stock"
-            value={form.stock}
-          />
-
-          <input type="file" value={form.image} />
+          <Button>Add Product</Button>
         </form>
       </div>
       {/*  edit products  */}
