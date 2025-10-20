@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import FormInput from "../../../component/Form/FormComponents/FormInput.jsx";
 import Button from "../../../component/Button.jsx";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const VendorProduct = () => {
   const [form, setForm] = useState({
@@ -10,6 +12,7 @@ const VendorProduct = () => {
     category: "",
     image: null,
   });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,8 +23,42 @@ const VendorProduct = () => {
     setForm((prev) => ({ ...prev, image: e.target.files[0] }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (
+      !form.title ||
+      !form.price ||
+      !form.category ||
+      !form.price ||
+      !form.image
+    ) {
+      toast.error("All fields are required.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        "https://sierra-catalogue.onrender.com/api/listings/",
+        form,
+      );
+
+      setLoading(false);
+
+      setForm({
+        title: "",
+        price: "",
+        stock: 1,
+        category: "",
+        image: null,
+      });
+
+      toast.success("Product added successfully.");
+    } catch (err) {
+      toast.error("Failed to add product");
+      console.log("Failed to add product", err);
+    }
     console.log(form);
   };
 
@@ -84,7 +121,7 @@ const VendorProduct = () => {
           className="text-white"
         />
 
-        <Button type="submit">Add Product</Button>
+        <Button type="submit">{loading ? "Loading" : "Add Product"}</Button>
       </form>
     </div>
   );
