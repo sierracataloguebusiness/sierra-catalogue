@@ -20,7 +20,7 @@ const VendorProduct = () => {
     const fetchCategories = async () => {
       try {
         const res = await axios.get(
-          "https://sierra-catalogue.onrender.com/api/categories",
+          "https://sierra-catalogue.onrender.com/api/category",
         );
         setCategories(res.data.categories || []);
       } catch (err) {
