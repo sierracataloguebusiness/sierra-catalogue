@@ -109,7 +109,7 @@ const VendorProduct = () => {
           <option value="" disabled>
             Select Category
           </option>
-          <option value="category1">Category 1</option>
+          <option value="category1">Food & Drinks</option>
           <option value="category2">Category 2</option>
           <option value="category3">Category 3</option>
         </select>
