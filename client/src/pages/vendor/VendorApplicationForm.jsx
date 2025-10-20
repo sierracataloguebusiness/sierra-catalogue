@@ -73,15 +73,10 @@ const VendorApplicationForm = () => {
 
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
       const res = await axios.post(
         "https://sierra-catalogue.onrender.com/api/vendorApplication/apply",
         updatedData,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
       );
-
       toast.success(res.data.message || "Application submitted successfully!");
 
       setFormData({
