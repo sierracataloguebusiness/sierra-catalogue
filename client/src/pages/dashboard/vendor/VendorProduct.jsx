@@ -56,7 +56,7 @@ const VendorProduct = () => {
       formData.append("stock", form.stock);
       formData.append("categoryId", form.categoryId);
       formData.append("description", form.description);
-      formData.append("images", form.image);
+      formData.append("image", form.image);
 
       const token = localStorage.getItem("token");
 
