@@ -125,7 +125,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-start py-10 px-4 sm:px-6">
+    <div className="min-h-screen flex justify-left items-start py-10 px-4 sm:px-6">
       <div className="w-full max-w-2xl bg-gray-700 border border-gray-600 rounded-2xl p-6 sm:p-8 shadow-xl">
         <h1 className="text-2xl sm:text-3xl font-bold mb-8 text-yellow-400 text-center">
           My Profile

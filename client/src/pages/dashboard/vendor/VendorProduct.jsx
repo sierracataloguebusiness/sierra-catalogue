@@ -19,7 +19,7 @@ const VendorProduct = () => {
       <div>
         <h3 className="heading text-prim">Upload Products</h3>
 
-        <form>
+        <form className="w-full max-w-2xl bg-gray-700 border border-gray-600 rounded-2xl p-6 sm:p-8 shadow-xl">
           <FormInput
             placeholder="Product Name"
             hasLabel={false}
