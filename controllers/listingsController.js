@@ -1,37 +1,43 @@
-import AppError from "../utils/AppError.js";
 import Listing from "../models/Listing.js";
 import Category from "../models/Category.js";
+import AppError from "../utils/AppError.js";
 
-export const createListing = async (req, res) => {
-    const { title, categoryId, description, images, price, stock } = req.body;
-    const vendor = req.user.id;
+export const createListing = async (req, res, next) => {
+    try {
+        const { title, categoryId, description, price, stock } = req.body;
+        const vendor = req.user.id;
 
-    if (!title || !categoryId || !price) {
-        throw new AppError('Title, category, and price are required', 400);
+        if (!title || !categoryId || !price) {
+            throw new AppError("Title, category, and price are required", 400);
+        }
+
+        const categoryExists = await Category.findById(categoryId);
+        if (!categoryExists) {
+            throw new AppError("Invalid category selected", 400);
+        }
+
+        if (price < 0) throw new AppError("Price cannot be below 0", 400);
+        if (stock !== undefined && stock < 0) throw new AppError("Stock cannot be below 0", 400);
+
+        const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+
+        const newListing = await Listing.create({
+            title,
+            description,
+            images: imagePath ? [imagePath] : [],
+            price,
+            stock: stock || 0,
+            vendor,
+            categoryId,
+        });
+
+        res.status(201).json({
+            message: "Successfully created listing",
+            listing: newListing,
+        });
+    } catch (err) {
+        next(err);
     }
-
-    const categoryExists = await Category.findById(categoryId);
-    if (!categoryExists) {
-        throw new AppError('Invalid category selected', 400);
-    }
-
-    if (price < 0) throw new AppError('Price cannot be below 0', 400);
-    if (stock !== undefined && stock < 0) throw new AppError('Stock cannot be below 0', 400);
-
-    const newListing = await Listing.create({
-        title,
-        description,
-        images: images || [],
-        price,
-        stock: stock || 0,
-        vendor,
-        categoryId,
-    });
-
-    res.status(201).json({
-        message: 'Successfully created listing',
-        listing: newListing
-    });
 };
 
 export const updateListing = async (req, res) => {

@@ -9,7 +9,8 @@ const VendorProduct = () => {
     title: "",
     price: "",
     stock: 1,
-    category: "",
+    categoryId: "",
+    description: "",
     image: null,
   });
   const [loading, setLoading] = useState(false);
@@ -26,40 +27,49 @@ const VendorProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !form.title ||
-      !form.price ||
-      !form.category ||
-      !form.price ||
-      !form.image
-    ) {
-      toast.error("All fields are required.");
+    if (!form.title || !form.price || !form.categoryId || !form.image) {
+      toast.error("All required fields must be filled.");
       return;
     }
 
     try {
       setLoading(true);
-      const res = await axios.post(
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("price", form.price);
+      formData.append("stock", form.stock);
+      formData.append("categoryId", form.categoryId);
+      formData.append("description", form.description);
+      formData.append("images", form.image);
+
+      const token = localStorage.getItem("token");
+
+      await axios.post(
         "https://sierra-catalogue.onrender.com/api/listings/",
-        form,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
 
-      setLoading(false);
-
+      toast.success("Product added successfully!");
       setForm({
         title: "",
         price: "",
         stock: 1,
-        category: "",
+        categoryId: "",
+        description: "",
         image: null,
       });
-
-      toast.success("Product added successfully.");
     } catch (err) {
-      toast.error("Failed to add product");
-      console.log("Failed to add product", err);
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to add product");
+    } finally {
+      setLoading(false);
     }
-    console.log(form);
   };
 
   return (
@@ -76,6 +86,15 @@ const VendorProduct = () => {
           placeholder="Product Name"
           name="title"
           value={form.title}
+          onChange={handleChange}
+          hasLabel={false}
+          hasError={false}
+        />
+
+        <FormInput
+          placeholder="Description"
+          name="description"
+          value={form.description}
           onChange={handleChange}
           hasLabel={false}
           hasError={false}
@@ -101,17 +120,17 @@ const VendorProduct = () => {
         />
 
         <select
-          name="category"
-          value={form.category}
+          name="categoryId"
+          value={form.categoryId}
           onChange={handleChange}
           className="bg-gray-800 text-white px-3 py-2 rounded-md outline-none"
         >
           <option value="" disabled>
             Select Category
           </option>
-          <option value="category1">Food & Drinks</option>
-          <option value="category2">Category 2</option>
-          <option value="category3">Category 3</option>
+          <option value="671a1109e6b8f3b1f44ab7c3">Food & Drinks</option>
+          <option value="671a1123e6b8f3b1f44ab7c4">Fashion</option>
+          <option value="671a113ae6b8f3b1f44ab7c5">Electronics</option>
         </select>
 
         <input
@@ -121,7 +140,17 @@ const VendorProduct = () => {
           className="text-white"
         />
 
-        <Button type="submit">{loading ? "Loading" : "Add Product"}</Button>
+        {form.image && (
+          <img
+            src={URL.createObjectURL(form.image)}
+            alt="Preview"
+            className="w-32 h-32 object-cover rounded-lg border border-gray-600"
+          />
+        )}
+
+        <Button type="submit">
+          {loading ? "Uploading..." : "Add Product"}
+        </Button>
       </form>
     </div>
   );
