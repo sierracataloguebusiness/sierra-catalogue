@@ -133,26 +133,34 @@ export const getListing = async (req, res) => {
 export const getVendorListings = async (req, res) => {
     try {
         if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: "Unauthorized: Vendor not authenticated" });
+            return res.status(401).json({ message: 'User not authenticated' });
         }
 
         const vendorId = req.user.id;
 
-        const listings = await Listing.find({ vendor: vendorId })
-            .populate("categoryId", "name")
-            .sort({ createdAt: -1 })
-            .lean();
+        // Avoid populate crashing by filtering out invalid categories
+        const listings = await Listing.find({ vendor: vendorId }).sort({ createdAt: -1 }).lean();
 
-        return res.status(200).json({
-            listings: listings || [],
-            message: listings.length ? "Listings fetched successfully" : "No listings found",
-        });
+        // Optionally populate manually without crashing
+        const populatedListings = await Promise.all(
+            listings.map(async (listing) => {
+                let category = null;
+                try {
+                    category = listing.categoryId
+                        ? await Category.findById(listing.categoryId).select('name')
+                        : null;
+                } catch {}
+                return { ...listing, categoryId: category };
+            })
+        );
+
+        res.status(200).json({ listings: populatedListings });
     } catch (err) {
         console.error("getVendorListings error:", err);
-        return res.status(500).json({
-            message: "Detailed server error",
+        res.status(500).json({
+            message: "Server error fetching vendor listings",
             error: err.message,
-            stack: err.stack,
+            stack: err.stack, // TEMP: remove in production
         });
     }
 };
