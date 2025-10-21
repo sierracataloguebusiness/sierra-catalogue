@@ -33,8 +33,9 @@ const VendorProduct = () => {
             },
           ),
         ]);
+        console.log(catRes);
+        console.log(prodRes);
         setCategories(catRes.data.categories || []);
-        console.log(prodRes.data.listings);
         setProducts(prodRes.data.listings || []);
       } catch (err) {
         console.error(err);

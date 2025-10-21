@@ -3,7 +3,8 @@ import {
     createListing,
     deleteListing,
     getListing,
-    getListings, getVendorListings,
+    getListings,
+    getVendorListings,
     updateListing
 } from "../controllers/listingsController.js";
 import {protect} from "../middleware/authMiddleware.js";
