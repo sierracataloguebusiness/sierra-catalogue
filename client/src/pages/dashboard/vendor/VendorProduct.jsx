@@ -216,7 +216,7 @@ const VendorProduct = () => {
                     {p.title}
                   </td>
                   <td className="px-4 py-3 text-gray-400">
-                    {p.categoryId?.name || "Uncategorized"}
+                    {p.categoryId || "Uncategorized"}
                   </td>
                   <td className="px-4 py-3 max-w-[250px] text-gray-400 truncate">
                     {p.description || "—"}
