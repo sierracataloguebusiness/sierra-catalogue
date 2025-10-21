@@ -148,12 +148,11 @@ export const getVendorListings = async (req, res) => {
             message: listings.length ? "Listings fetched successfully" : "No listings found",
         });
     } catch (err) {
-        console.error("Error in getVendorListings:", err);
-
+        console.error("getVendorListings error:", err);
         return res.status(500).json({
-            message: "Internal Server Error: Could not fetch vendor listings",
+            message: "Detailed server error",
             error: err.message,
+            stack: err.stack,
         });
     }
 };
-
