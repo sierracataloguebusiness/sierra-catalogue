@@ -55,6 +55,7 @@ const VendorProduct = () => {
         ]);
         setCategories(catRes.data.categories || []);
         setProducts(prodRes.data.listings || []);
+        console.log(products);
         setProductLoading(false);
       } catch (err) {
         toast.error(
