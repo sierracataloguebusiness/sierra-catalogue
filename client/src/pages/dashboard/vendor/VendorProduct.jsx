@@ -27,7 +27,7 @@ const VendorProduct = () => {
         const [catRes, prodRes] = await Promise.all([
           axios.get("https://sierra-catalogue.onrender.com/api/category"),
           axios.get(
-            "https://sierra-catalogue.onrender.com/api/listings/vendor",
+            "https://sierra-catalogue.onrender.com/api/vendor/listings",
             { headers: { Authorization: `Bearer ${token}` } },
           ),
         ]);

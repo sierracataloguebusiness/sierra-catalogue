@@ -83,7 +83,7 @@ const VendorDashboard = () => {
         <ul className="text-gray-400 text-sm space-y-3">
           <li>
             <Link
-              to="dashbaord/vendor/products"
+              to="/vendor/products"
               className="hover:text-yellow-300 hover:underline"
             >
               View and manage your products
@@ -91,7 +91,7 @@ const VendorDashboard = () => {
           </li>
           <li>
             <Link
-              to="dashbaord/vendor/orders"
+              to="/vendor/orders"
               className="hover:text-yellow-300 hover:underline"
             >
               Track your recent orders
@@ -99,7 +99,7 @@ const VendorDashboard = () => {
           </li>
           <li>
             <Link
-              to="dashbaord/vendor/shop"
+              to="/vendor/shop"
               className="hover:text-yellow-300 hover:underline"
             >
               Update shop details or contact info
