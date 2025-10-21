@@ -130,25 +130,30 @@ export const getListing = async (req, res) => {
     }
 };
 
-export const getVendorListings = async (req, res, next) => {
+export const getVendorListings = async (req, res) => {
     try {
-        const vendorId = req.user.id;
-        const listings = await Listing.find({ vendor: vendorId })
-
-        if (!listings.length) {
-            return res.status(200).json({
-                listings: [],
-                message: "No listings found for this vendor.",
-            });
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: "Unauthorized: Vendor not authenticated" });
         }
 
-        res.status(200).json({ listings });
-    } catch (error) {
-        console.error("Error fetching vendor listings:", error.message);
-        next({
-            status: 500,
-            message: "Failed to fetch vendor listings. Please try again later.",
-            details: error.message,
+        const vendorId = req.user.id;
+
+        const listings = await Listing.find({ vendor: vendorId })
+            .populate("categoryId", "name")
+            .sort({ createdAt: -1 })
+            .lean();
+
+        return res.status(200).json({
+            listings: listings || [],
+            message: listings.length ? "Listings fetched successfully" : "No listings found",
+        });
+    } catch (err) {
+        console.error("Error in getVendorListings:", err);
+
+        return res.status(500).json({
+            message: "Internal Server Error: Could not fetch vendor listings",
+            error: err.message,
         });
     }
 };
+
