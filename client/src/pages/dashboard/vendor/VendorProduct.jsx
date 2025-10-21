@@ -41,6 +41,33 @@ const VendorProduct = () => {
   const [deleteId, setDeleteId] = useState(null);
   const token = localStorage.getItem("token");
 
+  const CATEGORY_MAP = {
+    "68d9879b81bc7c3a62f903f3": {
+      name: "Electronics",
+      description: "Phones, laptops, gadgets, and accessories",
+    },
+    "68d9879b81bc7c3a62f903f4": {
+      name: "Fashion & Beauty",
+      description: "Clothes, shoes, bags, watches, and cosmetics",
+    },
+    "68d9879b81bc7c3a62f903f5": {
+      name: "Food & Drinks",
+      description: "Groceries, restaurant meals, beverages, and snacks",
+    },
+    "68d9879b81bc7c3a62f903f6": {
+      name: "Books & Stationery",
+      description: "Textbooks, novels, pens, notebooks, and school supplies",
+    },
+    "68d9879b81bc7c3a62f903f7": {
+      name: "Home & Appliances",
+      description: "Furniture, kitchenware, and small household electronics",
+    },
+    "68d9879b81bc7c3a62f903f8": {
+      name: "Health & Personal Care",
+      description: "Toiletries, hygiene products, skincare, and first aid",
+    },
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -55,7 +82,6 @@ const VendorProduct = () => {
         ]);
         setCategories(catRes.data.categories || []);
         setProducts(prodRes.data.listings || []);
-        console.log(products.data.listings);
         setProductLoading(false);
       } catch (err) {
         toast.error(
@@ -217,7 +243,7 @@ const VendorProduct = () => {
                     {p.title}
                   </td>
                   <td className="px-4 py-3 text-gray-400">
-                    {p.categoryId || "Uncategorized"}
+                    {CATEGORY_MAP[p.categoryId]?.name || "Uncategorized"}
                   </td>
                   <td className="px-4 py-3 max-w-[250px] text-gray-400 truncate">
                     {p.description || "—"}
