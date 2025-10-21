@@ -26,15 +26,16 @@ const VendorProduct = () => {
       try {
         const [catRes, prodRes] = await Promise.all([
           axios.get("https://sierra-catalogue.onrender.com/api/category"),
-          // axios.get(
-          //   "https://sierra-catalogue.onrender.com/api/listings/vendor",
-          //   {
-          //     headers: { Authorization: `Bearer ${token}` },
-          //   },
-          // ),
+          axios.get(
+            "https://sierra-catalogue.onrender.com/api/listings/vendor",
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          ),
         ]);
         setCategories(catRes.data.categories || []);
-        // setProducts(prodRes.data.listings || []);
+        console.log(prodRes.data.listings);
+        setProducts(prodRes.data.listings || []);
       } catch (err) {
         console.error(err);
         toast.error("Failed to load vendor data");
@@ -206,7 +207,7 @@ const VendorProduct = () => {
               {editing ? "Edit Product" : "Add Product"}
             </h3>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 mx-2">
               <FormInput
                 placeholder="Product Name"
                 name="title"
