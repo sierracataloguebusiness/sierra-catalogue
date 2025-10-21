@@ -191,20 +191,39 @@ const VendorProduct = () => {
           products.map((p) => (
             <div
               key={p._id}
-              className="bg-gray-800 rounded-xl p-4 flex flex-col items-center border border-gray-700"
+              className="bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col"
             >
-              <img
-                src={p.imageUrl}
-                alt={p.title}
-                className="w-40 h-40 object-cover rounded-lg mb-3"
-              />
-              <h3 className="font-semibold">{p.title}</h3>
-              <p className="text-sm text-gray-400">{p.description}</p>
-              <p className="mt-1 font-bold">${p.price}</p>
-              <div className="flex gap-2 mt-3">
-                <Button onClick={() => handleEdit(p)}>Edit</Button>
+              <div className="w-full h-48 overflow-hidden">
+                <img
+                  src={p.images?.[0] || "/placeholder.png"}
+                  alt={p.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="p-4 flex flex-col flex-1">
+                <h3 className="font-semibold text-lg text-white truncate">
+                  {p.title}
+                </h3>
+                {p.categoryId?.name && (
+                  <p className="text-xs text-gray-400 mt-1 truncate">
+                    Category: {p.categoryId.name}
+                  </p>
+                )}
+                <p className="text-sm text-gray-300 mt-2 line-clamp-2">
+                  Desc: {p.description}
+                </p>
+                <p className="mt-3 font-bold text-white text-lg">
+                  Price: Nle{p.price}
+                </p>
+              </div>
+
+              <div className="flex gap-2 p-4 border-t border-gray-700">
+                <Button className="flex-1" onClick={() => handleEdit(p)}>
+                  Edit
+                </Button>
                 <Button
-                  className="bg-red-600"
+                  className="flex-1 bg-red-600"
                   onClick={() => confirmDelete(p._id)}
                 >
                   Delete
