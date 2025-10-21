@@ -132,14 +132,8 @@ export const getListing = async (req, res) => {
 
 export const getVendorListings = async (req, res, next) => {
     try {
-        if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: "Unauthorized: Vendor not authenticated" });
-        }
-
         const vendorId = req.user.id;
         const listings = await Listing.find({ vendor: vendorId })
-            .populate("categoryId", "name")
-            .sort({ createdAt: -1 })
 
         if (!listings.length) {
             return res.status(200).json({
