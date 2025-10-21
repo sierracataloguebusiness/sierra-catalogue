@@ -3,6 +3,7 @@ import FormInput from "../../../component/Form/FormComponents/FormInput.jsx";
 import Button from "../../../component/Button.jsx";
 import axios from "axios";
 import { toast } from "react-toastify";
+import Loader from "../../../component/Loader.jsx";
 
 const DeleteModal = ({ visible, onConfirm, onCancel, message }) => {
   if (!visible) return null;
@@ -31,6 +32,7 @@ const VendorProduct = () => {
     image: null,
   });
   const [products, setProducts] = useState([]);
+  const [productLoading, setProductLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -53,6 +55,7 @@ const VendorProduct = () => {
         ]);
         setCategories(catRes.data.categories || []);
         setProducts(prodRes.data.listings || []);
+        setProductLoading(false);
       } catch (err) {
         toast.error(
           `Failed to load vendor data: ${err.response?.data?.message || err.message}`,
@@ -124,13 +127,15 @@ const VendorProduct = () => {
           },
         );
         toast.success("Product added successfully!");
+        setProductLoading(true);
       }
       resetForm();
       const updated = await axios.get(
-        "https://sierra-catalogue.onrender.com/api/listings/vendor",
+        "https://sierra-catalogue.onrender.com/api/vendor/listings",
         { headers: { Authorization: `Bearer ${token}` } },
       );
       setProducts(updated.data.listings || []);
+      setProductLoading(false);
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.message || "Action failed");
@@ -169,6 +174,8 @@ const VendorProduct = () => {
       setDeleteId(null);
     }
   };
+
+  if (productLoading) return <Loader />;
 
   return (
     <div className="p-6 text-white">
