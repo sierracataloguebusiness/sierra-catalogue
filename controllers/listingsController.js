@@ -132,13 +132,29 @@ export const getListing = async (req, res) => {
 
 export const getVendorListings = async (req, res, next) => {
     try {
-        const vendor = req.user.id;
-        const listings = await Listing.find({ vendor })
-            .populate("categoryId", "name")
-            .sort({ createdAt: -1 });
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: "Unauthorized: Vendor not authenticated" });
+        }
 
-        res.json({ listings });
-    } catch (err) {
-        next(err);
+        const vendorId = req.user.id;
+        const listings = await Listing.find({ vendor: vendorId })
+            .populate("categoryId", "name")
+            .sort({ createdAt: -1 })
+
+        if (!listings.length) {
+            return res.status(200).json({
+                listings: [],
+                message: "No listings found for this vendor.",
+            });
+        }
+
+        res.status(200).json({ listings });
+    } catch (error) {
+        console.error("Error fetching vendor listings:", error.message);
+        next({
+            status: 500,
+            message: "Failed to fetch vendor listings. Please try again later.",
+            details: error.message,
+        });
     }
 };
