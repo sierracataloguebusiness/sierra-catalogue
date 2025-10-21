@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import FormInput from "../../../component/Form/FormComponents/FormInput.jsx";
 import Button from "../../../component/Button.jsx";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Loader from "../../../component/Loader.jsx";
+import ProductModal from "../../../modal/ProductModal.jsx";
 
 const DeleteModal = ({ visible, onConfirm, onCancel, message }) => {
   if (!visible) return null;
@@ -37,35 +37,16 @@ const VendorProduct = () => {
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(null);
   const [showModal, setShowModal] = useState(false);
-
   const [deleteId, setDeleteId] = useState(null);
   const token = localStorage.getItem("token");
 
   const CATEGORY_MAP = {
-    "68d9879b81bc7c3a62f903f3": {
-      name: "Electronics",
-      description: "Phones, laptops, gadgets, and accessories",
-    },
-    "68d9879b81bc7c3a62f903f4": {
-      name: "Fashion & Beauty",
-      description: "Clothes, shoes, bags, watches, and cosmetics",
-    },
-    "68d9879b81bc7c3a62f903f5": {
-      name: "Food & Drinks",
-      description: "Groceries, restaurant meals, beverages, and snacks",
-    },
-    "68d9879b81bc7c3a62f903f6": {
-      name: "Books & Stationery",
-      description: "Textbooks, novels, pens, notebooks, and school supplies",
-    },
-    "68d9879b81bc7c3a62f903f7": {
-      name: "Home & Appliances",
-      description: "Furniture, kitchenware, and small household electronics",
-    },
-    "68d9879b81bc7c3a62f903f8": {
-      name: "Health & Personal Care",
-      description: "Toiletries, hygiene products, skincare, and first aid",
-    },
+    "68d9879b81bc7c3a62f903f3": { name: "Electronics" },
+    "68d9879b81bc7c3a62f903f4": { name: "Fashion & Beauty" },
+    "68d9879b81bc7c3a62f903f5": { name: "Food & Drinks" },
+    "68d9879b81bc7c3a62f903f6": { name: "Books & Stationery" },
+    "68d9879b81bc7c3a62f903f7": { name: "Home & Appliances" },
+    "68d9879b81bc7c3a62f903f8": { name: "Health & Personal Care" },
   };
 
   useEffect(() => {
@@ -82,24 +63,16 @@ const VendorProduct = () => {
         ]);
         setCategories(catRes.data.categories || []);
         setProducts(prodRes.data.listings || []);
-        setProductLoading(false);
       } catch (err) {
         toast.error(
           `Failed to load vendor data: ${err.response?.data?.message || err.message}`,
         );
+      } finally {
+        setProductLoading(false);
       }
     };
     fetchData();
   }, [token]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e) => {
-    setForm((prev) => ({ ...prev, image: e.target.files[0] }));
-  };
 
   const resetForm = () => {
     setForm({
@@ -154,17 +127,15 @@ const VendorProduct = () => {
           },
         );
         toast.success("Product added successfully!");
-        setProductLoading(true);
       }
+
       resetForm();
       const updated = await axios.get(
         "https://sierra-catalogue.onrender.com/api/vendor/listings",
         { headers: { Authorization: `Bearer ${token}` } },
       );
       setProducts(updated.data.listings || []);
-      setProductLoading(false);
     } catch (err) {
-      console.error(err);
       toast.error(err.response?.data?.message || "Action failed");
     } finally {
       setLoading(false);
@@ -185,7 +156,6 @@ const VendorProduct = () => {
   };
 
   const confirmDelete = (id) => setDeleteId(id);
-
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
@@ -274,97 +244,16 @@ const VendorProduct = () => {
         )}
       </div>
 
-      {/* Add/Edit Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-          <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 w-full max-w-lg relative">
-            <button
-              className="absolute top-3 right-3 text-gray-400 hover:text-white text-xl"
-              onClick={resetForm}
-            >
-              ✕
-            </button>
-            <h3 className="text-xl font-semibold mb-4">
-              {editing ? "Edit Product" : "Add Product"}
-            </h3>
-            <form onSubmit={handleSubmit} className="space-y-4 mx-2">
-              <FormInput
-                placeholder="Product Name"
-                name="title"
-                value={form.title}
-                onChange={handleChange}
-                hasLabel={false}
-                hasError={false}
-              />
-              <FormInput
-                placeholder="Description"
-                name="description"
-                value={form.description}
-                onChange={handleChange}
-                hasLabel={false}
-                hasError={false}
-              />
-              <FormInput
-                placeholder="Price"
-                name="price"
-                value={form.price}
-                onChange={handleChange}
-                hasLabel={false}
-                hasError={false}
-              />
-              <FormInput
-                placeholder="Stock"
-                name="stock"
-                value={form.stock}
-                onChange={handleChange}
-                hasLabel={false}
-                hasError={false}
-              />
-
-              <select
-                name="categoryId"
-                value={form.categoryId}
-                onChange={handleChange}
-                className="bg-gray-900 text-white px-3 py-2 rounded-md outline-none w-full"
-              >
-                <option value="">Select Category</option>
-                {categories.map((cat) => (
-                  <option key={cat._id} value={cat._id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="text-white"
-              />
-              {form.image && (
-                <img
-                  src={URL.createObjectURL(form.image)}
-                  alt="Preview"
-                  className="w-32 h-32 object-cover rounded-lg border border-gray-600"
-                />
-              )}
-
-              <div className="flex gap-3 justify-end">
-                <Button type="button" onClick={resetForm}>
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  {loading
-                    ? "Saving..."
-                    : editing
-                      ? "Update Product"
-                      : "Add Product"}
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <ProductModal
+        show={showModal}
+        onClose={resetForm}
+        onSubmit={handleSubmit}
+        form={form}
+        setForm={setForm}
+        editing={editing}
+        categories={categories}
+        loading={loading}
+      />
 
       <DeleteModal
         visible={!!deleteId}
