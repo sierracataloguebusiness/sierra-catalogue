@@ -26,15 +26,15 @@ const VendorProduct = () => {
       try {
         const [catRes, prodRes] = await Promise.all([
           axios.get("https://sierra-catalogue.onrender.com/api/category"),
-          axios.get(
-            "https://sierra-catalogue.onrender.com/api/listings/vendor",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            },
-          ),
+          // axios.get(
+          //   "https://sierra-catalogue.onrender.com/api/listings/vendor",
+          //   {
+          //     headers: { Authorization: `Bearer ${token}` },
+          //   },
+          // ),
         ]);
         setCategories(catRes.data.categories || []);
-        setProducts(prodRes.data.listings || []);
+        // setProducts(prodRes.data.listings || []);
       } catch (err) {
         console.error(err);
         toast.error("Failed to load vendor data");
@@ -160,36 +160,36 @@ const VendorProduct = () => {
       </div>
 
       {/* Product Grid */}
-      <div className="grid md:grid-cols-3 gap-6">
-        {products.length === 0 ? (
-          <p className="text-gray-400">No products yet.</p>
-        ) : (
-          products.map((p) => (
-            <div
-              key={p._id}
-              className="bg-gray-800 rounded-xl p-4 flex flex-col items-center border border-gray-700"
-            >
-              <img
-                src={p.imageUrl}
-                alt={p.title}
-                className="w-40 h-40 object-cover rounded-lg mb-3"
-              />
-              <h3 className="font-semibold">{p.title}</h3>
-              <p className="text-sm text-gray-400">{p.description}</p>
-              <p className="mt-1 font-bold">${p.price}</p>
-              <div className="flex gap-2 mt-3">
-                <Button onClick={() => handleEdit(p)}>Edit</Button>
-                <Button
-                  onClick={() => handleDelete(p._id)}
-                  className="bg-red-600"
-                >
-                  Delete
-                </Button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+      {/*<div className="grid md:grid-cols-3 gap-6">*/}
+      {/*  {products.length === 0 ? (*/}
+      {/*    <p className="text-gray-400">No products yet.</p>*/}
+      {/*  ) : (*/}
+      {/*    products.map((p) => (*/}
+      {/*      <div*/}
+      {/*        key={p._id}*/}
+      {/*        className="bg-gray-800 rounded-xl p-4 flex flex-col items-center border border-gray-700"*/}
+      {/*      >*/}
+      {/*        <img*/}
+      {/*          src={p.imageUrl}*/}
+      {/*          alt={p.title}*/}
+      {/*          className="w-40 h-40 object-cover rounded-lg mb-3"*/}
+      {/*        />*/}
+      {/*        <h3 className="font-semibold">{p.title}</h3>*/}
+      {/*        <p className="text-sm text-gray-400">{p.description}</p>*/}
+      {/*        <p className="mt-1 font-bold">${p.price}</p>*/}
+      {/*        <div className="flex gap-2 mt-3">*/}
+      {/*          <Button onClick={() => handleEdit(p)}>Edit</Button>*/}
+      {/*          <Button*/}
+      {/*            onClick={() => handleDelete(p._id)}*/}
+      {/*            className="bg-red-600"*/}
+      {/*          >*/}
+      {/*            Delete*/}
+      {/*          </Button>*/}
+      {/*        </div>*/}
+      {/*      </div>*/}
+      {/*    ))*/}
+      {/*  )}*/}
+      {/*</div>*/}
 
       {/* Modal */}
       {showModal && (

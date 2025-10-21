@@ -1,88 +1,96 @@
 import Listing from "../models/Listing.js";
-import fs from "fs";
-import path from "path";
-
+import Category from "../models/Category.js";
+import AppError from "../utils/AppError.js";
 
 export const createListing = async (req, res) => {
     try {
-        const { title, price, stock, categoryId, description } = req.body;
-        const image = req.file;
+        const { title, categoryId, description, price, stock } = req.body;
+        const vendor = req.user.id;
 
-        if (!title || !price || !categoryId) {
-            return res.status(400).json({ message: "Required fields missing" });
+        const priceNum = Number(price);
+        const stockNum = Number(stock) || 0;
+
+        if (!title || !categoryId || !price) {
+            return res.status(400).json({ message: "Title, category, and price are required" });
         }
 
-        const images = [];
-        if (image) images.push(`/uploads/${image.filename}`);
+        if (priceNum < 0) return res.status(400).json({ message: "Price cannot be below 0" });
+        if (stockNum < 0) return res.status(400).json({ message: "Stock cannot be below 0" });
 
-        const listing = await Listing.create({
+        const categoryExists = await Category.findById(categoryId);
+        if (!categoryExists) {
+            return res.status(400).json({ message: "Invalid category selected" });
+        }
+
+        const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+
+        const newListing = await Listing.create({
             title,
-            price,
-            stock: stock || 1,
-            categoryId,
             description,
-            vendor: req.user._id,
-            images,
+            images: imagePath ? [imagePath] : [],
+            price: priceNum,
+            stock: stockNum,
+            vendor,
+            categoryId,
         });
 
-        res.status(201).json({ message: "Product added", listing });
+        res.status(201).json({
+            message: "Successfully created listing",
+            listing: newListing,
+        });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Failed to add product" });
+        console.error("Create Listing Error:", err);
+        res.status(500).json({ message: "Internal Server Error" });
     }
 };
 
 export const updateListing = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const listing = await Listing.findById(id);
+    const listingId = req.params.id;
+    const vendor = req.user.id;
 
-        if (!listing) return res.status(404).json({ message: "Product not found" });
-        if (!listing.vendor.equals(req.user._id))
-            return res.status(403).json({ message: "Not authorized" });
+    const listing = await Listing.findById(listingId);
+    if (!listing) throw new AppError('Listing not found', 404);
 
-        const { title, price, stock, categoryId, description } = req.body;
-        const image = req.file;
+    const { title, description, price, stock, images, categoryId, isActive } = req.body;
 
-        if (title) listing.title = title;
-        if (price) listing.price = price;
-        if (stock) listing.stock = stock;
-        if (categoryId) listing.categoryId = categoryId;
-        if (description) listing.description = description;
-
-        if (image) listing.images = [`/uploads/${image.filename}`];
-
-        await listing.save();
-        res.json({ message: "Product updated", listing });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Failed to update product" });
+    if (categoryId) {
+        const category = await Category.findById(categoryId);
+        if (!category) throw new AppError('Invalid category selected', 404);
+        listing.categoryId = categoryId;
     }
+
+    if (req.user.role === 'vendor' && listing.vendor.toString() !== vendor) {
+        throw new AppError('You do not have permission to update this listing', 403);
+    }
+
+    if (price !== undefined && price < 0) throw new AppError('Price cannot be below 0', 400);
+    if (stock !== undefined && stock < 0) throw new AppError('Stock cannot be below 0', 400);
+
+    Object.assign(listing, { title, description, price, stock, images, categoryId, isActive });
+    await listing.save({ validateBeforeSave: true });
+
+    res.status(200).json({
+        message: 'Successfully updated listing',
+        listing
+    });
 };
 
 export const deleteListing = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const listing = await Listing.findById(id);
+    const listingId = req.params.id;
+    const vendor = req.user.id;
 
-        if (!listing) return res.status(404).json({ message: "Product not found" });
-        if (!listing.vendor.equals(req.user._id))
-            return res.status(403).json({ message: "Not authorized" });
+    const listing = await Listing.findById(listingId);
+    if (!listing) throw new AppError('Listing not found', 404);
 
-        // Delete image file if exists
-        if (listing.images.length > 0) {
-            listing.images.forEach((imgPath) => {
-                const filePath = path.join("public", imgPath);
-                if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-            });
-        }
-
-        await listing.deleteOne();
-        res.json({ message: "Product deleted" });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Failed to delete product" });
+    if (req.user.role === 'vendor' && listing.vendor.toString() !== vendor) {
+        throw new AppError('You do not have permission to delete this listing', 403);
     }
+
+    await listing.deleteOne();
+
+    res.status(200).json({
+        message: 'Successfully deleted listing',
+    });
 };
 
 export const getListings = async (req, res) => {
@@ -122,22 +130,14 @@ export const getListing = async (req, res) => {
     }
 };
 
-export const getVendorListings = async (req, res) => {
+export const getVendorListings = async (req, res, next) => {
     try {
-        if (!req.user) return res.status(401).json({ message: "User not found" });
-
         const listings = await Listing.find({ vendor: req.user._id })
             .populate("categoryId", "name")
             .sort({ createdAt: -1 });
 
-        const response = listings.map((l) => ({
-            ...l._doc,
-            imageUrl: l.images[0] || "",
-        }));
-
-        res.json({ listings: response });
+        res.json({ listings });
     } catch (err) {
-        console.error("Error fetching vendor listings:", err);
-        res.status(500).json({ message: "Server error" });
+        next(err);
     }
 };
