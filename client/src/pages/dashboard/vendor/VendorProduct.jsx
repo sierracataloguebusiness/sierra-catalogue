@@ -184,53 +184,66 @@ const VendorProduct = () => {
         <Button onClick={() => setShowModal(true)}>Add Product</Button>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="overflow-x-auto rounded-xl border border-gray-700">
         {products.length === 0 ? (
-          <p className="text-gray-400">No products yet.</p>
+          <p className="text-gray-400 p-4 text-center">No products yet.</p>
         ) : (
-          products.map((p) => (
-            <div
-              key={p._id}
-              className="bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col"
-            >
-              <div className="w-full h-48 overflow-hidden">
-                <img
-                  src={p.images?.[0] || "/placeholder.png"}
-                  alt={p.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              <div className="p-4 flex flex-col flex-1">
-                <h3 className="font-semibold text-lg text-white truncate">
-                  {p.title}
-                </h3>
-                {p.categoryId?.name && (
-                  <p className="text-xs text-gray-400 mt-1 truncate">
-                    Category: {p.categoryId.name}
-                  </p>
-                )}
-                <p className="text-sm text-gray-300 mt-2 line-clamp-2">
-                  {p.description}
-                </p>
-                <p className="mt-3 font-bold text-white text-lg">
-                  Nle{p.price}
-                </p>
-              </div>
-
-              <div className="flex gap-2 p-4 border-t border-gray-700">
-                <Button className="flex-1" onClick={() => handleEdit(p)}>
-                  Edit
-                </Button>
-                <Button
-                  className="flex-1 bg-red-600"
-                  onClick={() => confirmDelete(p._id)}
+          <table className="min-w-full text-sm text-left text-gray-300">
+            <thead className="bg-gray-900 text-gray-200 uppercase text-xs">
+              <tr>
+                <th className="px-4 py-3">Image</th>
+                <th className="px-4 py-3">Title</th>
+                <th className="px-4 py-3">Category</th>
+                <th className="px-4 py-3">Description</th>
+                <th className="px-4 py-3">Price (NLe)</th>
+                <th className="px-4 py-3 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((p) => (
+                <tr
+                  key={p._id}
+                  className="border-t border-gray-700 hover:bg-gray-800/60 transition"
                 >
-                  Delete
-                </Button>
-              </div>
-            </div>
-          ))
+                  <td className="px-4 py-3">
+                    <img
+                      src={p.images?.[0] || "/placeholder.png"}
+                      alt={p.title}
+                      className="w-16 h-16 object-cover rounded-md"
+                    />
+                  </td>
+                  <td className="px-4 py-3 font-medium text-white truncate max-w-[180px]">
+                    {p.title}
+                  </td>
+                  <td className="px-4 py-3 text-gray-400">
+                    {p.categoryId?.name || "Uncategorized"}
+                  </td>
+                  <td className="px-4 py-3 max-w-[250px] text-gray-400 truncate">
+                    {p.description || "—"}
+                  </td>
+                  <td className="px-4 py-3 font-semibold text-white">
+                    {p.price.toFixed(2)}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <div className="flex justify-center gap-2">
+                      <Button
+                        className="bg-gray-700 hover:bg-gray-600"
+                        onClick={() => handleEdit(p)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        className="bg-red-600 hover:bg-red-500"
+                        onClick={() => confirmDelete(p._id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
 
