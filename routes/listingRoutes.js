@@ -24,7 +24,7 @@ const upload = multer({ storage });
 
 router.get('/', getListings);
 router.get('/:id', getListing);
-router.get('/vendor', protect, authorize('vendor', 'admin'), getVendorListings);
+router.get('/vendor', authorize('vendor', 'admin'), getVendorListings);
 router.post('/', protect, authorize('vendor', 'admin'), upload.single("image"), createListing);
 router.put('/:id', protect, authorize('vendor', 'admin'), updateListing);
 router.delete('/:id', protect, authorize('vendor', 'admin'), deleteListing);

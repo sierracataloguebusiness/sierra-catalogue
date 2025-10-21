@@ -138,29 +138,13 @@ export const getVendorListings = async (req, res) => {
 
         const vendorId = req.user.id;
 
-        // Avoid populate crashing by filtering out invalid categories
         const listings = await Listing.find({ vendor: vendorId }).sort({ createdAt: -1 }).lean();
 
-        // Optionally populate manually without crashing
-        const populatedListings = await Promise.all(
-            listings.map(async (listing) => {
-                let category = null;
-                try {
-                    category = listing.categoryId
-                        ? await Category.findById(listing.categoryId).select('name')
-                        : null;
-                } catch {}
-                return { ...listing, categoryId: category };
-            })
-        );
-
-        res.status(200).json({ listings: populatedListings });
+        res.status(200).json({ listings });
     } catch (err) {
         console.error("getVendorListings error:", err);
         res.status(500).json({
             message: "Server error fetching vendor listings",
-            error: err.message,
-            stack: err.stack, // TEMP: remove in production
         });
     }
 };

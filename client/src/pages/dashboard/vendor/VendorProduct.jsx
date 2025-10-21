@@ -38,9 +38,6 @@ const VendorProduct = () => {
         setCategories(catRes.data.categories || []);
         setProducts(prodRes.data.listings || []);
       } catch (err) {
-        console.error("Backend response message:", err.response?.data?.message);
-        console.error("Backend error details:", err.response?.data?.error);
-        console.error("Backend stack:", err.response?.data?.stack);
         toast.error(
           `Failed to load vendor data: ${err.response?.data?.message || err.message}`,
         );
