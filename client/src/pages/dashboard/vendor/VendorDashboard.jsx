@@ -56,7 +56,7 @@ const VendorDashboard = () => {
   return (
     <div>
       <h1 className="text-2xl font-bold text-primary-gold mb-6">
-        Welcome, {user?.firstName || "Vendor"} 👋
+        Welcome, {user?.firstName || "Vendor"}
       </h1>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -77,22 +77,31 @@ const VendorDashboard = () => {
       </div>
 
       <div className="mt-10 bg-[#0d0d0d] border border-gray-800 rounded-2xl p-6">
-        <h2 className="text-xl text-yellow-400 font-semibold mb-4">
+        <h2 className="text-2xl text-yellow-400 font-semibold mb-4">
           Quick Actions
         </h2>
         <ul className="text-gray-400 text-sm space-y-3">
           <li>
-            <Link to="/products" className="text-yellow-300 hover:underline">
+            <Link
+              to="dashbaord/vendor/products"
+              className="hover:text-yellow-300 hover:underline"
+            >
               View and manage your products
             </Link>
           </li>
           <li>
-            <Link to="/orders" className="text-yellow-300 hover:underline">
+            <Link
+              to="dashbaord/vendor/orders"
+              className="hover:text-yellow-300 hover:underline"
+            >
               Track your recent orders
             </Link>
           </li>
           <li>
-            <Link to="/shop" className="text-yellow-300 hover:underline">
+            <Link
+              to="dashbaord/vendor/shop"
+              className="hover:text-yellow-300 hover:underline"
+            >
               Update shop details or contact info
             </Link>
           </li>
