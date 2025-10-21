@@ -4,6 +4,23 @@ import Button from "../../../component/Button.jsx";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+const DeleteModal = ({ visible, onConfirm, onCancel, message }) => {
+  if (!visible) return null;
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+      <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 w-full max-w-sm text-center">
+        <p className="mb-4">{message || "Are you sure you want to delete?"}</p>
+        <div className="flex justify-center gap-4">
+          <Button className="bg-red-600" onClick={onConfirm}>
+            Delete
+          </Button>
+          <Button onClick={onCancel}>Cancel</Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const VendorProduct = () => {
   const [form, setForm] = useState({
     title: "",
@@ -19,6 +36,7 @@ const VendorProduct = () => {
   const [editing, setEditing] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  const [deleteId, setDeleteId] = useState(null);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -28,13 +46,11 @@ const VendorProduct = () => {
           axios.get("https://sierra-catalogue.onrender.com/api/category"),
           axios.get(
             "https://sierra-catalogue.onrender.com/api/vendor/listings",
-            { headers: { Authorization: `Bearer ${token}` } },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
           ),
         ]);
-
-        console.log("Categories response:", catRes);
-        console.log("Products response:", prodRes);
-
         setCategories(catRes.data.categories || []);
         setProducts(prodRes.data.listings || []);
       } catch (err) {
@@ -43,7 +59,6 @@ const VendorProduct = () => {
         );
       }
     };
-
     fetchData();
   }, [token]);
 
@@ -75,7 +90,6 @@ const VendorProduct = () => {
       toast.error("Please fill in all required fields");
       return;
     }
-
     try {
       setLoading(true);
       const formData = new FormData();
@@ -111,9 +125,7 @@ const VendorProduct = () => {
         );
         toast.success("Product added successfully!");
       }
-
       resetForm();
-
       const updated = await axios.get(
         "https://sierra-catalogue.onrender.com/api/listings/vendor",
         { headers: { Authorization: `Bearer ${token}` } },
@@ -140,19 +152,21 @@ const VendorProduct = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure?")) return;
+  const confirmDelete = (id) => setDeleteId(id);
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
     try {
       await axios.delete(
-        `https://sierra-catalogue.onrender.com/api/listings/${id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
+        `https://sierra-catalogue.onrender.com/api/listings/${deleteId}`,
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success("Product deleted");
-      setProducts((prev) => prev.filter((p) => p._id !== id));
+      setProducts((prev) => prev.filter((p) => p._id !== deleteId));
     } catch {
       toast.error("Failed to delete");
+    } finally {
+      setDeleteId(null);
     }
   };
 
@@ -162,7 +176,7 @@ const VendorProduct = () => {
         <h1 className="text-2xl font-bold">My Products</h1>
         <Button onClick={() => setShowModal(true)}>Add Product</Button>
       </div>
-      {/*Product Grid*/}
+
       <div className="grid md:grid-cols-3 gap-6">
         {products.length === 0 ? (
           <p className="text-gray-400">No products yet.</p>
@@ -183,8 +197,8 @@ const VendorProduct = () => {
               <div className="flex gap-2 mt-3">
                 <Button onClick={() => handleEdit(p)}>Edit</Button>
                 <Button
-                  onClick={() => handleDelete(p._id)}
                   className="bg-red-600"
+                  onClick={() => confirmDelete(p._id)}
                 >
                   Delete
                 </Button>
@@ -193,7 +207,8 @@ const VendorProduct = () => {
           ))
         )}
       </div>
-      {/* Modal */}
+
+      {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
           <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 w-full max-w-lg relative">
@@ -203,11 +218,9 @@ const VendorProduct = () => {
             >
               ✕
             </button>
-
             <h3 className="text-xl font-semibold mb-4">
               {editing ? "Edit Product" : "Add Product"}
             </h3>
-
             <form onSubmit={handleSubmit} className="space-y-4 mx-2">
               <FormInput
                 placeholder="Product Name"
@@ -217,7 +230,6 @@ const VendorProduct = () => {
                 hasLabel={false}
                 hasError={false}
               />
-
               <FormInput
                 placeholder="Description"
                 name="description"
@@ -226,7 +238,6 @@ const VendorProduct = () => {
                 hasLabel={false}
                 hasError={false}
               />
-
               <FormInput
                 placeholder="Price"
                 name="price"
@@ -235,7 +246,6 @@ const VendorProduct = () => {
                 hasLabel={false}
                 hasError={false}
               />
-
               <FormInput
                 placeholder="Stock"
                 name="stock"
@@ -265,7 +275,6 @@ const VendorProduct = () => {
                 onChange={handleFileChange}
                 className="text-white"
               />
-
               {form.image && (
                 <img
                   src={URL.createObjectURL(form.image)}
@@ -290,6 +299,12 @@ const VendorProduct = () => {
           </div>
         </div>
       )}
+
+      <DeleteModal
+        visible={!!deleteId}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   );
 };
