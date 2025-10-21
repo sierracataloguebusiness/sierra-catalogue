@@ -211,10 +211,10 @@ const VendorProduct = () => {
                   </p>
                 )}
                 <p className="text-sm text-gray-300 mt-2 line-clamp-2">
-                  Desc: {p.description}
+                  {p.description}
                 </p>
                 <p className="mt-3 font-bold text-white text-lg">
-                  Price: Nle{p.price}
+                  Nle{p.price}
                 </p>
               </div>
 
