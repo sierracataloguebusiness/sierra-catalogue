@@ -132,7 +132,8 @@ export const getListing = async (req, res) => {
 
 export const getVendorListings = async (req, res, next) => {
     try {
-        const listings = await Listing.find({ vendor: req.user.id })
+        const vendor = req.user.id;
+        const listings = await Listing.find({ vendor })
             .populate("categoryId", "name")
             .sort({ createdAt: -1 });
 
