@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Loader from "../../../component/Loader.jsx";
-import Button from "../../../component/Button.jsx";
 
 const API_BASE = "https://sierra-catalogue.onrender.com/api/vendor";
+
 const STATUS_COLORS = {
   pending: "text-yellow-400",
   accepted: "text-green-400",
@@ -31,55 +31,67 @@ const VendorOrders = () => {
       setOrders(res.data.orders || []);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to fetch orders");
+      toast.error("Failed to fetch vendor orders");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleItemChange = (orderId, itemId, status) => {
-    setOrders((prev) =>
-      prev.map((order) =>
-        order._id === orderId
-          ? {
-              ...order,
-              items: order.items.map((i) =>
-                i._id === itemId ? { ...i, status } : i,
-              ),
-            }
-          : order,
-      ),
-    );
-  };
-
-  const handleBulkChange = (orderId, status) => {
-    setOrders((prev) =>
-      prev.map((order) =>
-        order._id === orderId
-          ? { ...order, items: order.items.map((i) => ({ ...i, status })) }
-          : order,
-      ),
-    );
-  };
-
-  const saveOrder = async (orderId) => {
-    const order = orders.find((o) => o._id === orderId);
-    if (!order) return;
-
+  const updateItemStatus = async (orderId, itemId, status) => {
     try {
-      setUpdating(true);
+      setOrders((prev) =>
+        prev.map((o) =>
+          o._id === orderId
+            ? {
+                ...o,
+                items: o.items.map((i) =>
+                  i._id === itemId ? { ...i, status } : i,
+                ),
+              }
+            : o,
+        ),
+      );
+
       await axios.put(
-        `${API_BASE}/orders/${orderId}/items`,
-        {
-          items: order.items.map((i) => ({ _id: i._id, status: i.status })),
-        },
+        `${API_BASE}/orders/${orderId}/item/${itemId}`,
+        { status },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      toast.success("Order updated!");
+      toast.success("Item status updated");
       fetchOrders();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update order");
+      toast.error("Failed to update item status");
+      fetchOrders();
+    }
+  };
+
+  const updateAllItems = async (orderId, status) => {
+    try {
+      setUpdating(true);
+      const order = orders.find((o) => o._id === orderId);
+      const itemsPayload = order.items.map((i) => ({ _id: i._id, status }));
+
+      setOrders((prev) =>
+        prev.map((o) =>
+          o._id === orderId
+            ? { ...o, items: o.items.map((i) => ({ ...i, status })) }
+            : o,
+        ),
+      );
+
+      await axios.put(
+        `${API_BASE}/orders/${orderId}/items`,
+        { items: itemsPayload },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      toast.success("All item statuses updated");
+      fetchOrders();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update all items");
+      fetchOrders();
     } finally {
       setUpdating(false);
     }
@@ -92,6 +104,7 @@ const VendorOrders = () => {
   return (
     <div className="p-6 text-white">
       <h1 className="text-2xl font-bold mb-6">Vendor Orders</h1>
+
       {orders.map((order) => (
         <div
           key={order._id}
@@ -102,26 +115,29 @@ const VendorOrders = () => {
               <strong>Order ID:</strong> {order._id}
             </span>
             <span>
-              <strong>Status:</strong>{" "}
-              <span className={STATUS_COLORS[order.status]}>
-                {order.status}
-              </span>
+              <strong>Buyer:</strong> {order.delivery.firstName}{" "}
+              {order.delivery.lastName}
+            </span>
+            <span className={`${STATUS_COLORS[order.status]}`}>
+              Status: {order.status}
             </span>
           </div>
 
           <div className="flex justify-end gap-2 mb-2">
-            <Button
-              onClick={() => handleBulkChange(order._id, "accepted")}
+            <button
+              onClick={() => updateAllItems(order._id, "accepted")}
               className="py-1 px-3 text-green-400 border border-green-400 rounded"
+              disabled={updating}
             >
               Accept All
-            </Button>
-            <Button
-              onClick={() => handleBulkChange(order._id, "rejected")}
+            </button>
+            <button
+              onClick={() => updateAllItems(order._id, "rejected")}
               className="py-1 px-3 text-red-400 border border-red-400 rounded"
+              disabled={updating}
             >
               Reject All
-            </Button>
+            </button>
           </div>
 
           <table className="min-w-full text-gray-300 mb-4">
@@ -145,13 +161,13 @@ const VendorOrders = () => {
                     <select
                       value={item.status || "pending"}
                       onChange={(e) =>
-                        handleItemChange(order._id, item._id, e.target.value)
+                        updateItemStatus(order._id, item._id, e.target.value)
                       }
                       className="bg-gray-700 text-white border border-gray-600 rounded px-2 py-1"
                     >
                       <option value="pending">Pending</option>
-                      <option value="accepted">Accepted</option>
-                      <option value="rejected">Rejected</option>
+                      <option value="accepted">Accept</option>
+                      <option value="rejected">Reject</option>
                       <option value="out_of_stock">Out of Stock</option>
                     </select>
                   </td>
@@ -159,16 +175,6 @@ const VendorOrders = () => {
               ))}
             </tbody>
           </table>
-
-          <div className="flex justify-end">
-            <Button
-              onClick={() => saveOrder(order._id)}
-              disabled={updating}
-              className="py-2 px-4"
-            >
-              {updating ? "Saving..." : "Save Changes"}
-            </Button>
-          </div>
         </div>
       ))}
     </div>

@@ -7,8 +7,8 @@ import {
     getVendorShop,
     upsertVendorShop,
     getVendorOrders,
-    updateVendorOrderStatus,
-    updateVendorOrderItemsStatus
+    updateVendorOrderItemStatus,
+    updateVendorOrderItemsBulk
 } from "../controllers/vendorController.js";
 
 const router = express.Router();
@@ -21,7 +21,7 @@ router.post("/shop", protect, authorize("vendor"), upsertVendorShop);
 
 // Orders
 router.get("/orders", protect, authorize("vendor"), getVendorOrders);
-router.put("/orders/:orderId/status", protect, authorize("vendor"), updateVendorOrderStatus);
-router.put("/orders/:orderId/items", protect, authorize("vendor"), updateVendorOrderItemsStatus);
+router.put("/orders/:orderId/item/:itemId", protect, authorize("vendor"), updateVendorOrderItemStatus);
+router.put("/orders/:orderId/items", protect, authorize("vendor"), updateVendorOrderItemsBulk);
 
 export default router;
