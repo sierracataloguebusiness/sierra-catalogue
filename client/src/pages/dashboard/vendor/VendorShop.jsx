@@ -3,6 +3,7 @@ import axios from "axios";
 import FormInput from "../../../component/Form/FormComponents/FormInput.jsx";
 import Button from "../../../component/Button.jsx";
 import { toast } from "react-toastify";
+import Loader from "../../../component/Loader.jsx";
 
 const VendorShop = () => {
   const [shop, setShop] = useState(null);
@@ -14,12 +15,14 @@ const VendorShop = () => {
     banner: "",
   });
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchShop = async () => {
+      setPageLoading(true);
       try {
         const res = await axios.get("/api/vendor/shop", {
           headers: { Authorization: `Bearer ${token}` },
@@ -28,6 +31,8 @@ const VendorShop = () => {
         if (res.data.shop) setFormData(res.data.shop);
       } catch (err) {
         console.log(err);
+      } finally {
+        setPageLoading(false);
       }
     };
     fetchShop();
@@ -56,6 +61,7 @@ const VendorShop = () => {
 
   const handleSetupClick = () => setShowForm(true);
 
+  if (pageLoading) return <Loader />;
   return (
     <div className="p-6">
       <h1 className="heading font-bold mb-6 text-amber-400">My shop</h1>
@@ -97,9 +103,6 @@ const VendorShop = () => {
             <div className="mt-6">
               <p>
                 <strong>Status:</strong> {shop.status}
-              </p>
-              <p>
-                <strong>Total Products:</strong> {shop.totalProducts}
               </p>
             </div>
           )}
