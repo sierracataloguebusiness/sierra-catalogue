@@ -7,6 +7,7 @@ export const createListing = async (req, res) => {
         const { title, categoryId, description, price, stock } = req.body;
         const vendor = req.user.id;
 
+        // Validation
         if (!title || !categoryId || !price) {
             return res.status(400).json({ message: "Title, category, and price are required" });
         }
@@ -20,19 +21,8 @@ export const createListing = async (req, res) => {
         const categoryExists = await Category.findById(categoryId);
         if (!categoryExists) return res.status(400).json({ message: "Invalid category selected" });
 
-        let imageUrls = [];
-        if (req.files && req.files.length > 0) {
-            const uploadPromises = req.files.map(file =>
-                cloudinary.uploader.upload(file.path, {
-                    folder: "sierra-catalogue/listings",
-                }).catch(err => {
-                    console.warn(`Failed to upload image ${file.originalname}:`, err.message);
-                    return null; // Skip failed uploads
-                })
-            );
-            const uploadResults = await Promise.all(uploadPromises);
-            imageUrls = uploadResults.filter(r => r).map(r => r.secure_url);
-        }
+        // Images: Multer + CloudinaryStorage handles upload automatically
+        const imageUrls = (req.files || []).map(file => file.path || file.filename).filter(Boolean);
 
         const newListing = await Listing.create({
             title,
@@ -63,12 +53,14 @@ export const updateListing = async (req, res) => {
         const listing = await Listing.findById(listingId);
         if (!listing) return res.status(404).json({ message: "Listing not found" });
 
+        // Vendor permission check
         if (req.user.role === "vendor" && listing.vendor.toString() !== vendor) {
             return res.status(403).json({ message: "You do not have permission to update this listing" });
         }
 
         const { title, description, price, stock, categoryId, isActive } = req.body;
 
+        // Validate category if provided
         if (categoryId) {
             const category = await Category.findById(categoryId);
             if (!category) return res.status(400).json({ message: "Invalid category selected" });
@@ -78,9 +70,12 @@ export const updateListing = async (req, res) => {
         if (price !== undefined && price < 0) return res.status(400).json({ message: "Price cannot be below 0" });
         if (stock !== undefined && stock < 0) return res.status(400).json({ message: "Stock cannot be below 0" });
 
+        // Update fields
         Object.assign(listing, { title, description, price, stock, isActive });
 
+        // Replace images safely if new ones uploaded
         if (req.files && req.files.length > 0) {
+            // Delete old images safely
             if (listing.images?.length) {
                 for (const img of listing.images) {
                     try {
@@ -95,17 +90,8 @@ export const updateListing = async (req, res) => {
                 }
             }
 
-            const uploadPromises = req.files.map(file =>
-                cloudinary.uploader.upload(file.path, {
-                    folder: "sierra-catalogue/listings",
-                }).catch(err => {
-                    console.warn(`Failed to upload new image ${file.originalname}:`, err.message);
-                    return null;
-                })
-            );
-
-            const uploadResults = await Promise.all(uploadPromises);
-            listing.images = uploadResults.filter(r => r).map(r => r.secure_url);
+            // Use URLs from Multer/CloudinaryStorage
+            listing.images = req.files.map(file => file.path || file.filename).filter(Boolean);
         }
 
         await listing.save({ validateBeforeSave: true });
