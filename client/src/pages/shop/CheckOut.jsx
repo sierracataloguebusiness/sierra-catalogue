@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Button from "../../component/Button.jsx";
 import { toast } from "react-toastify";
+import Loader from "../../component/Loader.jsx";
 
 const API_BASE = "https://sierra-catalogue.onrender.com/api";
 
@@ -51,15 +52,27 @@ const Checkout = () => {
   );
 
   const placeOrder = async () => {
-    if (!delivery.firstName || !delivery.phone) {
-      toast.error("Please provide your First Name and Phone Number");
+    if (!delivery.firstName || !delivery.lastName) {
+      toast.error("Please provide your First and Last Name");
+      return;
+    }
+
+    if (!delivery.phone) {
+      toast.error("Please provide your phone number");
+      return;
+    }
+
+    if (!delivery.address) {
+      toast.error("Please provide your Address");
       return;
     }
 
     setProcessing(true);
+
     try {
       const token = getToken();
-      await axios.post(
+
+      const orderRes = await axios.post(
         `${API_BASE}/order/create`,
         {
           items: cartItems.map((e) => ({
@@ -74,20 +87,39 @@ const Checkout = () => {
         { headers: { Authorization: `Bearer ${token}` } },
       );
 
-      toast.success(
-        "Order placed successfully! The vendor will contact you to arrange payment.",
-      );
-      setCartItems([]);
-      navigate("/ordersuccess");
+      if (orderRes.status === 200 || orderRes.status === 201) {
+        try {
+          await axios.delete(`${API_BASE}/cart/clear`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        } catch (clearErr) {
+          console.warn(
+            "⚠️ Order placed but cart not cleared:",
+            clearErr.message,
+          );
+        }
+
+        setCartItems([]);
+        toast.success(
+          "Order placed successfully! The vendor will contact you to arrange payment.",
+        );
+
+        navigate("/ordersuccess");
+      } else {
+        throw new Error("Order creation failed — please try again.");
+      }
     } catch (err) {
       console.error("Order placement failed:", err.response ?? err.message);
-      alert(err.response?.data?.message || "Failed to place order");
+      toast.error(
+        err.response?.data?.message ||
+          "Failed to place order. Your cart remains intact.",
+      );
     } finally {
       setProcessing(false);
     }
   };
 
-  if (loading) return <p className="text-center py-10">Loading checkout...</p>;
+  if (loading) return <Loader />;
 
   return (
     <div className="container mx-auto px-4 py-10 text-white">
@@ -144,13 +176,13 @@ const Checkout = () => {
             <span>NLe {subtotal.toFixed(2)}</span>
           </div>
 
-          <button
+          <Button
             onClick={() => setStep(2)}
             disabled={cartItems.length === 0}
-            className="mt-6 w-full bg-yellow-400 text-black py-3 rounded-lg hover:bg-yellow-300"
+            className="mt-6 w-full text-white"
           >
             Continue to Delivery
-          </button>
+          </Button>
         </div>
       )}
 
@@ -241,14 +273,14 @@ const Checkout = () => {
             <Button
               style="secondary"
               onClick={() => setStep(1)}
-              className="w-1/2 bg-gray-500 py-3 rounded-lg hover:bg-gray-400"
+              className="w-1/2 py-3 rounded-lg"
             >
               Back to Cart
             </Button>
             <Button
               onClick={placeOrder}
               disabled={processing}
-              className="w-1/2 bg-green-500 text-white py-3 rounded-lg hover:bg-green-400"
+              className="w-1/2 text-white py-3 rounded-lg"
             >
               {processing ? "Placing Order..." : "Place Order"}
             </Button>

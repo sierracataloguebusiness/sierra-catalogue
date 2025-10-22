@@ -87,7 +87,6 @@ export const updateQuantity = async (req, res) => {
     cart.updatedAt = new Date();
     await cart.save();
 
-    // ✅ repopulate before sending
     const populatedCart = await Cart.findById(cart._id)
         .populate("items.listingId", "title price images");
 
@@ -121,7 +120,6 @@ export const clearCart = async (req, res) => {
     cart.updatedAt = new Date();
     await cart.save();
 
-    // ✅ repopulate before sending
     const populatedCart = await Cart.findById(cart._id)
         .populate("items.listingId", "title price images");
 
