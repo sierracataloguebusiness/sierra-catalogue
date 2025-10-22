@@ -87,7 +87,7 @@ const VendorOrders = () => {
         ),
       );
 
-      console.log(orderId);
+      console.log(itemsPayload);
 
       await axios.put(
         `${API_BASE}/orders/${orderId}/items`,

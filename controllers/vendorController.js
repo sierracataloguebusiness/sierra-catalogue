@@ -119,7 +119,6 @@ export const updateVendorOrderItemStatus = async (req, res, next) => {
     }
 };
 
-// ✅ Bulk update all items in an order
 export const updateVendorOrderItemsBulk = async (req, res, next) => {
     try {
         const vendorId = req.user.id;
@@ -129,18 +128,19 @@ export const updateVendorOrderItemsBulk = async (req, res, next) => {
         const order = await VendorOrder.findOne({ _id: orderId, vendor: vendorId });
         if (!order) return res.status(404).json({ message: "Order not found" });
 
+        // Update item statuses
         items.forEach(({ _id, status }) => {
             if (!["accepted", "rejected", "out_of_stock", "pending"].includes(status)) return;
-            const item = order.items.id(_id);
+            const item = order.items.id(mongoose.Types.ObjectId(_id));
             if (item) item.status = status;
         });
 
-        // ✅ update overall order status
+        // Derive vendorStatus based on item statuses
         const statuses = order.items.map(i => i.status || "pending");
-        if (statuses.every(s => s === "accepted")) order.status = "accepted";
-        else if (statuses.every(s => s === "rejected")) order.status = "rejected";
-        else if (statuses.includes("accepted") && statuses.includes("rejected")) order.status = "partially_accepted";
-        else order.status = "pending";
+        if (statuses.every(s => s === "accepted")) order.vendorStatus = "accepted";
+        else if (statuses.every(s => s === "rejected")) order.vendorStatus = "rejected";
+        else if (statuses.includes("accepted") && statuses.includes("rejected")) order.vendorStatus = "partially_accepted";
+        else order.vendorStatus = "pending";
 
         await order.save();
 
