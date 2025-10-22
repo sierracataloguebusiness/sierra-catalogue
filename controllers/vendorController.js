@@ -110,3 +110,30 @@ export const updateVendorOrderStatus = async (req, res, next) => {
         next(new AppError("Failed to update order", 500));
     }
 };
+
+export const updateVendorOrderItemStatus = async (req, res) => {
+    const vendorId = req.user.id;
+    const { orderId, itemId } = req.params;
+    const { status } = req.body;
+
+    if (!["accepted", "rejected", "out_of_stock"].includes(status)) {
+        return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const order = await VendorOrder.findOne({ _id: orderId, vendor: vendorId });
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    const item = order.items.id(itemId);
+    if (!item) return res.status(404).json({ message: "Item not found" });
+
+    item.status = status;
+    await order.save();
+
+    const allDone = order.items.every(i => i.status !== "pending");
+    if (allDone) {
+        order.status = order.items.every(i => i.status === "accepted") ? "accepted" : "partially_accepted";
+        await order.save();
+    }
+
+    res.status(200).json({ message: "Item status updated", order });
+};
