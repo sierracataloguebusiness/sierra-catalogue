@@ -92,54 +92,67 @@ const VendorProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!form.title || !form.price || !form.categoryId) {
       toast.error("Please fill in all required fields");
       return;
     }
+
     try {
       setLoading(true);
       const formData = new FormData();
+
       formData.append("title", form.title);
       formData.append("price", Number(form.price));
-      formData.append("stock", Number(form.stock));
+      formData.append("stock", Number(form.stock || 0));
       formData.append("categoryId", form.categoryId);
       formData.append("description", form.description);
-      if (form.image) formData.append("image", form.image);
+
+      if (form.image) {
+        if (Array.isArray(form.image)) {
+          form.image.forEach((img) => formData.append("images", img));
+        } else {
+          formData.append("images", form.image);
+        }
+      }
+
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      };
 
       if (editing) {
         await axios.put(
           `https://sierra-catalogue.onrender.com/api/listings/${editing}`,
           formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${token}`,
-            },
-          },
+          config,
         );
         toast.success("Product updated successfully!");
       } else {
         await axios.post(
           "https://sierra-catalogue.onrender.com/api/listings/",
           formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${token}`,
-            },
-          },
+          config,
         );
         toast.success("Product added successfully!");
       }
 
-      resetForm();
       const updated = await axios.get(
         "https://sierra-catalogue.onrender.com/api/vendor/listings",
         { headers: { Authorization: `Bearer ${token}` } },
       );
       setProducts(updated.data.listings || []);
+
+      resetForm();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Action failed");
+      toast.error(
+        err.response?.data?.message ||
+          err.message ||
+          "Action failed, check console for details",
+      );
+      console.error("Submit error:", err);
     } finally {
       setLoading(false);
     }
