@@ -165,7 +165,7 @@ const VendorOrders = () => {
               <tr className="text-left border-b border-gray-700">
                 <th className="px-2 py-1">Item</th>
                 <th className="px-2 py-1">Qty</th>
-                <th className="px-2 py-1">Price ($)</th>
+                <th className="px-2 py-1">Price(Nle)</th>
                 <th className="px-2 py-1">Status</th>
               </tr>
             </thead>
@@ -197,7 +197,7 @@ const VendorOrders = () => {
           {/* Total */}
           <div className="flex justify-end mt-3 text-gray-300">
             <p>
-              <strong>Total:</strong> ${order.total?.toFixed(2) || "0.00"}
+              <strong>Total:</strong> Nle{order.total?.toFixed(2) || "0.00"}
             </p>
           </div>
         </div>
