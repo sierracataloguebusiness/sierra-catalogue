@@ -58,10 +58,12 @@ const VendorShop = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-6 text-amber-400">My Shop</h1>
+      <h1 className="heading font-bold mb-6 text-amber-400">
+        {shop.vendor?.name} Shop
+      </h1>
 
       {shop || showForm ? (
-        <div className="bg-gray-800 p-5 rounded-xl text-white shadow">
+        <div className="bg-gray-800 p-5 rounded-xl text-white max-width-2xl">
           <form onSubmit={handleSubmit} className="space-y-4">
             <FormInput
               type="text"
@@ -100,9 +102,6 @@ const VendorShop = () => {
               </p>
               <p>
                 <strong>Total Products:</strong> {shop.totalProducts}
-              </p>
-              <p>
-                <strong>Total Orders:</strong> {shop.totalOrders}
               </p>
             </div>
           )}

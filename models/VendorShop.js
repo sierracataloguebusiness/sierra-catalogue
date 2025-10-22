@@ -32,7 +32,6 @@ const VendorShopSchema = new mongoose.Schema(
             default: "under review",
         },
         totalProducts: { type: Number, default: 0 },
-        totalOrders: { type: Number, default: 0 },
     },
     { timestamps: true }
 );

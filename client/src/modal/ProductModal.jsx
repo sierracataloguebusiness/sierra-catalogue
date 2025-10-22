@@ -34,7 +34,7 @@ const ProductModal = ({
         >
           ✕
         </button>
-        <h3 className="text-xl font-semibold mb-4">
+        <h3 className="text-xl font-semibold mb-4 text-primary-gold">
           {editing ? "Edit Product" : "Add Product"}
         </h3>
 

@@ -180,7 +180,7 @@ const VendorProduct = () => {
   return (
     <div className="p-6 text-white">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">My Products</h1>
+        <h1 className="text-2xl font-bold text-primary-gold">My Products</h1>
         <Button onClick={() => setShowModal(true)}>Add Product</Button>
       </div>
 
