@@ -1,29 +1,73 @@
 import Cart from "../models/Cart.js";
 import AppError from "../utils/AppError.js";
 import Order from "../models/Order.js";
+import VendorOrder from "../models/VendorOrder.js";
+import Listing from "../models/Listing.js";
 
 export const createOrder = async (req, res) => {
     try {
         const { items, delivery, total } = req.body;
+        const userId = req.user.id;
+
         if (!items || items.length === 0) {
             return res.status(400).json({ message: "No items in order" });
         }
 
-        const order = new Order({
-            user: req.user.id,
+        const order = await Order.create({
+            user: userId,
             items,
             delivery,
             total,
             status: "pending",
         });
 
-        await order.save();
-        res.json({ success: true, order });
+        const listings = await Listing.find({
+            _id: { $in: items.map((i) => i.listingId) },
+        }).populate("vendor");
+
+        const vendorMap = {};
+        items.forEach((item) => {
+            const listing = listings.find(
+                (l) => l._id.toString() === item.listingId.toString()
+            );
+            if (!listing) return;
+
+            const vendorId = listing.vendor._id.toString();
+            if (!vendorMap[vendorId]) vendorMap[vendorId] = [];
+            vendorMap[vendorId].push(item);
+        });
+
+        const vendorOrders = [];
+        for (const [vendorId, vendorItems] of Object.entries(vendorMap)) {
+            const subtotal = vendorItems.reduce(
+                (sum, item) => sum + item.price * item.quantity,
+                0
+            );
+
+            const vendorOrder = await VendorOrder.create({
+                order: order._id,
+                vendor: vendorId,
+                buyer: userId,
+                items: vendorItems,
+                subtotal,
+                delivery,
+                status: "pending",
+            });
+
+            vendorOrders.push(vendorOrder);
+        }
+
+        res.status(201).json({
+            success: true,
+            message: "Order placed successfully",
+            order,
+            vendorOrders,
+        });
     } catch (err) {
-        console.error("Order error:", err.message);
-        res.status(500).json({ message: "Server error" });
+        console.error("Order creation error:", err);
+        res.status(500).json({ message: "Server error while creating order" });
     }
-}
+};
 
 export const getUserOrders = async (req, res) => {
     const userId = req.user.id;
