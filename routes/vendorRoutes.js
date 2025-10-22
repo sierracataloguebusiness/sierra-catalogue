@@ -19,6 +19,6 @@ router.get("/shop", protect, authorize("vendor"), getVendorShop)
 router.post("/shop", protect, authorize("vendor"), upsertVendorShop);
 router.get("/orders/", protect, authorize("vendor"), getVendorOrders);
 router.put("/orders/:id", protect, authorize("vendor"), updateVendorOrderStatus);
-router.put("/orders/:orderId/item/:itemId", protect, authorize("vendor"), updateVendorOrderItemStatus);
+router.put("/orders/:orderId/items", protect, authorize("vendor"), updateVendorOrderItemStatus);
 
 export default router;

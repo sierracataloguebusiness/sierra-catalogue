@@ -71,7 +71,7 @@ const VendorOrders = () => {
     try {
       setUpdating(true);
       await axios.put(
-        `${API_BASE}/vendor-orders/${orderId}/items`,
+        `${API_BASE}/${orderId}/items`,
         {
           items: order.items.map((i) => ({ _id: i._id, status: i.status })),
         },
