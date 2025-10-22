@@ -32,6 +32,7 @@ const VendorProduct = () => {
     description: "",
     image: null,
     currentImage: null,
+    isActive: true,
   });
   const [products, setProducts] = useState([]);
   const [productLoading, setProductLoading] = useState(true);
