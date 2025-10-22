@@ -73,7 +73,6 @@ const VendorOrders = () => {
     }
   };
 
-  // ✅ Update all items in an order
   const updateAllItems = async (orderId, status) => {
     try {
       setUpdating(true);
@@ -87,6 +86,8 @@ const VendorOrders = () => {
             : o,
         ),
       );
+
+      console.log(orderId);
 
       await axios.put(
         `${API_BASE}/orders/${orderId}/items`,
@@ -123,7 +124,6 @@ const VendorOrders = () => {
           key={order._id}
           className="mb-6 border border-gray-700 rounded-xl p-5 bg-gray-800 shadow-md"
         >
-          {/* Order Info Header */}
           <div className="flex flex-wrap justify-between items-center mb-4">
             <div>
               <p>
@@ -141,7 +141,6 @@ const VendorOrders = () => {
             </span>
           </div>
 
-          {/* Bulk Action Buttons */}
           <div className="flex justify-end gap-2 mb-3">
             <button
               onClick={() => updateAllItems(order._id, "accepted")}
