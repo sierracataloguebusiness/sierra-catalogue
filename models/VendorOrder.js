@@ -19,12 +19,18 @@ const VendorOrderSchema = new mongoose.Schema(
         },
         items: [
             {
-                listingId: { type: mongoose.Schema.Types.ObjectId, ref: "Listing" },
+                listingId: {type: mongoose.Schema.Types.ObjectId, ref: "Listing"},
                 title: String,
                 price: Number,
                 quantity: Number,
-            },
+                status: {
+                    type: String,
+                    enum: ["pending", "accepted", "rejected", "out_of_stock"],
+                    default: "pending"
+                },
+            }
         ],
+
         subtotal: { type: Number, required: true },
         status: {
             type: String,
