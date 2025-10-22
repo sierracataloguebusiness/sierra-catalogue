@@ -10,11 +10,10 @@ export const createListing = async (req, res) => {
         const priceNum = Number(price);
         const stockNum = Number(stock) || 0;
 
-        if (!title || !categoryId || !price) {
+        if (!title || !categoryId || !price)
             return res
                 .status(400)
                 .json({ message: "Title, category, and price are required" });
-        }
 
         if (priceNum < 0)
             return res.status(400).json({ message: "Price cannot be below 0" });
@@ -22,11 +21,20 @@ export const createListing = async (req, res) => {
             return res.status(400).json({ message: "Stock cannot be below 0" });
 
         const categoryExists = await Category.findById(categoryId);
-        if (!categoryExists) {
+        if (!categoryExists)
             return res.status(400).json({ message: "Invalid category selected" });
-        }
 
-        const imageUrls = req.files ? req.files.map((f) => f.path) : [];
+
+        let imageUrls = [];
+        if (req.files && req.files.length > 0) {
+            const uploadPromises = req.files.map((file) =>
+                cloudinary.uploader.upload(file.path, {
+                    folder: "sierra-catalogue/listings",
+                })
+            );
+            const uploadResults = await Promise.all(uploadPromises);
+            imageUrls = uploadResults.map((r) => r.secure_url);
+        }
 
         const newListing = await Listing.create({
             title,
@@ -65,7 +73,10 @@ export const updateListing = async (req, res) => {
         }
 
         if (req.user.role === "vendor" && listing.vendor.toString() !== vendor) {
-            throw new AppError("You do not have permission to update this listing", 403);
+            throw new AppError(
+                "You do not have permission to update this listing",
+                403
+            );
         }
 
         if (price !== undefined && price < 0)
@@ -77,10 +88,17 @@ export const updateListing = async (req, res) => {
 
         if (req.files && req.files.length > 0) {
             for (const img of listing.images) {
-                const publicId = img.split("/").pop().split(".")[0];
-                await cloudinary.uploader.destroy(`sierra-catalogue/listings/${publicId}`);
+                const publicId = img.split("/").slice(-2).join("/").split(".")[0];
+                await cloudinary.uploader.destroy(publicId);
             }
-            listing.images = req.files.map((f) => f.path);
+
+            const uploadPromises = req.files.map((file) =>
+                cloudinary.uploader.upload(file.path, {
+                    folder: "sierra-catalogue/listings",
+                })
+            );
+            const uploadResults = await Promise.all(uploadPromises);
+            listing.images = uploadResults.map((r) => r.secure_url);
         }
 
         await listing.save({ validateBeforeSave: true });
@@ -104,13 +122,16 @@ export const deleteListing = async (req, res) => {
         if (!listing) throw new AppError("Listing not found", 404);
 
         if (req.user.role === "vendor" && listing.vendor.toString() !== vendor) {
-            throw new AppError("You do not have permission to delete this listing", 403);
+            throw new AppError(
+                "You do not have permission to delete this listing",
+                403
+            );
         }
 
         if (listing.images?.length) {
             for (const img of listing.images) {
-                const publicId = img.split("/").pop().split(".")[0];
-                await cloudinary.uploader.destroy(`sierra-catalogue/listings/${publicId}`);
+                const publicId = img.split("/").slice(-2).join("/").split(".")[0];
+                await cloudinary.uploader.destroy(publicId);
             }
         }
 

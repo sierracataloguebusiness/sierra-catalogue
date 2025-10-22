@@ -49,7 +49,7 @@ app.use('/api/vendorApplication', vendorApplicationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/vendor', vendorRoutes);
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/listings", express.static(path.join(__dirname, "listings")));
 
 // Serve frontend
 app.use(express.static(path.join(__dirname, 'client/dist')));
