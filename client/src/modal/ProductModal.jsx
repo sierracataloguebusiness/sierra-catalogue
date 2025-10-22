@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import FormInput from "../component/Form/FormComponents/FormInput.jsx";
 import Button from "../component/Button.jsx";
 
@@ -12,6 +12,8 @@ const ProductModal = ({
   categories,
   loading,
 }) => {
+  const [showImageField, setShowImageField] = useState(false);
+
   if (!show) return null;
 
   const handleChange = (e) => {
@@ -80,19 +82,33 @@ const ProductModal = ({
             ))}
           </select>
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="text-white"
-          />
+          {editing && !showImageField && (
+            <button
+              type="button"
+              onClick={() => setShowImageField(true)}
+              className="text-amber-400 text-sm underline hover:text-amber-300"
+            >
+              Edit product photo
+            </button>
+          )}
 
-          {form.image && (
-            <img
-              src={URL.createObjectURL(form.image)}
-              alt="Preview"
-              className="w-32 h-32 object-cover rounded-lg border border-gray-600"
-            />
+          {(!editing || showImageField) && (
+            <>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="text-white"
+              />
+
+              {form.image && (
+                <img
+                  src={URL.createObjectURL(form.image)}
+                  alt="Preview"
+                  className="w-32 h-32 object-cover rounded-lg border border-gray-600 mt-2"
+                />
+              )}
+            </>
           )}
 
           <div className="flex gap-3 justify-end mt-4">
