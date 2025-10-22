@@ -58,7 +58,7 @@ const VendorShop = () => {
 
   return (
     <div className="p-6">
-      <h1 className="heading font-bold mb-6 text-amber-400">{shop.name}</h1>
+      <h1 className="heading font-bold mb-6 text-amber-400">My shop</h1>
 
       {shop || showForm ? (
         <div className="bg-gray-800 p-5 rounded-xl text-white max-width-2xl">
