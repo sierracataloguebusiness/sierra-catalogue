@@ -35,8 +35,8 @@ import AdminManageVendorApplications from "./pages/dashboard/admin/AdminManageVe
 import AdminSettings from "./pages/dashboard/admin/AdminSettings.jsx";
 import ProfilePage from "./pages/dashboard/ProfilePage.jsx";
 import VendorDashboard from "./pages/dashboard/vendor/VendorDashboard.jsx";
-import VendorShop from "../../models/VendorShop.js";
 import VendorProduct from "./pages/dashboard/vendor/VendorProduct.jsx";
+import VendorShop from "./pages/dashboard/vendor/VendorShop.jsx";
 
 const App = () => {
   const location = useLocation();
