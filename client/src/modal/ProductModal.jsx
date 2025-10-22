@@ -85,28 +85,35 @@ const ProductModal = ({
             ))}
           </select>
 
-          {editing && !showImageField && (
-            <button
-              type="button"
-              onClick={() => setShowImageField(true)}
-              className="text-sm underline hover:text-amber-300"
-            >
-              Edit product photo
-            </button>
+          {editing && form.currentImage && !showImageField && (
+            <div className="flex items-center gap-3">
+              <img
+                src={form.currentImage}
+                alt="Current"
+                className="w-24 h-24 object-cover rounded-lg border border-gray-600"
+              />
+              <button
+                type="button"
+                onClick={() => setShowImageField(true)}
+                className="text-sm underline hover:text-primary-gold"
+              >
+                Edit product photo
+              </button>
+            </div>
           )}
 
           {editing && showImageField && (
             <button
               type="button"
               onClick={() => setShowImageField(false)}
-              className="text-sm underline hover:text-amber-300"
+              className="text-sm underline hover:text-primary-gold"
             >
-              Do not edit product photo
+              Keep current photo
             </button>
           )}
 
           {(!editing || showImageField) && (
-            <>
+            <div className="flex flex-col-reverse space-y-2">
               <input
                 type="file"
                 accept="image/*"
@@ -121,7 +128,7 @@ const ProductModal = ({
                   className="w-32 h-32 object-cover rounded-lg border border-gray-600 mt-2"
                 />
               )}
-            </>
+            </div>
           )}
 
           <div className="flex gap-3 justify-end mt-4">

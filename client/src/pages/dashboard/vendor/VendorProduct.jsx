@@ -30,6 +30,7 @@ const VendorProduct = () => {
     categoryId: "",
     description: "",
     image: null,
+    currentImage: null,
   });
   const [products, setProducts] = useState([]);
   const [productLoading, setProductLoading] = useState(true);
@@ -65,7 +66,7 @@ const VendorProduct = () => {
         setProducts(prodRes.data.listings || []);
       } catch (err) {
         toast.error(
-          `Failed to load vendor data: ${err.response?.data?.message || err.message}`,
+          `Failed to load data: ${err.response?.data?.message || err.message}`,
         );
       } finally {
         setProductLoading(false);
@@ -82,6 +83,7 @@ const VendorProduct = () => {
       categoryId: "",
       description: "",
       image: null,
+      currentImage: null,
     });
     setEditing(null);
     setShowModal(false);
@@ -151,6 +153,7 @@ const VendorProduct = () => {
       categoryId: product.categoryId?._id || "",
       description: product.description,
       image: null,
+      currentImage: product.images?.[0] || null,
     });
     setShowModal(true);
   };
@@ -161,7 +164,9 @@ const VendorProduct = () => {
     try {
       await axios.delete(
         `https://sierra-catalogue.onrender.com/api/listings/${deleteId}`,
-        { headers: { Authorization: `Bearer ${token}` } },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
       );
       toast.success("Product deleted");
       setProducts((prev) => prev.filter((p) => p._id !== deleteId));
