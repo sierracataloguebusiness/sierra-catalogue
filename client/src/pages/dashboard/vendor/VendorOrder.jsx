@@ -87,6 +87,7 @@ const VendorOrders = () => {
         ),
       );
 
+      console.log(order);
       console.log(itemsPayload);
 
       await axios.put(
