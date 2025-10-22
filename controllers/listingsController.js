@@ -51,7 +51,7 @@ export const updateListing = async (req, res) => {
     const listing = await Listing.findById(listingId);
     if (!listing) throw new AppError('Listing not found', 404);
 
-    const { title, description, price, stock, images, categoryId, isActive } = req.body;
+    const { title, description, price, stock, categoryId, isActive } = req.body;
 
     if (categoryId) {
         const category = await Category.findById(categoryId);
@@ -66,7 +66,13 @@ export const updateListing = async (req, res) => {
     if (price !== undefined && price < 0) throw new AppError('Price cannot be below 0', 400);
     if (stock !== undefined && stock < 0) throw new AppError('Stock cannot be below 0', 400);
 
-    Object.assign(listing, { title, description, price, stock, images, categoryId, isActive });
+    Object.assign(listing, { title, description, price, stock, isActive });
+
+    if (req.file) {
+        const imagePath = `/uploads/${req.file.filename}`;
+        listing.images = [imagePath];
+    }
+
     await listing.save({ validateBeforeSave: true });
 
     res.status(200).json({

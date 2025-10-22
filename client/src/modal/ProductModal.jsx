@@ -16,15 +16,11 @@ const ProductModal = ({
 
   if (!show) return null;
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e) => {
-    if (e.target.files[0])
-      setForm((prev) => ({ ...prev, image: e.target.files[0] }));
-  };
+  const handleChange = (e) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleFileChange = (e) =>
+    e.target.files[0] &&
+    setForm((prev) => ({ ...prev, image: e.target.files[0] }));
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
@@ -38,7 +34,6 @@ const ProductModal = ({
         >
           ✕
         </button>
-
         <h3 className="text-xl font-semibold mb-4">
           {editing ? "Edit Product" : "Add Product"}
         </h3>
@@ -52,7 +47,6 @@ const ProductModal = ({
             onChange={handleChange}
             hasLabel={false}
           />
-
           <FormInput
             type="text"
             name="description"
@@ -61,7 +55,6 @@ const ProductModal = ({
             onChange={handleChange}
             hasLabel={false}
           />
-
           <FormInput
             type="number"
             name="price"
@@ -120,7 +113,6 @@ const ProductModal = ({
                 onChange={handleFileChange}
                 className="text-white"
               />
-
               {form.image && (
                 <img
                   src={URL.createObjectURL(form.image)}

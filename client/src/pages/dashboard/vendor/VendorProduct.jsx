@@ -1,3 +1,4 @@
+// VendorProduct.jsx (updated)
 import React, { useEffect, useState } from "react";
 import Button from "../../../component/Button.jsx";
 import axios from "axios";
@@ -41,15 +42,6 @@ const VendorProduct = () => {
   const [deleteId, setDeleteId] = useState(null);
   const token = localStorage.getItem("token");
 
-  const CATEGORY_MAP = {
-    "68d9879b81bc7c3a62f903f3": { name: "Electronics" },
-    "68d9879b81bc7c3a62f903f4": { name: "Fashion & Beauty" },
-    "68d9879b81bc7c3a62f903f5": { name: "Food & Drinks" },
-    "68d9879b81bc7c3a62f903f6": { name: "Books & Stationery" },
-    "68d9879b81bc7c3a62f903f7": { name: "Home & Appliances" },
-    "68d9879b81bc7c3a62f903f8": { name: "Health & Personal Care" },
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -57,9 +49,7 @@ const VendorProduct = () => {
           axios.get("https://sierra-catalogue.onrender.com/api/category"),
           axios.get(
             "https://sierra-catalogue.onrender.com/api/vendor/listings",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            },
+            { headers: { Authorization: `Bearer ${token}` } },
           ),
         ]);
         setCategories(catRes.data.categories || []);
@@ -164,9 +154,7 @@ const VendorProduct = () => {
     try {
       await axios.delete(
         `https://sierra-catalogue.onrender.com/api/listings/${deleteId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success("Product deleted");
       setProducts((prev) => prev.filter((p) => p._id !== deleteId));
@@ -218,7 +206,7 @@ const VendorProduct = () => {
                     {p.title}
                   </td>
                   <td className="px-4 py-3 text-gray-400">
-                    {CATEGORY_MAP[p.categoryId]?.name || "Uncategorized"}
+                    {p.categoryId?.name || "Uncategorized"}
                   </td>
                   <td className="px-4 py-3 max-w-[250px] text-gray-400 truncate">
                     {p.description || "—"}
