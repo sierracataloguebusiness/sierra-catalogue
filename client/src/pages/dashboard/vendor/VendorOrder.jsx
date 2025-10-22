@@ -136,9 +136,9 @@ const VendorOrders = () => {
               </p>
             </div>
             <span
-              className={`font-semibold ${STATUS_COLORS[order.status] || "text-gray-300"}`}
+              className={`font-semibold ${STATUS_COLORS[order.vendorStatus] || "text-gray-300"}`}
             >
-              {order.status.toUpperCase()}
+              {order.vendorStatus.toUpperCase()}
             </span>
           </div>
 
