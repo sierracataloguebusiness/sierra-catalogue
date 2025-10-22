@@ -31,7 +31,10 @@ const ProductModal = ({
       <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 w-full max-w-lg relative">
         <button
           className="absolute top-3 right-3 text-gray-400 hover:text-white text-xl"
-          onClick={onClose}
+          onClick={() => {
+            onClose();
+            setShowImageField(false);
+          }}
         >
           ✕
         </button>
@@ -86,9 +89,19 @@ const ProductModal = ({
             <button
               type="button"
               onClick={() => setShowImageField(true)}
-              className="text-amber-400 text-sm underline hover:text-amber-300"
+              className="text-sm underline hover:text-amber-300"
             >
               Edit product photo
+            </button>
+          )}
+
+          {editing && showImageField && (
+            <button
+              type="button"
+              onClick={() => setShowImageField(false)}
+              className="text-sm underline hover:text-amber-300"
+            >
+              Do not edit product photo
             </button>
           )}
 
