@@ -67,17 +67,24 @@ export const getVendorShop = async (req, res) => {
     res.status(200).json({ shop });
 };
 
-export const getVendorOrders = async (req, res) => {
-    const vendorId = req.user.id;
+// ✅ Get all vendor orders
+export const getVendorOrders = async (req, res, next) => {
+    try {
+        const vendorId = req.user.id;
 
-    const orders = await VendorOrder.find({ vendor: vendorId })
-        .populate("buyer", "name email")
-        .populate("items.listingId", "title price images")
-        .sort({ createdAt: -1 });
+        const orders = await VendorOrder.find({ vendor: vendorId })
+            .populate("buyer", "name email")
+            .populate("items.listingId", "title price images")
+            .sort({ createdAt: -1 });
 
-    res.status(200).json({ success: true, count: orders.length, orders });
+        res.status(200).json({ success: true, orders });
+    } catch (err) {
+        console.error("Error fetching vendor orders:", err);
+        next(new AppError("Failed to fetch vendor orders", 500));
+    }
 };
 
+// ✅ Update single item in an order
 export const updateVendorOrderItemStatus = async (req, res, next) => {
     try {
         const vendorId = req.user.id;
@@ -96,12 +103,15 @@ export const updateVendorOrderItemStatus = async (req, res, next) => {
 
         item.status = status;
 
+        // ✅ update overall order status
         const statuses = order.items.map(i => i.status || "pending");
         if (statuses.every(s => s === "accepted")) order.status = "accepted";
-        else if (statuses.every(s => s !== "pending")) order.status = "partially_accepted";
+        else if (statuses.every(s => s === "rejected")) order.status = "rejected";
+        else if (statuses.includes("accepted") && statuses.includes("rejected")) order.status = "partially_accepted";
         else order.status = "pending";
 
         await order.save();
+
         res.status(200).json({ message: "Item status updated", order });
     } catch (err) {
         console.error("Error updating vendor order item:", err);
@@ -109,27 +119,31 @@ export const updateVendorOrderItemStatus = async (req, res, next) => {
     }
 };
 
+// ✅ Bulk update all items in an order
 export const updateVendorOrderItemsBulk = async (req, res, next) => {
     try {
         const vendorId = req.user.id;
         const { orderId } = req.params;
-        const { items } = req.body; // array of { _id, status }
+        const { items } = req.body;
 
         const order = await VendorOrder.findOne({ _id: orderId, vendor: vendorId });
         if (!order) return res.status(404).json({ message: "Order not found" });
 
         items.forEach(({ _id, status }) => {
-            if (!["accepted","rejected","out_of_stock","pending"].includes(status)) return;
+            if (!["accepted", "rejected", "out_of_stock", "pending"].includes(status)) return;
             const item = order.items.id(_id);
             if (item) item.status = status;
         });
 
+        // ✅ update overall order status
         const statuses = order.items.map(i => i.status || "pending");
         if (statuses.every(s => s === "accepted")) order.status = "accepted";
-        else if (statuses.every(s => s !== "pending")) order.status = "partially_accepted";
+        else if (statuses.every(s => s === "rejected")) order.status = "rejected";
+        else if (statuses.includes("accepted") && statuses.includes("rejected")) order.status = "partially_accepted";
         else order.status = "pending";
 
         await order.save();
+
         res.status(200).json({ message: "Bulk item status updated", order });
     } catch (err) {
         console.error("Bulk update error:", err);

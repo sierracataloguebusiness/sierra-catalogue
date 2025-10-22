@@ -23,20 +23,25 @@ const VendorOrders = () => {
     fetchOrders();
   }, []);
 
+  // ✅ Fetch vendor orders
   const fetchOrders = async () => {
     try {
+      setLoading(true);
       const res = await axios.get(`${API_BASE}/orders`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders(res.data.orders || []);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to fetch vendor orders");
+      toast.error(
+        err.response?.data?.message || "Failed to fetch vendor orders",
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  // ✅ Update single item status
   const updateItemStatus = async (orderId, itemId, status) => {
     try {
       setOrders((prev) =>
@@ -57,15 +62,18 @@ const VendorOrders = () => {
         { status },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      toast.success("Item status updated");
+      toast.success("Item status updated successfully");
       fetchOrders();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update item status");
+      toast.error(
+        err.response?.data?.message || "Failed to update item status",
+      );
       fetchOrders();
     }
   };
 
+  // ✅ Update all items in an order
   const updateAllItems = async (orderId, status) => {
     try {
       setUpdating(true);
@@ -90,7 +98,7 @@ const VendorOrders = () => {
       fetchOrders();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update all items");
+      toast.error(err.response?.data?.message || "Failed to update all items");
       fetchOrders();
     } finally {
       setUpdating(false);
@@ -98,8 +106,13 @@ const VendorOrders = () => {
   };
 
   if (loading) return <Loader />;
+
   if (orders.length === 0)
-    return <p className="text-gray-400">No vendor orders yet.</p>;
+    return (
+      <div className="p-6 text-center text-gray-400">
+        <p>No vendor orders yet.</p>
+      </div>
+    );
 
   return (
     <div className="p-6 text-white">
@@ -108,44 +121,54 @@ const VendorOrders = () => {
       {orders.map((order) => (
         <div
           key={order._id}
-          className="mb-6 border border-gray-700 rounded-xl p-4 bg-gray-800"
+          className="mb-6 border border-gray-700 rounded-xl p-5 bg-gray-800 shadow-md"
         >
-          <div className="flex justify-between mb-4">
-            <span>
-              <strong>Order ID:</strong> {order._id}
-            </span>
-            <span>
-              <strong>Buyer:</strong> {order.delivery.firstName}{" "}
-              {order.delivery.lastName}
-            </span>
-            <span className={`${STATUS_COLORS[order.status]}`}>
-              Status: {order.status}
+          {/* Order Info Header */}
+          <div className="flex flex-wrap justify-between items-center mb-4">
+            <div>
+              <p>
+                <strong>Order ID:</strong> {order._id}
+              </p>
+              <p>
+                <strong>Buyer:</strong> {order.delivery?.firstName}{" "}
+                {order.delivery?.lastName}
+              </p>
+            </div>
+            <span
+              className={
+                font -
+                semibold`${STATUS_COLORS[order.status] || "text-gray-300"}`
+              }
+            >
+              {order.status.toUpperCase()}
             </span>
           </div>
 
-          <div className="flex justify-end gap-2 mb-2">
+          {/* Bulk Action Buttons */}
+          <div className="flex justify-end gap-2 mb-3">
             <button
               onClick={() => updateAllItems(order._id, "accepted")}
-              className="py-1 px-3 text-green-400 border border-green-400 rounded"
+              className="py-1 px-3 text-green-400 border border-green-400 rounded hover:bg-green-400 hover:text-black transition"
               disabled={updating}
             >
               Accept All
             </button>
             <button
               onClick={() => updateAllItems(order._id, "rejected")}
-              className="py-1 px-3 text-red-400 border border-red-400 rounded"
+              className="py-1 px-3 text-red-400 border border-red-400 rounded hover:bg-red-400 hover:text-black transition"
               disabled={updating}
             >
               Reject All
             </button>
           </div>
 
-          <table className="min-w-full text-gray-300 mb-4">
+          {/* Order Items Table */}
+          <table className="w-full text-gray-300 text-sm">
             <thead>
               <tr className="text-left border-b border-gray-700">
                 <th className="px-2 py-1">Item</th>
                 <th className="px-2 py-1">Qty</th>
-                <th className="px-2 py-1">Price</th>
+                <th className="px-2 py-1">Price ($)</th>
                 <th className="px-2 py-1">Status</th>
               </tr>
             </thead>
@@ -154,20 +177,18 @@ const VendorOrders = () => {
                 <tr key={item._id} className="border-b border-gray-700">
                   <td className="px-2 py-1">{item.title}</td>
                   <td className="px-2 py-1">{item.quantity}</td>
-                  <td className="px-2 py-1">{item.price.toFixed(2)}</td>
-                  <td
-                    className={`px-2 py-1 font-semibold ${STATUS_COLORS[item.status || "pending"]}`}
-                  >
+                  <td className="px-2 py-1">{item.price?.toFixed(2)}</td>
+                  <td className="px-2 py-1">
                     <select
                       value={item.status || "pending"}
                       onChange={(e) =>
                         updateItemStatus(order._id, item._id, e.target.value)
                       }
-                      className="bg-gray-700 text-white border border-gray-600 rounded px-2 py-1"
+                      className={`bg-gray-700 text-white border border-gray-600 rounded px-2 py-1 focus:outline-none ${STATUS_COLORS[item.status || "pending"]}`}
                     >
                       <option value="pending">Pending</option>
-                      <option value="accepted">Accept</option>
-                      <option value="rejected">Reject</option>
+                      <option value="accepted">Accepted</option>
+                      <option value="rejected">Rejected</option>
                       <option value="out_of_stock">Out of Stock</option>
                     </select>
                   </td>
@@ -175,6 +196,13 @@ const VendorOrders = () => {
               ))}
             </tbody>
           </table>
+
+          {/* Total */}
+          <div className="flex justify-end mt-3 text-gray-300">
+            <p>
+              <strong>Total:</strong> ${order.total?.toFixed(2) || "0.00"}
+            </p>
+          </div>
         </div>
       ))}
     </div>
