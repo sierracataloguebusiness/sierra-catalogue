@@ -3,7 +3,7 @@ import axios from "axios";
 import { FaBox, FaShoppingCart, FaCheckCircle } from "react-icons/fa";
 import { useAuth } from "../../../context/AuthContext.jsx";
 import { toast } from "react-toastify";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 const VendorDashboard = () => {
   const { token, user } = useAuth();
@@ -82,28 +82,28 @@ const VendorDashboard = () => {
         </h2>
         <ul className="text-gray-400 text-sm space-y-3">
           <li>
-            <Link
+            <NavLink
               to="/vendor/products"
               className="hover:text-yellow-300 hover:underline"
             >
               View and manage your products
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
+            <NavLink
               to="/vendor/orders"
               className="hover:text-yellow-300 hover:underline"
             >
               Track your recent orders
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
+            <NavLink
               to="/vendor/shop"
               className="hover:text-yellow-300 hover:underline"
             >
               Update shop details or contact info
-            </Link>
+            </NavLink>
           </li>
         </ul>
       </div>

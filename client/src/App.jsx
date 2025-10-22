@@ -178,12 +178,23 @@ const App = () => {
               </PrivateRoute>
             }
           />
-          <Route path="vendor/orders" element={<VendorOrder />} />
           <Route
-            path="vendor/favorites"
-            element={<div>Vendor Favorites</div>}
+            path="vendor/orders"
+            element={
+              <PrivateRoute allowedRoles={["vendor"]}>
+                <VendorOrder />
+              </PrivateRoute>
+            }
           />
-          <Route path="vendor/settings" element={<div>Vendor Settings</div>} />
+
+          <Route
+            path="vendor/settings"
+            element={
+              <PrivateRoute allowedRoles={["vendor"]}>
+                <ComingSoon />
+              </PrivateRoute>
+            }
+          />
 
           {/* Customer Routes */}
           <Route path="customer" element={<Dashboard />} />

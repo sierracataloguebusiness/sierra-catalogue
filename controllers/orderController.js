@@ -112,13 +112,11 @@ export const checkout = async (req, res) => {
         const userId = req.user._id; // assuming you have auth middleware setting req.user
         const { address, paymentMethod } = req.body;
 
-        // Get the user's cart
         const cart = await Cart.findOne({ userId }).populate("items.listingId");
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({ message: "Cart is empty" });
         }
 
-        // Calculate total
         const total = cart.items.reduce((sum, item) => {
             const price = item.listingId?.price ?? 0;
             return sum + price * (item.quantity ?? 0);

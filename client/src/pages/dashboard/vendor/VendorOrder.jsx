@@ -118,7 +118,9 @@ const VendorOrders = () => {
 
   return (
     <div className="p-6 text-white">
-      <h1 className="text-2xl font-bold mb-6">Vendor Orders</h1>
+      <h1 className="text-2xl text-primary-gold font-bold mb-6">
+        Vendor Orders
+      </h1>
 
       {orders.map((order) => (
         <div
@@ -195,11 +197,11 @@ const VendorOrders = () => {
           </table>
 
           {/* Total */}
-          <div className="flex justify-end mt-3 text-gray-300">
-            <p>
-              <strong>Total:</strong> Nle{order.total?.toFixed(2) || "0.00"}
-            </p>
-          </div>
+          {/*<div className="flex justify-end mt-3 text-gray-300">*/}
+          {/*  <p>*/}
+          {/*    <strong>Total:</strong> Nle{order.total?.toFixed(2) || "0.00"}*/}
+          {/*  </p>*/}
+          {/*</div>*/}
         </div>
       ))}
     </div>

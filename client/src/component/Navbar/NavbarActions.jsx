@@ -44,7 +44,7 @@ const NavbarActions = ({
         return [
           { name: "Dashboard", link: "/dashboard/vendor" },
           { name: "Shop", link: "/dashboard/vendor/shop" },
-          { name: "Products", link: "/dashboard/vendor/favorites" },
+          { name: "Products", link: "/dashboard/vendor/products" },
           { name: "Orders", link: "/dashboard/vendor/orders" },
           { name: "Settings", link: "/dashboard/vendor/settings" },
         ];
