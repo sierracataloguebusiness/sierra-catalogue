@@ -11,6 +11,8 @@ const ProductModal = ({
   editing,
   categories,
   loading,
+  CATEGORY_MAP,
+  products,
 }) => {
   if (!show) return null;
 
@@ -68,7 +70,7 @@ const ProductModal = ({
 
           <select
             name="categoryId"
-            value={form.categoryId || ""}
+            value={CATEGORY_MAP[products.categoryId]?.name}
             onChange={handleChange}
             className="bg-gray-900 text-white px-3 py-2 rounded-md outline-none w-full"
           >
