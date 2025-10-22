@@ -83,14 +83,14 @@ export const getVendorOrders = async (req, res, next) => {
     }
 };
 
-// ✅ Update single item in an order
 export const updateVendorOrderItemStatus = async (req, res, next) => {
     try {
         const vendorId = req.user.id;
         const { orderId, itemId } = req.params;
         const { status } = req.body;
 
-        if (!["accepted", "rejected", "out_of_stock", "pending"].includes(status)) {
+        const allowedStatuses = ["accepted", "rejected", "out_of_stock", "pending"];
+        if (!allowedStatuses.includes(status)) {
             return res.status(400).json({ message: "Invalid status" });
         }
 
@@ -98,16 +98,19 @@ export const updateVendorOrderItemStatus = async (req, res, next) => {
         if (!order) return res.status(404).json({ message: "Order not found" });
 
         const item = order.items.id(itemId);
-        if (!item) return res.status(404).json({ message: "Item not found" });
+        if (!item) {
+            console.warn(`Item ${itemId} not found in order ${orderId}`);
+            return res.status(404).json({ message: "Item not found" });
+        }
 
         item.status = status;
 
-        // ✅ update overall order status
         const statuses = order.items.map(i => i.status || "pending");
-        if (statuses.every(s => s === "accepted")) order.status = "accepted";
-        else if (statuses.every(s => s === "rejected")) order.status = "rejected";
-        else if (statuses.includes("accepted") && statuses.includes("rejected")) order.status = "partially_accepted";
-        else order.status = "pending";
+        if (statuses.every(s => s === "accepted")) order.vendorStatus = "accepted";
+        else if (statuses.every(s => s === "rejected")) order.vendorStatus = "rejected";
+        else if (statuses.includes("accepted") && statuses.includes("rejected"))
+            order.vendorStatus = "partially_accepted";
+        else order.vendorStatus = "pending";
 
         await order.save();
 
@@ -131,14 +134,12 @@ export const updateVendorOrderItemsBulk = async (req, res, next) => {
         const order = await VendorOrder.findOne({ _id: orderId, vendor: vendorId });
         if (!order) return res.status(404).json({ message: "Order not found" });
 
-        // ✅ Update item statuses safely
         const allowedStatuses = ["accepted", "rejected", "out_of_stock", "pending"];
         let updatedCount = 0;
 
         items.forEach(({ _id, status }) => {
             if (!allowedStatuses.includes(status)) return;
 
-            // Find the item directly by subdocument id
             const item = order.items.id(_id);
             if (item) {
                 item.status = status;
@@ -152,7 +153,6 @@ export const updateVendorOrderItemsBulk = async (req, res, next) => {
             return res.status(400).json({ message: "No valid items found to update" });
         }
 
-        // ✅ Derive vendorStatus based on updated item statuses
         const statuses = order.items.map((i) => i.status || "pending");
         if (statuses.every((s) => s === "accepted")) order.vendorStatus = "accepted";
         else if (statuses.every((s) => s === "rejected")) order.vendorStatus = "rejected";
