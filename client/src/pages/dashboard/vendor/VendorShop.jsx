@@ -61,7 +61,7 @@ const VendorShop = () => {
       <h1 className="heading font-bold mb-6 text-amber-400">My shop</h1>
 
       {shop || showForm ? (
-        <div className="bg-gray-800 p-5 rounded-xl text-white max-width-2xl">
+        <div className="bg-gray-800 p-5 rounded-xl text-white max-w-2xl">
           <form onSubmit={handleSubmit} className="space-y-4">
             <FormInput
               type="text"

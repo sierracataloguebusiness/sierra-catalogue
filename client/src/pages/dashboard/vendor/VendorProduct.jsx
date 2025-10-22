@@ -219,8 +219,11 @@ const VendorProduct = () => {
                   <td className="px-4 py-3 text-gray-400">
                     {CATEGORY_MAP[p.categoryId]?.name || "Uncategorized"}
                   </td>
-                  <td className="px-4 py-3 max-w-[250px] text-gray-400 truncate">
-                    {p.description || "—"}
+                  <td className="px-4 py-3 max-w-[250px] text-gray-400 truncate relative group">
+                    <span>{p.description || "—"}</span>
+                    <div className="absolute hidden group-hover:block bg-gray-900 text-white text-xs p-2 rounded-lg shadow-lg w-64 top-full left-0 mt-2 z-50">
+                      {p.description}
+                    </div>
                   </td>
                   <td className="px-4 py-3 font-semibold text-white">
                     {p.price.toFixed(2)}

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Button from "../../component/Button.jsx";
+import { toast } from "react-toastify";
 
 const API_BASE = "https://sierra-catalogue.onrender.com/api";
 
@@ -18,10 +20,9 @@ const Checkout = () => {
     instructions: "",
   });
 
-  const getToken = () => localStorage.getItem("token");
   const navigate = useNavigate();
+  const getToken = () => localStorage.getItem("token");
 
-  // Fetch cart again for checkout
   const fetchCart = async () => {
     try {
       const token = getToken();
@@ -33,10 +34,7 @@ const Checkout = () => {
         : [];
       setCartItems(items);
     } catch (err) {
-      console.error(
-        "Error fetching checkout cart:",
-        err.response ?? err.message,
-      );
+      console.error("Error fetching cart:", err.response ?? err.message);
       setCartItems([]);
     } finally {
       setLoading(false);
@@ -52,17 +50,16 @@ const Checkout = () => {
     0,
   );
 
-  // Place Order
   const placeOrder = async () => {
     if (!delivery.firstName || !delivery.phone) {
-      alert("Please enter your First Name and Phone Number");
+      toast.error("Please provide your First Name and Phone Number");
       return;
     }
 
     setProcessing(true);
     try {
       const token = getToken();
-      const res = await axios.post(
+      await axios.post(
         `${API_BASE}/order/create`,
         {
           items: cartItems.map((e) => ({
@@ -77,11 +74,13 @@ const Checkout = () => {
         { headers: { Authorization: `Bearer ${token}` } },
       );
 
-      alert("✅ Order placed successfully!");
-      setCartItems([]); // clear cart on frontend
-      navigate("/ordersuccess"); // redirect user to a confirmation page
+      toast.success(
+        "Order placed successfully! The vendor will contact you to arrange payment.",
+      );
+      setCartItems([]);
+      navigate("/ordersuccess");
     } catch (err) {
-      console.error("Order failed:", err.response ?? err.message);
+      console.error("Order placement failed:", err.response ?? err.message);
       alert(err.response?.data?.message || "Failed to place order");
     } finally {
       setProcessing(false);
@@ -92,29 +91,27 @@ const Checkout = () => {
 
   return (
     <div className="container mx-auto px-4 py-10 text-white">
-      {/* Progress steps */}
+      {/* Progress Steps */}
       <div className="flex justify-center gap-6 mb-10">
-        {["Review Order", "Delivery Details", "Payment Instructions"].map(
-          (label, index) => (
+        {["Review Order", "Delivery Details"].map((label, index) => (
+          <div
+            key={index}
+            className={`flex flex-col items-center ${
+              step === index + 1 ? "text-yellow-400" : "text-gray-400"
+            }`}
+          >
             <div
-              key={index}
-              className={`flex flex-col items-center ${
-                step === index + 1 ? "text-yellow-400" : "text-gray-400"
+              className={`w-8 h-8 flex items-center justify-center rounded-full border ${
+                step === index + 1
+                  ? "bg-yellow-400 text-black"
+                  : "border-gray-500"
               }`}
             >
-              <div
-                className={`w-8 h-8 flex items-center justify-center rounded-full border ${
-                  step === index + 1
-                    ? "bg-yellow-400 text-black"
-                    : "border-gray-500"
-                }`}
-              >
-                {index + 1}
-              </div>
-              <span className="mt-2 text-sm">{label}</span>
+              {index + 1}
             </div>
-          ),
-        )}
+            <span className="mt-2 text-sm">{label}</span>
+          </div>
+        ))}
       </div>
 
       {/* Step 1: Review Order */}
@@ -127,7 +124,7 @@ const Checkout = () => {
             cartItems.map((item) => (
               <div
                 key={item._id}
-                className="flex justify-between items-center border border-gray-700 p-4 mb-3"
+                className="flex justify-between items-center border border-gray-700 p-4 mb-3 rounded-lg"
               >
                 <div>
                   <h3 className="font-medium">{item.listingId?.title}</h3>
@@ -150,7 +147,7 @@ const Checkout = () => {
           <button
             onClick={() => setStep(2)}
             disabled={cartItems.length === 0}
-            className="mt-6 w-full bg-yellow-400 text-black py-3 rounded-lg"
+            className="mt-6 w-full bg-yellow-400 text-black py-3 rounded-lg hover:bg-yellow-300"
           >
             Continue to Delivery
           </button>
@@ -226,13 +223,10 @@ const Checkout = () => {
             )}
 
             <textarea
-              placeholder="Delivery Instructions (Optional)"
+              placeholder="Additional Instructions (Optional)"
               value={delivery.instructions}
               onChange={(e) =>
-                setDelivery({
-                  ...delivery,
-                  instructions: e.target.value,
-                })
+                setDelivery({ ...delivery, instructions: e.target.value })
               }
               className="border border-gray-600 p-3 rounded bg-transparent"
             ></textarea>
@@ -244,46 +238,21 @@ const Checkout = () => {
           </div>
 
           <div className="flex gap-4 mt-6">
-            <button
+            <Button
+              style="secondary"
               onClick={() => setStep(1)}
-              className="w-1/2 bg-gray-500 py-3 rounded-lg"
+              className="w-1/2 bg-gray-500 py-3 rounded-lg hover:bg-gray-400"
             >
               Back to Cart
-            </button>
-            <button
-              onClick={() => setStep(3)}
-              className="w-1/2 bg-yellow-400 text-black py-3 rounded-lg"
+            </Button>
+            <Button
+              onClick={placeOrder}
+              disabled={processing}
+              className="w-1/2 bg-green-500 text-white py-3 rounded-lg hover:bg-green-400"
             >
-              Continue to Payment
-            </button>
+              {processing ? "Placing Order..." : "Place Order"}
+            </Button>
           </div>
-        </div>
-      )}
-
-      {/* Step 3: Payment Instructions */}
-      {step === 3 && (
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Payment Instructions</h2>
-          <p className="mb-6">
-            Please send your payment to one of the accounts below:
-          </p>
-
-          <ul className="list-disc ml-6 text-gray-300 mb-6">
-            <li>Orange Money: 07XXXXXXX</li>
-            <li>Afrimoney: 08XXXXXXX</li>
-          </ul>
-
-          <p className="text-gray-400 text-sm mb-4">
-            Use your phone number as the payment reference.
-          </p>
-
-          <button
-            onClick={placeOrder}
-            disabled={processing}
-            className="w-full bg-green-500 py-3 rounded-lg"
-          >
-            {processing ? "Placing Order..." : "Place Order"}
-          </button>
         </div>
       )}
     </div>
