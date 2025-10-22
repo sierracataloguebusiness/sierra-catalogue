@@ -253,8 +253,6 @@ const VendorProduct = () => {
         editing={editing}
         categories={categories}
         loading={loading}
-        CATEGORY_MAP={CATEGORY_MAP}
-        products={products}
       />
 
       <DeleteModal
