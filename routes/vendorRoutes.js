@@ -16,7 +16,7 @@ router.get("/dashboard", protect, authorize("vendor"), getVendorStats);
 router.get('/listings', protect, authorize('vendor', 'admin'), getVendorListings);
 router.get("/shop", protect, authorize("vendor"), getVendorShop)
 router.post("/shop", protect, authorize("vendor"), upsertVendorShop);
-router.get("/", protect, authorize("vendor"), getVendorOrders);
-router.put("/:id", protect, authorize("vendor"), updateVendorOrderStatus);
+router.get("orders/", protect, authorize("vendor"), getVendorOrders);
+router.put("orders/:id", protect, authorize("vendor"), updateVendorOrderStatus);
 
 export default router;
