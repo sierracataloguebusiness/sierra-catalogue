@@ -40,6 +40,16 @@ const VendorProduct = () => {
   const [editing, setEditing] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+
+  const CATEGORY_MAP = {
+    "68d9879b81bc7c3a62f903f3": { name: "Electronics" },
+    "68d9879b81bc7c3a62f903f4": { name: "Fashion & Beauty" },
+    "68d9879b81bc7c3a62f903f5": { name: "Food & Drinks" },
+    "68d9879b81bc7c3a62f903f6": { name: "Books & Stationery" },
+    "68d9879b81bc7c3a62f903f7": { name: "Home & Appliances" },
+    "68d9879b81bc7c3a62f903f8": { name: "Health & Personal Care" },
+  };
+
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -206,7 +216,7 @@ const VendorProduct = () => {
                     {p.title}
                   </td>
                   <td className="px-4 py-3 text-gray-400">
-                    {p.categoryId?.name || "Uncategorized"}
+                    {CATEGORY_MAP[p.categoryId]?.name || "Uncategorized"}
                   </td>
                   <td className="px-4 py-3 max-w-[250px] text-gray-400 truncate">
                     {p.description || "—"}
