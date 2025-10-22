@@ -2,7 +2,6 @@ import Listing from "../models/Listing.js";
 import VendorOrder from "../models/VendorOrder.js";
 import VendorShop from "../models/VendorShop.js";
 import AppError from "../utils/AppError.js";
-import mongoose from "mongoose";
 
 export const getVendorStats = async (req, res) => {
     try {
@@ -125,21 +124,40 @@ export const updateVendorOrderItemsBulk = async (req, res, next) => {
         const { orderId } = req.params;
         const { items } = req.body;
 
+        if (!Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ message: "No items provided for update" });
+        }
+
         const order = await VendorOrder.findOne({ _id: orderId, vendor: vendorId });
         if (!order) return res.status(404).json({ message: "Order not found" });
 
-        // Update item statuses
+        // ✅ Update item statuses safely
+        const allowedStatuses = ["accepted", "rejected", "out_of_stock", "pending"];
+        let updatedCount = 0;
+
         items.forEach(({ _id, status }) => {
-            if (!["accepted", "rejected", "out_of_stock", "pending"].includes(status)) return;
-            const item = order.items.id(mongoose.Types.ObjectId(_id));
-            if (item) item.status = status;
+            if (!allowedStatuses.includes(status)) return;
+
+            // Find the item directly by subdocument id
+            const item = order.items.id(_id);
+            if (item) {
+                item.status = status;
+                updatedCount++;
+            } else {
+                console.warn(`Item with _id ${_id} not found in order ${orderId}`);
+            }
         });
 
-        // Derive vendorStatus based on item statuses
-        const statuses = order.items.map(i => i.status || "pending");
-        if (statuses.every(s => s === "accepted")) order.vendorStatus = "accepted";
-        else if (statuses.every(s => s === "rejected")) order.vendorStatus = "rejected";
-        else if (statuses.includes("accepted") && statuses.includes("rejected")) order.vendorStatus = "partially_accepted";
+        if (updatedCount === 0) {
+            return res.status(400).json({ message: "No valid items found to update" });
+        }
+
+        // ✅ Derive vendorStatus based on updated item statuses
+        const statuses = order.items.map((i) => i.status || "pending");
+        if (statuses.every((s) => s === "accepted")) order.vendorStatus = "accepted";
+        else if (statuses.every((s) => s === "rejected")) order.vendorStatus = "rejected";
+        else if (statuses.includes("accepted") && statuses.includes("rejected"))
+            order.vendorStatus = "partially_accepted";
         else order.vendorStatus = "pending";
 
         await order.save();
