@@ -1,30 +1,43 @@
-import {Router} from "express";
+import { Router } from "express";
 import {
     createListing,
     deleteListing,
     getListing,
     getListings,
-    updateListing
+    updateListing,
 } from "../controllers/listingsController.js";
-import {protect} from "../middleware/authMiddleware.js";
-import {authorize} from "../middleware/roleMiddleware.js";
-import multer from "multer";
+import { protect } from "../middleware/authMiddleware.js";
+import { authorize } from "../middleware/roleMiddleware.js";
+import upload from "../config/multerCloudinary.js";
 
 const router = Router();
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, "uploads/"),
-    filename: (req, file, cb) => {
-        const uniqueName = Date.now() + "-" + file.originalname;
-        cb(null, uniqueName);
-    },
-});
-const upload = multer({ storage });
+// Public routes
+router.get("/", getListings);
+router.get("/:id", getListing);
 
-router.get('/', getListings);
-router.get('/:id', getListing);
-router.post('/', protect, authorize('vendor', 'admin'), upload.single("image"), createListing);
-router.put('/:id', protect, authorize('vendor', 'admin'), upload.single("image"), updateListing);
-router.delete('/:id', protect, authorize('vendor', 'admin'), deleteListing);
+// Vendor/Admin protected routes
+router.post(
+    "/",
+    protect,
+    authorize("vendor", "admin"),
+    upload.array("images", 5),
+    createListing
+);
+
+router.put(
+    "/:id",
+    protect,
+    authorize("vendor", "admin"),
+    upload.array("images", 5),
+    updateListing
+);
+
+router.delete(
+    "/:id",
+    protect,
+    authorize("vendor", "admin"),
+    deleteListing
+);
 
 export default router;

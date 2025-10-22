@@ -11,23 +11,27 @@ export const createListing = async (req, res) => {
         const stockNum = Number(stock) || 0;
 
         if (!title || !categoryId || !price) {
-            return res.status(400).json({ message: "Title, category, and price are required" });
+            return res
+                .status(400)
+                .json({ message: "Title, category, and price are required" });
         }
 
-        if (priceNum < 0) return res.status(400).json({ message: "Price cannot be below 0" });
-        if (stockNum < 0) return res.status(400).json({ message: "Stock cannot be below 0" });
+        if (priceNum < 0)
+            return res.status(400).json({ message: "Price cannot be below 0" });
+        if (stockNum < 0)
+            return res.status(400).json({ message: "Stock cannot be below 0" });
 
         const categoryExists = await Category.findById(categoryId);
         if (!categoryExists) {
             return res.status(400).json({ message: "Invalid category selected" });
         }
 
-        const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+        const imageUrls = req.files ? req.files.map((f) => f.path) : [];
 
         const newListing = await Listing.create({
             title,
             description,
-            images: imagePath ? [imagePath] : [],
+            images: imageUrls,
             price: priceNum,
             stock: stockNum,
             vendor,
@@ -45,58 +49,80 @@ export const createListing = async (req, res) => {
 };
 
 export const updateListing = async (req, res) => {
-    const listingId = req.params.id;
-    const vendor = req.user.id;
+    try {
+        const listingId = req.params.id;
+        const vendor = req.user.id;
 
-    const listing = await Listing.findById(listingId);
-    if (!listing) throw new AppError('Listing not found', 404);
+        const listing = await Listing.findById(listingId);
+        if (!listing) throw new AppError("Listing not found", 404);
 
-    const { title, description, price, stock, categoryId, isActive } = req.body;
+        const { title, description, price, stock, categoryId, isActive } = req.body;
 
-    if (categoryId) {
-        const category = await Category.findById(categoryId);
-        if (!category) throw new AppError('Invalid category selected', 404);
-        listing.categoryId = categoryId;
+        if (categoryId) {
+            const category = await Category.findById(categoryId);
+            if (!category) throw new AppError("Invalid category selected", 404);
+            listing.categoryId = categoryId;
+        }
+
+        if (req.user.role === "vendor" && listing.vendor.toString() !== vendor) {
+            throw new AppError("You do not have permission to update this listing", 403);
+        }
+
+        if (price !== undefined && price < 0)
+            throw new AppError("Price cannot be below 0", 400);
+        if (stock !== undefined && stock < 0)
+            throw new AppError("Stock cannot be below 0", 400);
+
+        Object.assign(listing, { title, description, price, stock, isActive });
+
+        if (req.files && req.files.length > 0) {
+            for (const img of listing.images) {
+                const publicId = img.split("/").pop().split(".")[0];
+                await cloudinary.uploader.destroy(`sierra-catalogue/listings/${publicId}`);
+            }
+            listing.images = req.files.map((f) => f.path);
+        }
+
+        await listing.save({ validateBeforeSave: true });
+
+        res.status(200).json({
+            message: "Successfully updated listing",
+            listing,
+        });
+    } catch (err) {
+        console.error("Update Listing Error:", err);
+        res.status(500).json({ message: "Internal Server Error" });
     }
-
-    if (req.user.role === 'vendor' && listing.vendor.toString() !== vendor) {
-        throw new AppError('You do not have permission to update this listing', 403);
-    }
-
-    if (price !== undefined && price < 0) throw new AppError('Price cannot be below 0', 400);
-    if (stock !== undefined && stock < 0) throw new AppError('Stock cannot be below 0', 400);
-
-    Object.assign(listing, { title, description, price, stock, isActive });
-
-    if (req.file) {
-        const imagePath = `/uploads/${req.file.filename}`;
-        listing.images = [imagePath];
-    }
-
-    await listing.save({ validateBeforeSave: true });
-
-    res.status(200).json({
-        message: 'Successfully updated listing',
-        listing
-    });
 };
 
 export const deleteListing = async (req, res) => {
-    const listingId = req.params.id;
-    const vendor = req.user.id;
+    try {
+        const listingId = req.params.id;
+        const vendor = req.user.id;
 
-    const listing = await Listing.findById(listingId);
-    if (!listing) throw new AppError('Listing not found', 404);
+        const listing = await Listing.findById(listingId);
+        if (!listing) throw new AppError("Listing not found", 404);
 
-    if (req.user.role === 'vendor' && listing.vendor.toString() !== vendor) {
-        throw new AppError('You do not have permission to delete this listing', 403);
+        if (req.user.role === "vendor" && listing.vendor.toString() !== vendor) {
+            throw new AppError("You do not have permission to delete this listing", 403);
+        }
+
+        if (listing.images?.length) {
+            for (const img of listing.images) {
+                const publicId = img.split("/").pop().split(".")[0];
+                await cloudinary.uploader.destroy(`sierra-catalogue/listings/${publicId}`);
+            }
+        }
+
+        await listing.deleteOne();
+
+        res.status(200).json({
+            message: "Successfully deleted listing",
+        });
+    } catch (err) {
+        console.error("Delete Listing Error:", err);
+        res.status(500).json({ message: "Internal Server Error" });
     }
-
-    await listing.deleteOne();
-
-    res.status(200).json({
-        message: 'Successfully deleted listing',
-    });
 };
 
 export const getListings = async (req, res) => {
