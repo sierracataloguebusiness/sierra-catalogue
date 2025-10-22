@@ -37,6 +37,7 @@ import ProfilePage from "./pages/dashboard/ProfilePage.jsx";
 import VendorDashboard from "./pages/dashboard/vendor/VendorDashboard.jsx";
 import VendorProduct from "./pages/dashboard/vendor/VendorProduct.jsx";
 import VendorShop from "./pages/dashboard/vendor/VendorShop.jsx";
+import VendorOrder from "./pages/dashboard/vendor/VendorOrder.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -177,7 +178,7 @@ const App = () => {
               </PrivateRoute>
             }
           />
-          <Route path="vendor/orders" element={<div>Vendor Orders</div>} />
+          <Route path="vendor/orders" element={<VendorOrder />} />
           <Route
             path="vendor/favorites"
             element={<div>Vendor Favorites</div>}

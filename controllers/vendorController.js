@@ -66,3 +66,47 @@ export const getVendorShop = async (req, res) => {
 
     res.status(200).json({ shop });
 };
+
+export const getVendorOrders = async (req, res, next) => {
+    try {
+        const vendorId = req.user.id;
+        if (!vendorId) throw new AppError("Unauthorized: Vendor not found", 401);
+
+        const orders = await VendorOrder.find({ vendor: vendorId })
+            .populate("buyer", "name email")
+            .populate("items.listingId", "title images price")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({ success: true, count: orders.length, orders });
+    } catch (err) {
+        console.error("Error fetching vendor orders:", err);
+        next(new AppError("Failed to fetch vendor orders", 500));
+    }
+};
+
+export const updateVendorOrderStatus = async (req, res, next) => {
+    try {
+        const vendorId = req.user.id;
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!["pending", "shipped", "completed"].includes(status)) {
+            throw new AppError("Invalid status", 400);
+        }
+
+        const order = await VendorOrder.findOne({ _id: id, vendor: vendorId });
+        if (!order) throw new AppError("Order not found", 404);
+
+        order.status = status;
+        await order.save();
+
+        res.status(200).json({
+            success: true,
+            message: `Order marked as ${status}`,
+            order,
+        });
+    } catch (err) {
+        console.error("Error updating order:", err);
+        next(new AppError("Failed to update order", 500));
+    }
+};
