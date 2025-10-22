@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import FormInput from "../../../component/Form/FormComponents/FormInput.jsx";
+import Button from "../../../component/Button.jsx";
 import { toast } from "react-toastify";
 
 const VendorShop = () => {
@@ -13,6 +14,7 @@ const VendorShop = () => {
     banner: "",
   });
   const [loading, setLoading] = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -23,7 +25,7 @@ const VendorShop = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setShop(res.data.shop);
-        setFormData(res.data.shop);
+        if (res.data.shop) setFormData(res.data.shop);
       } catch (err) {
         console.log(err);
       }
@@ -44,6 +46,7 @@ const VendorShop = () => {
       });
       toast.success(res.data.message);
       setShop(res.data.shop);
+      setShowForm(false);
     } catch (err) {
       toast.error(err.response?.data?.message || "Error saving shop");
     } finally {
@@ -51,11 +54,13 @@ const VendorShop = () => {
     }
   };
 
+  const handleSetupClick = () => setShowForm(true);
+
   return (
     <div className="p-6">
       <h1 className="text-xl font-bold mb-6 text-amber-400">My Shop</h1>
 
-      {shop ? (
+      {shop || showForm ? (
         <div className="bg-gray-800 p-5 rounded-xl text-white shadow">
           <form onSubmit={handleSubmit} className="space-y-4">
             <FormInput
@@ -88,20 +93,30 @@ const VendorShop = () => {
             </button>
           </form>
 
-          <div className="mt-6">
-            <p>
-              <strong>Status:</strong> {shop.status}
-            </p>
-            <p>
-              <strong>Total Products:</strong> {shop.totalProducts}
-            </p>
-            <p>
-              <strong>Total Orders:</strong> {shop.totalOrders}
-            </p>
-          </div>
+          {shop && (
+            <div className="mt-6">
+              <p>
+                <strong>Status:</strong> {shop.status}
+              </p>
+              <p>
+                <strong>Total Products:</strong> {shop.totalProducts}
+              </p>
+              <p>
+                <strong>Total Orders:</strong> {shop.totalOrders}
+              </p>
+            </div>
+          )}
         </div>
       ) : (
-        <p className="text-gray-400">You have not set up your shop yet.</p>
+        <div className="flex flex-col items-start gap-3">
+          <p className="text-gray-400">You have not set up your shop yet.</p>
+          <Button
+            onClick={handleSetupClick}
+            className="bg-amber-500 hover:bg-amber-600 text-black px-6 py-2 rounded-xl"
+          >
+            Set Up Shop
+          </Button>
+        </div>
       )}
     </div>
   );
