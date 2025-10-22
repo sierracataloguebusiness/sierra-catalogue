@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import Loader from "../../../component/Loader.jsx";
 import Button from "../../../component/Button.jsx";
 
-const API_BASE = "https://sierra-catalogue.onrender.com/api";
+const API_BASE = "https://sierra-catalogue.onrender.com/api/vendor";
 
 const STATUS_COLORS = {
   pending: "text-yellow-400",
