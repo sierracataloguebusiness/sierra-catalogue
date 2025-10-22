@@ -20,7 +20,8 @@ const ProductModal = ({
   };
 
   const handleFileChange = (e) => {
-    setForm((prev) => ({ ...prev, image: e.target.files[0] }));
+    if (e.target.files[0])
+      setForm((prev) => ({ ...prev, image: e.target.files[0] }));
   };
 
   return (
@@ -65,18 +66,9 @@ const ProductModal = ({
             hasLabel={false}
           />
 
-          <FormInput
-            type="number"
-            name="stock"
-            placeholder="Stock"
-            value={form.stock}
-            onChange={handleChange}
-            hasLabel={false}
-          />
-
           <select
             name="categoryId"
-            value={form.categoryId}
+            value={form.categoryId || ""}
             onChange={handleChange}
             className="bg-gray-900 text-white px-3 py-2 rounded-md outline-none w-full"
           >
