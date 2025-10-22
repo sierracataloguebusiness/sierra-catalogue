@@ -67,73 +67,62 @@ export const getVendorShop = async (req, res) => {
     res.status(200).json({ shop });
 };
 
-export const getVendorOrders = async (req, res, next) => {
-    try {
-        const vendorId = req.user.id;
-        if (!vendorId) throw new AppError("Unauthorized: Vendor not found", 401);
-
-        const orders = await VendorOrder.find({ vendor: vendorId })
-            .populate("buyer", "name email")
-            .populate("items.listingId", "title images price")
-            .sort({ createdAt: -1 });
-
-        res.status(200).json({ success: true, count: orders.length, orders });
-    } catch (err) {
-        console.error("Error fetching vendor orders:", err);
-        next(new AppError("Failed to fetch vendor orders", 500));
-    }
-};
-
-export const updateVendorOrderStatus = async (req, res, next) => {
-    try {
-        const vendorId = req.user.id;
-        const { id } = req.params;
-        const { status } = req.body;
-
-        if (!["pending", "shipped", "completed"].includes(status)) {
-            throw new AppError("Invalid status", 400);
-        }
-
-        const order = await VendorOrder.findOne({ _id: id, vendor: vendorId });
-        if (!order) throw new AppError("Order not found", 404);
-
-        order.status = status;
-        await order.save();
-
-        res.status(200).json({
-            success: true,
-            message: `Order marked as ${status}`,
-            order,
-        });
-    } catch (err) {
-        console.error("Error updating order:", err);
-        next(new AppError("Failed to update order", 500));
-    }
-};
-
-export const updateVendorOrderItemStatus = async (req, res) => {
+export const getVendorOrders = async (req, res) => {
     const vendorId = req.user.id;
-    const { orderId, itemId } = req.params;
+
+    const orders = await VendorOrder.find({ vendor: vendorId })
+        .populate("buyer", "name email")
+        .populate("items.listingId", "title price images")
+        .sort({ createdAt: -1 });
+
+    res.status(200).json({ success: true, count: orders.length, orders });
+};
+
+export const updateVendorOrderStatus = async (req, res) => {
+    const vendorId = req.user.id;
+    const { orderId } = req.params;
     const { status } = req.body;
 
-    if (!["accepted", "rejected", "out_of_stock"].includes(status)) {
-        return res.status(400).json({ message: "Invalid status" });
+    if (!["pending", "shipped", "completed"].includes(status)) {
+        return res.status(400).json({ message: "Invalid order status" });
     }
 
     const order = await VendorOrder.findOne({ _id: orderId, vendor: vendorId });
     if (!order) return res.status(404).json({ message: "Order not found" });
 
-    const item = order.items.id(itemId);
-    if (!item) return res.status(404).json({ message: "Item not found" });
-
-    item.status = status;
+    order.status = status;
     await order.save();
+    res.json({ success: true, order });
+};
 
-    const allDone = order.items.every(i => i.status !== "pending");
-    if (allDone) {
-        order.status = order.items.every(i => i.status === "accepted") ? "accepted" : "partially_accepted";
-        await order.save();
+export const updateVendorOrderItemsStatus = async (req, res) => {
+    const vendorId = req.user.id;
+    const { orderId } = req.params;
+    const { items } = req.body; // [{ _id, status }]
+
+    if (!items || !Array.isArray(items)) {
+        return res.status(400).json({ message: "Items array required" });
     }
 
-    res.status(200).json({ message: "Item status updated", order });
+    const order = await VendorOrder.findOne({ _id: orderId, vendor: vendorId });
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    for (const { _id, status } of items) {
+        if (!["accepted", "rejected", "out_of_stock"].includes(status)) continue;
+        const item = order.items.id(_id);
+        if (item) item.status = status;
+    }
+
+    // Determine overall order status
+    const allStatuses = order.items.map(i => i.status || "pending");
+    if (allStatuses.every(s => s === "accepted")) {
+        order.status = "accepted";
+    } else if (allStatuses.every(s => s !== "pending")) {
+        order.status = "partially_accepted";
+    } else {
+        order.status = "pending";
+    }
+
+    await order.save();
+    res.json({ success: true, order });
 };
