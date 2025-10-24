@@ -2,6 +2,7 @@ import Listing from "../models/Listing.js";
 import VendorOrder from "../models/VendorOrder.js";
 import VendorShop from "../models/VendorShop.js";
 import AppError from "../utils/AppError.js";
+import {ALLOWED_STATUSES, calculateMainOrderStatus} from "../middleware/calculateMainOrderItemStatus.js";
 
 export const getVendorStats = async (req, res) => {
     try {
@@ -89,34 +90,32 @@ export const updateVendorOrderItemStatus = async (req, res, next) => {
         const { orderId, itemId } = req.params;
         const { status } = req.body;
 
-        const allowedStatuses = ["accepted", "rejected", "out_of_stock", "pending"];
-        if (!allowedStatuses.includes(status)) {
+        if (!ALLOWED_STATUSES.includes(status)) {
             return res.status(400).json({ message: "Invalid status" });
         }
 
         const order = await VendorOrder.findOne({ _id: orderId, vendor: vendorId });
-        if (!order) return res.status(404).json({ message: "Order not found" });
+        if (!order) return res.status(404).json({ message: "Vendor order not found" });
 
         const item = order.items.id(itemId);
-        if (!item) {
-            console.warn(`Item ${itemId} not found in order ${orderId}`);
-            return res.status(404).json({ message: "Item not found" });
-        }
+        if (!item) return res.status(404).json({ message: "Item not found" });
 
         item.status = status;
 
-        const statuses = order.items.map(i => i.status || "pending");
-        if (statuses.every(s => s === "accepted")) order.vendorStatus = "accepted";
-        else if (statuses.every(s => s === "rejected")) order.vendorStatus = "rejected";
-        else if (statuses.includes("accepted") && statuses.includes("rejected"))
+        const itemStatuses = order.items.map(i => i.status || "pending");
+        if (itemStatuses.every(s => s === "accepted")) order.vendorStatus = "accepted";
+        else if (itemStatuses.every(s => s === "rejected")) order.vendorStatus = "rejected";
+        else if (itemStatuses.includes("accepted") && itemStatuses.includes("rejected"))
             order.vendorStatus = "partially_accepted";
         else order.vendorStatus = "pending";
 
         await order.save();
 
+        await calculateMainOrderStatus(order.order);
+
         res.status(200).json({ message: "Item status updated", order });
     } catch (err) {
-        console.error("Error updating vendor order item:", err);
+        console.error(err);
         next(new AppError("Failed to update vendor order item", 500));
     }
 };
@@ -128,43 +127,38 @@ export const updateVendorOrderItemsBulk = async (req, res, next) => {
         const { items } = req.body;
 
         if (!Array.isArray(items) || items.length === 0) {
-            return res.status(400).json({ message: "No items provided for update" });
+            return res.status(400).json({ message: "No items provided" });
         }
 
         const order = await VendorOrder.findOne({ _id: orderId, vendor: vendorId });
-        if (!order) return res.status(404).json({ message: "Order not found" });
+        if (!order) return res.status(404).json({ message: "Vendor order not found" });
 
-        const allowedStatuses = ["accepted", "rejected", "out_of_stock", "pending"];
-        let updatedCount = 0;
-
+        let updated = false;
         items.forEach(({ _id, status }) => {
-            if (!allowedStatuses.includes(status)) return;
-
+            if (!ALLOWED_STATUSES.includes(status)) return;
             const item = order.items.id(_id);
             if (item) {
                 item.status = status;
-                updatedCount++;
-            } else {
-                console.warn(`Item with _id ${_id} not found in order ${orderId}`);
+                updated = true;
             }
         });
 
-        if (updatedCount === 0) {
-            return res.status(400).json({ message: "No valid items found to update" });
-        }
+        if (!updated) return res.status(400).json({ message: "No valid items to update" });
 
-        const statuses = order.items.map((i) => i.status || "pending");
-        if (statuses.every((s) => s === "accepted")) order.vendorStatus = "accepted";
-        else if (statuses.every((s) => s === "rejected")) order.vendorStatus = "rejected";
-        else if (statuses.includes("accepted") && statuses.includes("rejected"))
+        const itemStatuses = order.items.map(i => i.status || "pending");
+        if (itemStatuses.every(s => s === "accepted")) order.vendorStatus = "accepted";
+        else if (itemStatuses.every(s => s === "rejected")) order.vendorStatus = "rejected";
+        else if (itemStatuses.includes("accepted") && itemStatuses.includes("rejected"))
             order.vendorStatus = "partially_accepted";
         else order.vendorStatus = "pending";
 
         await order.save();
 
+        await calculateMainOrderStatus(order.order);
+
         res.status(200).json({ message: "Bulk item status updated", order });
     } catch (err) {
-        console.error("Bulk update error:", err);
-        next(new AppError("Failed to update vendor order items", 500));
+        console.error(err);
+        next(new AppError("Failed to bulk update vendor order items", 500));
     }
 };

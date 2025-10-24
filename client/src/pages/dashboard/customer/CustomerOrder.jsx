@@ -65,81 +65,89 @@ const CustomerOrder = () => {
     );
 
   return (
-    <div className="p-6 text-white min-h-screen bg-[#0d0d0d]">
-      <h1 className="text-2xl text-primary-gold font-bold mb-6">My Orders</h1>
+    <div className="p-4 sm:p-6 text-white min-h-screen bg-[#0d0d0d]">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-primary-gold">
+        My Orders
+      </h1>
 
-      {orders.map((order) => (
-        <div
-          key={order._id}
-          className="mb-6 border border-gray-700 rounded-xl p-5 bg-gray-800 shadow-md"
-        >
-          {/* Order Header */}
-          <div className="flex flex-wrap justify-between items-center mb-4">
-            <div>
-              <p>
-                <strong className="text-primary-gold">Order ID:</strong> #
-                {order._id.slice(-6)}
-              </p>
-              <p className="text-sm text-gray-400">
-                {new Date(order.createdAt).toLocaleDateString()}
-              </p>
-            </div>
+      <div className="flex flex-col gap-4">
+        {orders.map((order) => (
+          <div
+            key={order._id}
+            className="border border-gray-700 rounded-xl p-4 sm:p-5 bg-gray-800 shadow-md flex flex-col gap-4"
+          >
+            {/* Order Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+              <div>
+                <p>
+                  <strong className="text-primary-gold">Order ID:</strong> #
+                  {order._id.slice(-6)}
+                </p>
+                <p className="text-sm text-gray-400">
+                  {new Date(order.createdAt).toLocaleDateString()}
+                </p>
+              </div>
 
-            <span
-              className={`font-semibold capitalize ${STATUS_COLORS[order.status] || "text-gray-300"}`}
-            >
-              {order.status}
-            </span>
-          </div>
-
-          {/* Order Items */}
-          <table className="w-full text-gray-300 text-sm mb-4">
-            <thead>
-              <tr className="text-left border-b border-gray-700">
-                <th className="px-2 py-1">Item</th>
-                <th className="px-2 py-1">Qty</th>
-                <th className="px-2 py-1">Price (NLe)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {order.items?.map((item) => (
-                <tr key={item._id} className="border-b border-gray-700">
-                  <td className="px-2 py-1">{item.title}</td>
-                  <td className="px-2 py-1">{item.quantity}</td>
-                  <td className="px-2 py-1">
-                    {item.price?.toFixed(2) || "0.00"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {/* Total and Actions */}
-          <div className="flex justify-between items-center">
-            <p className="font-medium text-gray-300">
-              <strong>Total:</strong> NLe {order.total?.toFixed(2) || "0.00"}
-            </p>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => navigate(`/orders/${order._id}`)}
-                className="py-1.5 px-4 text-sm border border-primary-gold text-primary-gold rounded-lg hover:bg-primary-gold hover:text-black transition"
+              <span
+                className={`font-semibold capitalize ${
+                  STATUS_COLORS[order.status] || "text-gray-300"
+                }`}
               >
-                View Details
-              </button>
+                {order.status}
+              </span>
+            </div>
 
-              {order.status === "pending" && (
+            {/* Order Items */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-gray-300 text-sm min-w-[400px]">
+                <thead>
+                  <tr className="text-left border-b border-gray-700">
+                    <th className="px-2 py-1">Item</th>
+                    <th className="px-2 py-1">Qty</th>
+                    <th className="px-2 py-1">Price (NLe)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {order.items?.map((item) => (
+                    <tr key={item._id} className="border-b border-gray-700">
+                      <td className="px-2 py-1">{item.title}</td>
+                      <td className="px-2 py-1">{item.quantity}</td>
+                      <td className="px-2 py-1">
+                        {item.price?.toFixed(2) || "0.00"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Total and Actions */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+              <p className="font-medium text-gray-300">
+                <strong>Total:</strong> NLe {order.total?.toFixed(2) || "0.00"}
+              </p>
+
+              <div className="flex gap-2 sm:gap-3 flex-wrap">
                 <button
-                  onClick={() => cancelOrder(order._id)}
-                  className="py-1.5 px-4 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                  onClick={() => navigate(`/orders/${order._id}`)}
+                  className="py-1.5 px-4 text-sm border border-primary-gold text-primary-gold rounded-lg hover:bg-primary-gold hover:text-black transition"
                 >
-                  Cancel
+                  View Details
                 </button>
-              )}
+
+                {order.status === "pending" && (
+                  <button
+                    onClick={() => cancelOrder(order._id)}
+                    className="py-1.5 px-4 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };
