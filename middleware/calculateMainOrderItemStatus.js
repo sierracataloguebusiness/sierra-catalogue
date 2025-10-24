@@ -40,12 +40,14 @@ export const updateMainOrderStatus = async (orderId) => {
     await Order.findByIdAndUpdate(orderId, { status: newStatus });
 };
 
-export const updateVendorOrder = async (orderId, vendorId, itemId) => {
+export const updateVendorOrder = async (orderId, vendorId, itemId, status) => {
     const order = await VendorOrder.findOne({ _id: orderId, vendor: vendorId });
-    if (!order) return res.status(404).json({ message: "Vendor order not found" });
+    if (!order) throw new Error("Vendor order not found");
 
     const item = order.items.id(itemId);
-    if (!item) return res.status(404).json({ message: "Item not found" });
+    if (!item) throw new Error("Item not found");
+
+    item.status = status;
 
     const statuses = order.items.map(i => i.status || "pending");
 
@@ -66,13 +68,12 @@ export const updateVendorOrder = async (orderId, vendorId, itemId) => {
         order.vendorStatus = "partially_accepted";
     } else if (hasAccepted && (hasPending || hasOutOfStock)) {
         order.vendorStatus = "partially_accepted";
-    } else if (hasPending && !hasAccepted && !hasRejected) {
+    } else if (allPending) {
         order.vendorStatus = "pending";
-    } else if(allPending){
-        order.vendorStatus = "pending";
-    }else {
+    } else {
         order.vendorStatus = "pending";
     }
 
     await order.save();
-}
+    return order;
+};

@@ -105,6 +105,10 @@ export const updateVendorOrderItemStatus = async (req, res, next) => {
         }
 
         const order = await updateVendorOrder(orderId, vendorId, itemId, status);
+        if (!order) {
+            return res.status(404).json({ message: "Vendor order not found" });
+        }
+
         await updateMainOrderStatus(order.order);
 
         res.status(200).json({ message: "Item status updated", order });
