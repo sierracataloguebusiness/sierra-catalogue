@@ -59,7 +59,7 @@ const CustomerOrder = () => {
         {orders.map((order) => (
           <div
             key={order._id}
-            className="border rounded-xl p-4 shadow-sm bg-white hover:shadow-md transition"
+            className="border rounded-xl p-4 shadow-sm bg-gray-700 hover:shadow-md transition"
           >
             <div className="flex justify-between items-center">
               <div>
