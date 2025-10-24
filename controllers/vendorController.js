@@ -2,7 +2,7 @@ import Listing from "../models/Listing.js";
 import VendorOrder from "../models/VendorOrder.js";
 import VendorShop from "../models/VendorShop.js";
 import AppError from "../utils/AppError.js";
-import {allowedStatuses, updateMainOrderStatus, updateVendorOrder} from "../middleware/calculateMainOrderItemStatus.js";
+import {allowedStatuses, updateMainOrderStatus, updateVendorOrder} from "../middleware/calculateOrderItemStatus.js";
 
 export const getVendorStats = async (req, res) => {
     try {
