@@ -128,7 +128,7 @@ const VendorOrders = () => {
           <div className="flex flex-wrap justify-between items-center mb-4">
             <div>
               <p>
-                <strong>Order ID:</strong> {order._id}
+                <strong>Order ID:</strong> {order.order._id.slice(-6)}
               </p>
               <p>
                 <strong>Buyer:</strong> {order.delivery?.firstName}{" "}
