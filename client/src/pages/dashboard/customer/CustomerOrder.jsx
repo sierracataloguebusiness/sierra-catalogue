@@ -10,8 +10,9 @@ const CustomerOrder = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
+        const token = localStorage.getItem("token");
         const { data } = await axios.get("/api/order/", {
-          withCredentials: true,
+          headers: { Authorization: `Bearer ${token}` },
         });
         setOrders(data.orders);
       } catch (err) {
@@ -26,7 +27,12 @@ const CustomerOrder = () => {
   const cancelOrder = async (orderId) => {
     if (!window.confirm("Are you sure you want to cancel this order?")) return;
     try {
-      await axios.put(`/api/orders/${orderId}/status`, { status: "cancelled" });
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `/api/order/${orderId}/status`,
+        { status: "cancelled" },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
       setOrders((prev) =>
         prev.map((o) =>
           o._id === orderId ? { ...o, status: "cancelled" } : o,
@@ -64,7 +70,7 @@ const CustomerOrder = () => {
               </div>
               <span
                 className={`text-sm font-medium px-3 py-1 rounded-full ${
-                  order.status === "delivered"
+                  order.status === "completed"
                     ? "bg-green-100 text-green-700"
                     : order.status === "cancelled"
                       ? "bg-red-100 text-red-700"
