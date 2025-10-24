@@ -23,7 +23,6 @@ const VendorOrders = () => {
     fetchOrders();
   }, []);
 
-  // ✅ Fetch vendor orders
   const fetchOrders = async () => {
     try {
       setLoading(true);
@@ -41,7 +40,6 @@ const VendorOrders = () => {
     }
   };
 
-  // ✅ Update single item status
   const updateItemStatus = async (orderId, itemId, status) => {
     try {
       setOrders((prev) =>
@@ -135,6 +133,9 @@ const VendorOrders = () => {
               <p>
                 <strong>Buyer:</strong> {order.delivery?.firstName}{" "}
                 {order.delivery?.lastName}
+              </p>
+              <p>
+                <strong>Address:</strong> {order.delivery?.address}
               </p>
             </div>
             <span
