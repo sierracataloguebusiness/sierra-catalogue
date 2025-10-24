@@ -19,6 +19,7 @@ export const createOrder = async (req, res) => {
             delivery,
             total,
             status: "pending",
+            vendorOrders: [],
         });
 
         const listings = await Listing.find({
@@ -37,7 +38,7 @@ export const createOrder = async (req, res) => {
             vendorMap[vendorId].push(item);
         });
 
-        const vendorOrders = [];
+        const vendorOrderIds = [];
         for (const [vendorId, vendorItems] of Object.entries(vendorMap)) {
             const subtotal = vendorItems.reduce(
                 (sum, item) => sum + item.price * item.quantity,
@@ -54,20 +55,24 @@ export const createOrder = async (req, res) => {
                 status: "pending",
             });
 
-            vendorOrders.push(vendorOrder);
+            vendorOrderIds.push(vendorOrder._id);
         }
+
+        order.vendorOrders = vendorOrderIds;
+        await order.save();
 
         res.status(201).json({
             success: true,
             message: "Order placed successfully",
             order,
-            vendorOrders,
+            vendorOrders: vendorOrderIds,
         });
     } catch (err) {
         console.error("Order creation error:", err);
         res.status(500).json({ message: "Server error while creating order" });
     }
 };
+
 
 export const getUserOrders = async (req, res) => {
     try {
