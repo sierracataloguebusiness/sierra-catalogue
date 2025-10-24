@@ -104,15 +104,14 @@ export const updateVendorOrderItemStatus = async (req, res, next) => {
             return res.status(400).json({ message: "Invalid status" });
         }
 
-        const { vendorOrder, mainOrderId } = await updateVendorOrder(orderId, vendorId, itemId, status);
-
-        if (!mainOrderId) {
-            return next(new AppError("Vendor order missing main order reference", 500));
+        const order = await updateVendorOrder(orderId, vendorId, itemId, status);
+        if (!order) {
+            return res.status(404).json({ message: "Vendor order not found" });
         }
 
-        await updateMainOrderStatus(mainOrderId);
+        await updateMainOrderStatus(order.order);
 
-        res.status(200).json({ message: "Item status updated", order: vendorOrder });
+        res.status(200).json({ message: "Item status updated", order });
     } catch (err) {
         console.error("Error updating vendor order item:", err);
         next(new AppError("Failed to update vendor order item", 500));

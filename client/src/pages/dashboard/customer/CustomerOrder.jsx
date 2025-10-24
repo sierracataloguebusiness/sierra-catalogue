@@ -2,12 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { ChevronDown, ChevronUp } from "lucide-react";
 import Loader from "../../../component/Loader.jsx";
 
-const API_BASE = "https://sierra-catalogue.onrender.com/api/order";
-
-const STATUS_STYLES = {
+const STATUS_COLORS = {
   pending: "bg-yellow-900/40 text-yellow-400 border border-yellow-700",
   accepted: "bg-green-900/40 text-green-400 border border-green-700",
   rejected: "bg-red-900/40 text-red-400 border border-red-700",
@@ -31,13 +28,13 @@ const CustomerOrder = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API_BASE}/`, {
+      const res = await axios.get("/api/order/", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders(res.data.orders || []);
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to fetch your orders");
+      toast.error("Failed to fetch your orders");
     } finally {
       setLoading(false);
     }
@@ -47,28 +44,29 @@ const CustomerOrder = () => {
     if (!window.confirm("Are you sure you want to cancel this order?")) return;
     try {
       await axios.put(
-        `${API_BASE}/${orderId}/status`,
+        `/api/order/${orderId}/status`,
         { status: "cancelled" },
-        { headers: { Authorization: `Bearer ${token}` } },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
       );
       toast.success("Order cancelled successfully");
       fetchOrders();
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to cancel order");
+      toast.error("Failed to cancel order");
     }
   };
 
-  const toggleExpand = (orderId) => {
+  const toggleExpand = (orderId) =>
     setExpanded(expanded === orderId ? null : orderId);
-  };
 
   if (loading) return <Loader />;
 
   if (!orders.length)
     return (
       <div className="p-6 text-center text-gray-400">
-        <p>You have no orders yet.</p>
+        You have no orders yet.
       </div>
     );
 
@@ -80,6 +78,9 @@ const CustomerOrder = () => {
 
       {orders.map((order) => {
         const isOpen = expanded === order._id;
+        const orderStatusClass =
+          STATUS_COLORS[order.status] ||
+          "bg-gray-700 text-gray-300 border border-gray-600";
 
         return (
           <div
@@ -100,28 +101,18 @@ const CustomerOrder = () => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
-                <span
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-full ${STATUS_STYLES[order.status] || "bg-gray-700 text-gray-300 border border-gray-600"}`}
-                >
-                  {order.status.replace("_", " ").toUpperCase()}
-                </span>
-                {isOpen ? (
-                  <ChevronUp className="text-gray-400 w-5 h-5" />
-                ) : (
-                  <ChevronDown className="text-gray-400 w-5 h-5" />
-                )}
-              </div>
+              <span
+                className={`px-3 py-1.5 text-xs font-semibold rounded-full ${orderStatusClass}`}
+              >
+                {order.status.replace("_", " ").toUpperCase()}
+              </span>
             </div>
 
             {/* Collapsible Body */}
             <div
-              className={`transition-all duration-300 ${
-                isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
-              } overflow-hidden`}
+              className={`transition-all duration-300 ${isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"} overflow-hidden`}
             >
               <div className="p-4 border-t border-gray-700 space-y-4">
-                {/* Items Table */}
                 <div className="overflow-x-auto">
                   <table className="w-full text-gray-300 text-sm min-w-[400px]">
                     <thead>
@@ -129,18 +120,34 @@ const CustomerOrder = () => {
                         <th className="px-2 py-1">Item</th>
                         <th className="px-2 py-1">Qty</th>
                         <th className="px-2 py-1">Price (NLe)</th>
+                        <th className="px-2 py-1">Status</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {order.items?.map((item) => (
-                        <tr key={item._id} className="border-b border-gray-700">
-                          <td className="px-2 py-1">{item.title}</td>
-                          <td className="px-2 py-1">{item.quantity}</td>
-                          <td className="px-2 py-1">
-                            {item.price?.toFixed(2) || "0.00"}
-                          </td>
-                        </tr>
-                      ))}
+                      {order.items?.map((item) => {
+                        const itemStatusClass =
+                          STATUS_COLORS[item.status] ||
+                          "bg-gray-700 text-gray-300 border border-gray-600";
+                        return (
+                          <tr
+                            key={item._id}
+                            className="border-b border-gray-700"
+                          >
+                            <td className="px-2 py-1">{item.title}</td>
+                            <td className="px-2 py-1">{item.quantity}</td>
+                            <td className="px-2 py-1">
+                              {item.price?.toFixed(2) || "0.00"}
+                            </td>
+                            <td className="px-2 py-1">
+                              <span
+                                className={`px-2 py-1 text-xs font-semibold rounded-full ${itemStatusClass}`}
+                              >
+                                {item.status.replace("_", " ").toUpperCase()}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -151,7 +158,6 @@ const CustomerOrder = () => {
                     <strong>Total:</strong> NLe{" "}
                     {order.total?.toFixed(2) || "0.00"}
                   </p>
-
                   <div className="flex gap-2 sm:gap-3 flex-wrap">
                     <button
                       onClick={() => navigate(`/orders/${order._id}`)}
@@ -159,7 +165,6 @@ const CustomerOrder = () => {
                     >
                       View Details
                     </button>
-
                     {order.status === "pending" && (
                       <button
                         onClick={(e) => {
