@@ -104,8 +104,7 @@ export const updateVendorOrderItemStatus = async (req, res, next) => {
             return res.status(400).json({ message: "Invalid status" });
         }
 
-        await updateVendorOrder(orderId, vendorId, itemId);
-
+        const order = await updateVendorOrder(orderId, vendorId, itemId, status);
         await updateMainOrderStatus(order.order);
 
         res.status(200).json({ message: "Item status updated", order });
