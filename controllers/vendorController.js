@@ -2,7 +2,7 @@ import Listing from "../models/Listing.js";
 import VendorOrder from "../models/VendorOrder.js";
 import VendorShop from "../models/VendorShop.js";
 import AppError from "../utils/AppError.js";
-import {allowedStatuses, updateMainOrderStatus, updateVendorOrder} from "../middleware/calculateMainOrderItemStatus.js";
+import {allowedStatuses, updateMainOrderStatus, updateVendorOrder} from "../middleware/calculateOrderItemStatus.js";
 
 export const getVendorStats = async (req, res) => {
     try {
@@ -104,14 +104,15 @@ export const updateVendorOrderItemStatus = async (req, res, next) => {
             return res.status(400).json({ message: "Invalid status" });
         }
 
-        const order = await updateVendorOrder(orderId, vendorId, itemId, status);
-        if (!order) {
-            return res.status(404).json({ message: "Vendor order not found" });
+        const { vendorOrder, mainOrderId } = await updateVendorOrder(orderId, vendorId, itemId, status);
+
+        if (!mainOrderId) {
+            return next(new AppError("Vendor order missing main order reference", 500));
         }
 
-        await updateMainOrderStatus(order.order);
+        await updateMainOrderStatus(mainOrderId);
 
-        res.status(200).json({ message: "Item status updated", order });
+        res.status(200).json({ message: "Item status updated", order: vendorOrder });
     } catch (err) {
         console.error("Error updating vendor order item:", err);
         next(new AppError("Failed to update vendor order item", 500));

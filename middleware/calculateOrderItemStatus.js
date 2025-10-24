@@ -51,29 +51,13 @@ export const updateVendorOrder = async (orderId, vendorId, itemId, status) => {
 
     const statuses = order.items.map(i => i.status || "pending");
 
-    const allAccepted = statuses.every(s => s === "accepted");
-    const allRejected = statuses.every(s => s === "rejected");
-    const allPending = statuses.every(s => s === "pending");
-
-    const hasAccepted = statuses.includes("accepted");
-    const hasRejected = statuses.includes("rejected");
-    const hasOutOfStock = statuses.includes("out_of_stock");
-    const hasPending = statuses.includes("pending");
-
-    if (allAccepted) {
-        order.vendorStatus = "accepted";
-    } else if (allRejected) {
-        order.vendorStatus = "rejected";
-    } else if (hasAccepted && hasRejected) {
-        order.vendorStatus = "partially_accepted";
-    } else if (hasAccepted && (hasPending || hasOutOfStock)) {
-        order.vendorStatus = "partially_accepted";
-    } else if (allPending) {
-        order.vendorStatus = "pending";
-    } else {
-        order.vendorStatus = "pending";
-    }
+    if (statuses.every(s => s === "accepted")) order.vendorStatus = "accepted";
+    else if (statuses.every(s => s === "rejected")) order.vendorStatus = "rejected";
+    else if (statuses.includes("accepted") && statuses.includes("rejected")) order.vendorStatus = "partially_accepted";
+    else if (statuses.includes("accepted") && (statuses.includes("pending") || statuses.includes("out_of_stock"))) order.vendorStatus = "partially_accepted";
+    else order.vendorStatus = "pending";
 
     await order.save();
-    return order;
+    
+    return { vendorOrder: order, mainOrderId: order.order };
 };
