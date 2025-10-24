@@ -32,6 +32,7 @@ const CustomerOrder = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders(res.data.orders || []);
+      console.log(res.data.orders);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch your orders");
@@ -125,9 +126,9 @@ const CustomerOrder = () => {
                     </thead>
                     <tbody>
                       {order.items?.map((item) => {
-                        const itemStatusClass =
-                          STATUS_COLORS[item.status] ||
-                          "bg-gray-700 text-gray-300 border border-gray-600";
+                        // const itemStatusClass =
+                        //   STATUS_COLORS[item.status] ||
+                        //   "bg-gray-700 text-gray-300 border border-gray-600";
                         return (
                           <tr
                             key={item._id}
@@ -138,13 +139,13 @@ const CustomerOrder = () => {
                             <td className="px-2 py-1">
                               {item.price?.toFixed(2) || "0.00"}
                             </td>
-                            <td className="px-2 py-1">
-                              <span
-                                className={`px-2 py-1 text-xs font-semibold rounded-full ${itemStatusClass}`}
-                              >
-                                {item.status.replace("_", " ").toUpperCase()}
-                              </span>
-                            </td>
+                            {/*<td className="px-2 py-1">*/}
+                            {/*  <span*/}
+                            {/*    className={`px-2 py-1 text-xs font-semibold rounded-full ${itemStatusClass}`}*/}
+                            {/*  >*/}
+                            {/*    {item.status.replace("_", " ").toUpperCase()}*/}
+                            {/*  </span>*/}
+                            {/*</td>*/}
                           </tr>
                         );
                       })}
