@@ -2,6 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Loader from "../../../component/Loader.jsx";
+import { toast } from "react-toastify";
+
+const STATUS_COLORS = {
+  pending: "text-yellow-400",
+  completed: "text-green-400",
+  cancelled: "text-red-400",
+  processing: "text-blue-400",
+};
 
 const CustomerOrder = () => {
   const [orders, setOrders] = useState([]);
@@ -15,9 +23,10 @@ const CustomerOrder = () => {
         const { data } = await axios.get("/api/order/", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setOrders(data.orders);
+        setOrders(data.orders || []);
       } catch (err) {
         console.error("Failed to fetch orders:", err);
+        toast.error("Failed to fetch your orders");
       } finally {
         setLoading(false);
       }
@@ -39,8 +48,10 @@ const CustomerOrder = () => {
           o._id === orderId ? { ...o, status: "cancelled" } : o,
         ),
       );
+      toast.success("Order cancelled successfully");
     } catch (err) {
       console.error("Cancel failed:", err);
+      toast.error("Failed to cancel order");
     }
   };
 
@@ -48,66 +59,87 @@ const CustomerOrder = () => {
 
   if (!orders.length)
     return (
-      <div className="text-center mt-10 text-gray-400">
+      <div className="p-6 text-center text-gray-400">
         <p>You have no orders yet.</p>
       </div>
     );
 
   return (
-    <div className="max-w-4xl mx-auto p-4 bg-[#0d0d0d] min-h-screen text-gray-200">
-      <h2 className="text-3xl font-bold mb-8 text-primary-gold">My Orders</h2>
-      <div className="grid gap-4">
-        {orders.map((order) => (
-          <div
-            key={order._id}
-            className="border border-gray-700 rounded-xl p-5 shadow-md bg-[#1a1a1a] hover:border-primary-gold transition"
-          >
-            <div className="flex justify-between items-center">
-              <div>
-                <p>
-                  <strong>Order ID:</strong> {order._id.slice(-6)}
-                </p>
-                <p className="text-sm text-gray-400">
-                  {new Date(order.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-              <span
-                className={`text-sm font-medium px-3 py-1 rounded-full capitalize ${
-                  order.status === "completed"
-                    ? "bg-green-900/40 text-green-400 border border-green-700"
-                    : order.status === "cancelled"
-                      ? "bg-red-900/40 text-red-400 border border-red-700"
-                      : "bg-yellow-900/40 text-primary-gold border border-primary-gold"
-                }`}
-              >
-                {order.status}
-              </span>
+    <div className="p-6 text-white min-h-screen bg-[#0d0d0d]">
+      <h1 className="text-2xl text-primary-gold font-bold mb-6">My Orders</h1>
+
+      {orders.map((order) => (
+        <div
+          key={order._id}
+          className="mb-6 border border-gray-700 rounded-xl p-5 bg-gray-800 shadow-md"
+        >
+          {/* Order Header */}
+          <div className="flex flex-wrap justify-between items-center mb-4">
+            <div>
+              <p>
+                <strong className="text-primary-gold">Order ID:</strong> #
+                {order._id.slice(-6)}
+              </p>
+              <p className="text-sm text-gray-400">
+                {new Date(order.createdAt).toLocaleDateString()}
+              </p>
             </div>
 
-            <div className="mt-4 flex justify-between items-center border-t border-gray-700 pt-3">
-              <p className="text-gray-300 font-medium">
-                {order.items?.length} item(s)
-              </p>
-              <div className="flex gap-3">
+            <span
+              className={`font-semibold capitalize ${STATUS_COLORS[order.status] || "text-gray-300"}`}
+            >
+              {order.status}
+            </span>
+          </div>
+
+          {/* Order Items */}
+          <table className="w-full text-gray-300 text-sm mb-4">
+            <thead>
+              <tr className="text-left border-b border-gray-700">
+                <th className="px-2 py-1">Item</th>
+                <th className="px-2 py-1">Qty</th>
+                <th className="px-2 py-1">Price (NLe)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {order.items?.map((item) => (
+                <tr key={item._id} className="border-b border-gray-700">
+                  <td className="px-2 py-1">{item.title}</td>
+                  <td className="px-2 py-1">{item.quantity}</td>
+                  <td className="px-2 py-1">
+                    {item.price?.toFixed(2) || "0.00"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Total and Actions */}
+          <div className="flex justify-between items-center">
+            <p className="font-medium text-gray-300">
+              <strong>Total:</strong> NLe {order.total?.toFixed(2) || "0.00"}
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => navigate(`/orders/${order._id}`)}
+                className="py-1.5 px-4 text-sm border border-primary-gold text-primary-gold rounded-lg hover:bg-primary-gold hover:text-black transition"
+              >
+                View Details
+              </button>
+
+              {order.status === "pending" && (
                 <button
-                  onClick={() => navigate(`/orders/${order._id}`)}
-                  className="px-4 py-1.5 text-sm border border-primary-gold text-primary-gold rounded-lg hover:bg-primary-gold] hover:text-black transition"
+                  onClick={() => cancelOrder(order._id)}
+                  className="py-1.5 px-4 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
                 >
-                  View Details
+                  Cancel
                 </button>
-                {order.status === "pending" && (
-                  <button
-                    onClick={() => cancelOrder(order._id)}
-                    className="px-4 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-                  >
-                    Cancel
-                  </button>
-                )}
-              </div>
+              )}
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
 };
