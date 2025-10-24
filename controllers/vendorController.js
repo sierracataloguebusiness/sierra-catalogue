@@ -2,7 +2,7 @@ import Listing from "../models/Listing.js";
 import VendorOrder from "../models/VendorOrder.js";
 import VendorShop from "../models/VendorShop.js";
 import AppError from "../utils/AppError.js";
-import {allowedStatuses, updateMainOrderStatus} from "../middleware/calculateMainOrderItemStatus.js";
+import {allowedStatuses, updateMainOrderStatus, updateVendorOrder} from "../middleware/calculateMainOrderItemStatus.js";
 
 export const getVendorStats = async (req, res) => {
     try {
@@ -46,26 +46,36 @@ export const getVendorListings = async (req, res) => {
     }
 };
 
-export const upsertVendorShop = async (req, res) => {
-    const vendorId = req.user.id;
-    const { name, description, address, logo, banner } = req.body;
+export const upsertVendorShop = async (req, res, next) => {
+    try {
+        const vendorId = req.user.id;
+        const { name, description, address, logo, banner } = req.body;
 
-    const shop = await VendorShop.findOneAndUpdate(
-        { vendor: vendorId },
-        { name, description, address, logo, banner, status: "active" },
-        { new: true, upsert: true, runValidators: true }
-    );
+        const shop = await VendorShop.findOneAndUpdate(
+            { vendor: vendorId },
+            { name, description, address, logo, banner, status: "active" },
+            { new: true, upsert: true, runValidators: true }
+        );
 
-    res.status(200).json({ message: "Shop saved successfully", shop });
+        res.status(200).json({ message: "Shop saved successfully", shop });
+    } catch (err) {
+        console.error("Error upserting vendor shop:", err);
+        next(new AppError("Failed to save vendor shop", 500));
+    }
 };
 
 export const getVendorShop = async (req, res) => {
-    const vendorId = req.user.id;
-    const shop = await VendorShop.findOne({ vendor: vendorId });
+    try{
+        const vendorId = req.user.id;
+        const shop = await VendorShop.findOne({ vendor: vendorId });
 
-    if (!shop) throw new AppError("No shop found for this vendor", 404);
+        if (!shop) throw new AppError("No shop found for this vendor", 404);
 
-    res.status(200).json({ shop });
+        res.status(200).json({ shop });
+    } catch (err) {
+        console.error("Error getting vendor shop:", err);
+    }
+
 };
 
 export const getVendorOrders = async (req, res, next) => {
@@ -94,21 +104,7 @@ export const updateVendorOrderItemStatus = async (req, res, next) => {
             return res.status(400).json({ message: "Invalid status" });
         }
 
-        const order = await VendorOrder.findOne({ _id: orderId, vendor: vendorId });
-        if (!order) return res.status(404).json({ message: "Vendor order not found" });
-
-        const item = order.items.id(itemId);
-        if (!item) return res.status(404).json({ message: "Item not found" });
-
-        item.status = status;
-
-        const statuses = order.items.map(i => i.status || "pending");
-        if (statuses.every(s => s === "accepted")) order.vendorStatus = "accepted";
-        else if (statuses.every(s => s === "rejected")) order.vendorStatus = "rejected";
-        else if (statuses.includes("accepted") && statuses.includes("rejected")) order.vendorStatus = "partially_accepted";
-        else order.vendorStatus = "pending";
-
-        await order.save();
+        await updateVendorOrder(orderId, vendorId, itemId);
 
         await updateMainOrderStatus(order.order);
 
