@@ -30,6 +30,7 @@ const VendorOrders = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders(res.data.orders || []);
+      console.log(orders);
     } catch (err) {
       console.error(err);
       toast.error(
@@ -128,7 +129,7 @@ const VendorOrders = () => {
           <div className="flex flex-wrap justify-between items-center mb-4">
             <div>
               <p>
-                <strong>Order ID:</strong> {order.order._id.slice(-6)}
+                <strong>Order ID:</strong> {order._id}
               </p>
               <p>
                 <strong>Buyer:</strong> {order.delivery?.firstName}{" "}
