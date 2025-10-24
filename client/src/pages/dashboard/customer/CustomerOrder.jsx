@@ -64,8 +64,8 @@ const CustomerOrder = () => {
           >
             <div className="flex justify-between items-center">
               <div>
-                <p className="font-semibold text-primary-gold">
-                  Order #{order._id.slice(-6)}
+                <p>
+                  <strong>Order ID:</strong> {order._id.slice(-6)}
                 </p>
                 <p className="text-sm text-gray-400">
                   {new Date(order.createdAt).toLocaleDateString()}
