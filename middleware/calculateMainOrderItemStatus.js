@@ -1,16 +1,19 @@
+import Order from "../models/Order.js";
 import VendorOrder from "../models/VendorOrder.js";
 
-export const ALLOWED_STATUSES = ["accepted", "rejected", "out_of_stock", "pending"];
+export const allowedStatuses = ["accepted", "rejected", "out_of_stock", "pending"];
 
-export const calculateMainOrderStatus = async (mainOrderId) => {
-    const vendorOrders = await VendorOrder.find({ order: mainOrderId }).select("vendorStatus");
-    const statuses = vendorOrders.map(v => v.vendorStatus);
+export const updateMainOrderStatus = async (orderId) => {
+    const vendorOrders = await VendorOrder.find({ order: orderId });
 
-    let mainStatus = "pending";
-    if (statuses.every(s => s === "accepted")) mainStatus = "accepted";
-    else if (statuses.every(s => s === "rejected")) mainStatus = "rejected";
-    else if (statuses.includes("accepted") && statuses.includes("rejected"))
-        mainStatus = "partially_accepted";
-
-    await Order.findByIdAndUpdate(mainOrderId, { status: mainStatus });
+    if (vendorOrders.every(vo => vo.vendorStatus === "accepted")) {
+        await Order.findByIdAndUpdate(orderId, { status: "completed" });
+    } else if (vendorOrders.every(vo => vo.vendorStatus === "rejected")) {
+        await Order.findByIdAndUpdate(orderId, { status: "cancelled" });
+    } else if (vendorOrders.some(vo => vo.vendorStatus === "accepted") &&
+        vendorOrders.some(vo => vo.vendorStatus === "rejected")) {
+        await Order.findByIdAndUpdate(orderId, { status: "partially_completed" });
+    } else {
+        await Order.findByIdAndUpdate(orderId, { status: "pending" });
+    }
 };
