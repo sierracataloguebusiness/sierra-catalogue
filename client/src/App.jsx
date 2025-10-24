@@ -38,6 +38,7 @@ import VendorDashboard from "./pages/dashboard/vendor/VendorDashboard.jsx";
 import VendorProduct from "./pages/dashboard/vendor/VendorProduct.jsx";
 import VendorShop from "./pages/dashboard/vendor/VendorShop.jsx";
 import VendorOrder from "./pages/dashboard/vendor/VendorOrder.jsx";
+import CustomerOrder from "./pages/dashboard/customer/CustomerOrder.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -198,7 +199,7 @@ const App = () => {
 
           {/* Customer Routes */}
           <Route path="customer" element={<Dashboard />} />
-          <Route path="customer/orders" element={<div>Customer Orders</div>} />
+          <Route path="customer/orders" element={<CustomerOrder />} />
           <Route path="customer/favorites" element={<div>Favorites</div>} />
           <Route path="customer/settings" element={<div>Settings</div>} />
 
