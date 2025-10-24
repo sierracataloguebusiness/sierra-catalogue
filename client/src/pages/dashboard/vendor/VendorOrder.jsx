@@ -30,7 +30,7 @@ const VendorOrders = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders(res.data.orders || []);
-      console.log(orders.order.slice(-6));
+      console.log(res.data.orders);
     } catch (err) {
       console.error(err);
       toast.error(
