@@ -104,7 +104,7 @@ const CustomerOrder = () => {
               <span
                 className={`px-3 py-1.5 text-xs font-semibold rounded-full ${orderStatusClass}`}
               >
-                {order.status.replace("_", " ").toUpperCase()}
+                {order.status.toUpperCase()}
               </span>
             </div>
 
