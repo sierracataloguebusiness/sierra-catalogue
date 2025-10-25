@@ -22,33 +22,16 @@ const CustomerOrder = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetchOrdersWithDetails();
+    fetchOrders();
   }, []);
 
-  const fetchOrdersWithDetails = async () => {
+  const fetchOrders = async () => {
     try {
       setLoading(true);
-      const listRes = await axios.get("/api/order/", {
+      const res = await axios.get("/api/order/", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      const orderList = listRes.data.orders || [];
-
-      const detailedOrders = await Promise.all(
-        orderList.map(async (order) => {
-          try {
-            const detailRes = await axios.get(`/api/order/${order._id}`, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            return detailRes.data.order;
-          } catch (err) {
-            console.error(`Failed to fetch order ${order._id}`, err);
-            return order;
-          }
-        }),
-      );
-
-      setOrders(detailedOrders);
+      setOrders(res.data.orders || []);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch your orders");
@@ -66,7 +49,7 @@ const CustomerOrder = () => {
         { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success("Order cancelled successfully");
-      fetchOrdersWithDetails();
+      fetchOrders();
     } catch (err) {
       console.error(err);
       toast.error("Failed to cancel order");
@@ -124,7 +107,9 @@ const CustomerOrder = () => {
 
             {/* Collapsible Body */}
             <div
-              className={`transition-all duration-300 ${isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"} overflow-hidden`}
+              className={`transition-all duration-300 ${
+                isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+              } overflow-hidden`}
             >
               <div className="p-4 border-t border-gray-700 space-y-4">
                 <div className="overflow-x-auto">
