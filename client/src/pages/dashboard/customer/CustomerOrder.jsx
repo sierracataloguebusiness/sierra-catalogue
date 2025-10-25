@@ -5,14 +5,13 @@ import Loader from "../../../component/Loader.jsx";
 import { toast } from "react-toastify";
 
 const STATUS_COLORS = {
-  pending: "bg-yellow-400 text-black",
-  accepted: "bg-green-400 text-black",
-  rejected: "bg-red-400 text-white",
-  out_of_stock: "bg-gray-400 text-black",
-  partially_accepted: "bg-orange-400 text-black",
-  partially_completed: "bg-orange-400 text-black",
-  completed: "bg-green-400 text-black",
-  cancelled: "bg-red-400 text-white",
+  pending: "text-yellow-400",
+  accepted: "text-green-400",
+  rejected: "text-red-400",
+  out_of_stock: "text-gray-400",
+  partially_completed: "text-orange-400",
+  completed: "text-green-400",
+  cancelled: "text-red-600",
 };
 
 const CustomerOrder = () => {
@@ -69,19 +68,19 @@ const CustomerOrder = () => {
     );
 
   return (
-    <div className="p-4 sm:p-6 text-white min-h-screen bg-[#0d0d0d]">
+    <div className="p-6 text-white min-h-screen bg-[#0d0d0d]">
       <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-primary-gold">
         My Orders
       </h1>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6">
         {orders.map((order) => (
           <div
             key={order._id}
-            className="border border-gray-700 rounded-xl p-4 sm:p-5 bg-gray-800 shadow-md flex flex-col gap-4"
+            className="border border-gray-700 rounded-xl p-5 bg-gray-800 shadow-md"
           >
-            {/* Order Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+            {/* Header */}
+            <div className="flex flex-wrap justify-between items-start sm:items-center mb-4 gap-2">
               <div>
                 <p>
                   <strong className="text-primary-gold">Order ID:</strong> #
@@ -90,45 +89,43 @@ const CustomerOrder = () => {
                 <p className="text-sm text-gray-400">
                   {new Date(order.createdAt).toLocaleDateString()}
                 </p>
+                <p>
+                  <strong>Delivery:</strong> {order.delivery?.method}
+                </p>
+                <p>
+                  <strong>Address:</strong> {order.delivery?.address}
+                </p>
               </div>
-
               <span
-                className={`px-3 py-1.5 text-xs font-semibold rounded-full ${
-                  STATUS_COLORS[order.status] || "bg-gray-300 text-black"
+                className={`font-semibold capitalize ${
+                  STATUS_COLORS[order.status] || "text-gray-300"
                 }`}
               >
-                {order.status.replaceAll("_", " ").toUpperCase()}
+                {order.status}
               </span>
             </div>
 
-            {/* Order Items */}
+            {/* Items Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-gray-300 text-sm min-w-[400px]">
                 <thead>
                   <tr className="text-left border-b border-gray-700">
                     <th className="px-2 py-1">Item</th>
                     <th className="px-2 py-1">Qty</th>
-                    <th className="px-2 py-1">Price (NLe)</th>
+                    <th className="px-2 py-1">Price(NLe)</th>
                     <th className="px-2 py-1">Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {order.items?.map((item) => (
+                  {order.items.map((item) => (
                     <tr key={item._id} className="border-b border-gray-700">
                       <td className="px-2 py-1">{item.title}</td>
                       <td className="px-2 py-1">{item.quantity}</td>
-                      <td className="px-2 py-1">
-                        {item.price?.toFixed(2) || "0.00"}
-                      </td>
-                      <td className="px-2 py-1">
-                        <span
-                          className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                            STATUS_COLORS[item.status] ||
-                            "bg-gray-300 text-black"
-                          }`}
-                        >
-                          {item.status.replaceAll("_", " ").toUpperCase()}
-                        </span>
+                      <td className="px-2 py-1">{item.price?.toFixed(2)}</td>
+                      <td
+                        className={`px-2 py-1 font-semibold ${STATUS_COLORS[item.status || "pending"]}`}
+                      >
+                        {item.status || "pending"}
                       </td>
                     </tr>
                   ))}
@@ -137,12 +134,11 @@ const CustomerOrder = () => {
             </div>
 
             {/* Total & Actions */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mt-4">
               <p className="font-medium text-gray-300">
                 <strong>Total:</strong> NLe {order.total?.toFixed(2) || "0.00"}
               </p>
-
-              <div className="flex gap-2 sm:gap-3 flex-wrap">
+              <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => navigate(`/orders/${order._id}`)}
                   className="py-1.5 px-4 text-sm border border-primary-gold text-primary-gold rounded-lg hover:bg-primary-gold hover:text-black transition"

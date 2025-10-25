@@ -87,16 +87,44 @@ export const getUserOrders = async (req, res) => {
     }
 };
 
-export const getOrder = async (req, res) => {
-    const order = await Order.findById(req.params.id)
-        .populate('items.listingId', 'title price images');
+export const getOrder = async (req, res, next) => {
+    try {
+        const order = await Order.findById(req.params.id)
+            .populate("items.listingId", "title price images");
 
-    if (!order) {
-        throw new AppError('Order not found', 404);
+        if (!order) {
+            return next(new AppError("Order not found", 404));
+        }
+
+        const vendorOrders = await VendorOrder.find({ order: order._id });
+
+        const itemsWithStatus = order.items.map((item) => {
+            let status = "pending";
+            for (const vo of vendorOrders) {
+                const voItem = vo.items.find(i => i._id.equals(item._id));
+                if (voItem) {
+                    status = voItem.status || status;
+                    break;
+                }
+            }
+            return {
+                ...item.toObject(),
+                status,
+            };
+        });
+
+        res.status(200).json({
+            order: {
+                ...order.toObject(),
+                items: itemsWithStatus
+            }
+        });
+    } catch (err) {
+        console.error("getOrder error:", err);
+        next(new AppError("Failed to fetch order", 500));
     }
+};
 
-    res.status(200).json({ order });
-}
 
 export const updateOrderStatus = async (req, res) => {
     const {status} = req.body;
