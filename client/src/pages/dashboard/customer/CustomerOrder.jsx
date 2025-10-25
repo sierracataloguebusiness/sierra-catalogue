@@ -11,6 +11,7 @@ const STATUS_COLORS = {
   partially_accepted:
     "bg-orange-900/40 text-orange-400 border border-orange-700",
   completed: "bg-green-900/40 text-green-500 border border-green-700",
+  out_of_stock: "bg-blue-900/40 text-blue-500 border border-blue-700",
 };
 
 const CustomerOrder = () => {
@@ -138,10 +139,10 @@ const CustomerOrder = () => {
                             </td>
                             <td className="px-2 py-1">
                               <span
-                                className={`px-2 py-1 text-xs font-semibold rounded-full ${itemStatusClass}`}
+                                className={`px-2 py-1 my-1 text-xs font-semibold rounded-full ${itemStatusClass}`}
                               >
                                 {(item.status || "pending")
-                                  .replace("_", " ")
+                                  .replaceAll("_", " ")
                                   .toUpperCase()}
                               </span>
                             </td>

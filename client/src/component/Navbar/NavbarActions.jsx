@@ -65,7 +65,6 @@ const NavbarActions = ({
           { name: "Orders", link: "/dashboard/customer/orders" },
           { name: "Favorites", link: "/dashboard/customer/favorites" },
           { name: "Settings", link: "/dashboard/customer/settings" },
-          { name: "Help", link: "/dashboard/customer/help" },
         ];
     }
   };

@@ -9,7 +9,7 @@ const STATUS_COLORS = {
   pending: "bg-yellow-900/40 text-yellow-400 border border-yellow-700",
   accepted: "bg-green-900/40 text-green-400 border border-green-700",
   rejected: "bg-red-900/40 text-red-400 border border-red-700",
-  out_of_stock: "bg-gray-900/40 text-gray-400 border border-gray-700",
+  out_of_stock: "bg-blue-900/40 text-blue-500 border border-blue-700",
   partially_accepted:
     "bg-orange-900/40 text-orange-400 border border-orange-700",
 };
