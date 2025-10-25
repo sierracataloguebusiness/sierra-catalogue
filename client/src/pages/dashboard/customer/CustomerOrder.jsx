@@ -32,6 +32,7 @@ const CustomerOrder = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders(res.data.orders || []);
+      console.log(res.data.orders);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch your orders");
@@ -160,12 +161,6 @@ const CustomerOrder = () => {
                     {order.total?.toFixed(2) || "0.00"}
                   </p>
                   <div className="flex gap-2 sm:gap-3 flex-wrap">
-                    <button
-                      onClick={() => navigate(`/orders/${order._id}`)}
-                      className="py-1.5 px-4 text-sm border border-primary-gold text-primary-gold rounded-lg hover:bg-primary-gold hover:text-black transition"
-                    >
-                      View Details
-                    </button>
                     {order.status === "pending" && (
                       <button
                         onClick={(e) => {
