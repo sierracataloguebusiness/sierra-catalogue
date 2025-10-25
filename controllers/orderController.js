@@ -78,7 +78,8 @@ export const getUserOrders = async (req, res, next) => {
         const userId = req.user.id;
 
         const orders = await Order.find({ user: userId })
-            .populate("items.listingId", "title price images");
+            .populate("items.listingId", "title price images")
+            .sort({ createdAt: -1 });
 
         const detailedOrders = await Promise.all(
             orders.map(async (order) => {
@@ -86,13 +87,17 @@ export const getUserOrders = async (req, res, next) => {
 
                 const itemsWithStatus = order.items.map((item) => {
                     let status = "pending";
+
                     for (const vo of vendorOrders) {
-                        const voItem = vo.items.find((i) => i._id.equals(item._id));
+                        const voItem = vo.items.find(
+                            (i) => i.listingId.toString() === item.listingId._id.toString()
+                        );
                         if (voItem) {
                             status = voItem.status || status;
                             break;
                         }
                     }
+
                     return {
                         ...item.toObject(),
                         status,
@@ -112,6 +117,7 @@ export const getUserOrders = async (req, res, next) => {
         next(new AppError("Failed to fetch orders", 500));
     }
 };
+
 
 export const getOrder = async (req, res, next) => {
     try {
