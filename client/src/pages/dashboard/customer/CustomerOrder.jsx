@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Loader from "../../../component/Loader.jsx";
@@ -18,7 +17,6 @@ const CustomerOrder = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(null);
-  const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
   useEffect(() => {
