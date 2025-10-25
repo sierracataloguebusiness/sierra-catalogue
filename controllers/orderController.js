@@ -75,20 +75,6 @@ export const createOrder = async (req, res) => {
 
 export const getUserOrders = async (req, res) => {
     try {
-        const userId = req.user.id;
-        const orders = await Order.find({ user: userId })
-            .sort({ createdAt: -1 })
-            .populate("items.listingId", "title price images");
-
-        res.status(200).json({ success: true, orders });
-    } catch (err) {
-        console.error("Error fetching user orders:", err);
-        res.status(500).json({ message: "Failed to fetch orders" });
-    }
-};
-
-export const getOrder = async (req, res, next) => {
-    try {
         const order = await Order.findById(req.params.id)
             .populate("items.listingId", "title price images");
 
@@ -125,6 +111,16 @@ export const getOrder = async (req, res, next) => {
     }
 };
 
+export const getOrder = async (req, res) => {
+    const order = await Order.findById(req.params.id)
+        .populate('items.listingId', 'title price images');
+
+    if (!order) {
+        throw new AppError('Order not found', 404);
+    }
+
+    res.status(200).json({ order });
+}
 
 export const updateOrderStatus = async (req, res) => {
     const {status} = req.body;
