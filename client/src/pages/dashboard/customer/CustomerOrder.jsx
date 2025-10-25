@@ -113,22 +113,15 @@ const CustomerOrder = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {order.items?.map((item) => (
+                  {order.items.map((item) => (
                     <tr key={item._id} className="border-b border-gray-700">
                       <td className="px-2 py-1">{item.title}</td>
                       <td className="px-2 py-1">{item.quantity}</td>
-                      <td className="px-2 py-1">
-                        {item.price?.toFixed(2) || "0.00"}
-                      </td>
-                      <td className="px-2 py-1">
-                        <span
-                          className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                            STATUS_COLORS[item.status] ||
-                            "bg-gray-300 text-black"
-                          }`}
-                        >
-                          {item.status.replaceAll("_", " ").toUpperCase()}
-                        </span>
+                      <td className="px-2 py-1">{item.price?.toFixed(2)}</td>
+                      <td
+                        className={`px-2 py-1 font-semibold ${STATUS_COLORS[item.status || "pending"]}`}
+                      >
+                        {item.status || "pending"}
                       </td>
                     </tr>
                   ))}
