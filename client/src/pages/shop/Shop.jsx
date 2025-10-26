@@ -23,23 +23,33 @@ const Shop = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [addingId, setAddingId] = useState(null);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 12;
 
-  const fetchListings = useCallback(async (query = "", categories = []) => {
-    try {
-      setGridLoading(true);
-      const categoryQuery =
-        categories.length > 0 ? `&categories=${categories.join(",")}` : "";
-      const res = await axios.get(
-        `https://sierra-catalogue.onrender.com/api/listings?limit=20&search=${query}${categoryQuery}`,
-      );
-      setListings(res.data.listings || []);
-    } catch (error) {
-      console.error("Error fetching listings:", error);
-      toast.error("Failed to load products.");
-    } finally {
-      setGridLoading(false);
-    }
-  }, []);
+  const fetchListings = useCallback(
+    async (query = "", categories = [], pageNum = 1) => {
+      try {
+        setGridLoading(true);
+        const categoryQuery =
+          categories.length > 0 ? `&categories=${categories.join(",")}` : "";
+        const res = await axios.get(
+          `https://sierra-catalogue.onrender.com/api/listings?limit=${limit}&page=${pageNum}&search=${query}${categoryQuery}`,
+        );
+        setListings(res.data.listings || []);
+        setTotalPages(res.data.totalPages || 1);
+        setPage(res.data.currentPage || 1);
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (error) {
+        console.error("Error fetching listings:", error);
+        toast.error("Failed to load products.");
+      } finally {
+        setGridLoading(false);
+      }
+    },
+    [],
+  );
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -59,7 +69,7 @@ const Shop = () => {
   }, [fetchCategories, fetchListings]);
 
   const handleSearchChange = debounce((value) => {
-    fetchListings(value, selectedCategories);
+    fetchListings(value, selectedCategories, 1);
   }, 400);
 
   const handleCategoryChange = (categoryId) => {
@@ -68,7 +78,7 @@ const Shop = () => {
       : [...selectedCategories, categoryId];
 
     setSelectedCategories(updated);
-    fetchListings(search, updated);
+    fetchListings(search, updated, 1);
   };
 
   const handleAddToCart = async (listingId) => {
@@ -93,6 +103,11 @@ const Shop = () => {
     } finally {
       setAddingId(null);
     }
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    fetchListings(search, selectedCategories, newPage);
   };
 
   return (
@@ -148,7 +163,7 @@ const Shop = () => {
         </button>
       </div>
 
-      {/* Animated Mobile Filter Drawer */}
+      {/* Mobile Filter Drawer */}
       <AnimatePresence>
         {mobileFilterOpen && (
           <motion.div
@@ -210,7 +225,7 @@ const Shop = () => {
         )}
       </AnimatePresence>
 
-      {/* Product Grid with animated filtering */}
+      {/* Product Grid with Pagination */}
       <div className="container mx-auto px-4 py-10">
         <h1 className="heading text-center mb-8 hidden lg:block">Shop</h1>
 
@@ -221,30 +236,53 @@ const Shop = () => {
         ) : listings.length === 0 ? (
           <p className="text-center text-gray-400">No products available.</p>
         ) : (
-          <motion.div
-            layout
-            className="grid justify-center items-center grid-cols-[repeat(auto-fit,minmax(288px,max-content))] gap-6"
-          >
-            <AnimatePresence>
-              {listings.map((listing) => (
-                <motion.div
-                  key={listing._id}
-                  layout
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <ListingCard
-                    id={listing._id}
-                    {...listing}
-                    onAddToCart={handleAddToCart}
-                    adding={addingId === listing._id}
-                  />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+          <>
+            <motion.div
+              layout
+              className="grid justify-center items-center grid-cols-[repeat(auto-fit,minmax(288px,max-content))] gap-6"
+            >
+              <AnimatePresence>
+                {listings.map((listing) => (
+                  <motion.div
+                    key={listing._id}
+                    layout
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ListingCard
+                      id={listing._id}
+                      {...listing}
+                      onAddToCart={handleAddToCart}
+                      adding={addingId === listing._id}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+
+            {/* Pagination Controls */}
+            <div className="flex justify-center items-center gap-4 mt-8 text-white">
+              <button
+                onClick={() => handlePageChange(page - 1)}
+                disabled={page === 1}
+                className="px-4 py-2 border border-gray-500 rounded hover:bg-gray-700 transition"
+              >
+                Previous
+              </button>
+              <span>
+                Page {page} of {totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(page + 1)}
+                disabled={page === totalPages}
+                className="px-4 py-2 border border-gray-500 rounded hover:bg-gray-700 transition"
+              >
+                Next
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>
