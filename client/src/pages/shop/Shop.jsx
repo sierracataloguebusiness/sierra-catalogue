@@ -120,7 +120,7 @@ const Shop = () => {
       </aside>
 
       {/* Mobile Filter Button */}
-      <div className="lg:hidden flex justify-between items-center px-4 py-3 border-b border-gray-700 bg-black/30 sticky top-[81px] z-10 backdrop-blur-sm">
+      <div className="lg:hidden flex justify-between items-center px-4 py-3 border-b border-gray-700 bg-black/30 sticky top-[81px] z-40 backdrop-blur-sm">
         <h1 className="text-lg font-semibold">Shop</h1>
         <button
           onClick={() => setMobileFilterOpen(true)}
