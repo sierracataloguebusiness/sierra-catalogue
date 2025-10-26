@@ -1,34 +1,48 @@
-import React, { useState } from "react";
-import { FaShoppingCart } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaShoppingCart, FaHeart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Button from "./Button.jsx";
 import logo from "/src/assets/Sierra Catalogue Logo.jpg";
 
+const API_BASE = "https://sierra-catalogue.onrender.com/api";
+
 const ListingCard = ({ title, description, price, images, stock, id }) => {
   const [adding, setAdding] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    const fetchSaved = async () => {
+      if (!token) return;
+      try {
+        const res = await axios.get(`${API_BASE}/saved`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const savedIds = res.data.savedListings?.map((l) => l._id) || [];
+        setIsSaved(savedIds.includes(id));
+      } catch (err) {
+        console.error("Failed to check saved status:", err);
+      }
+    };
+    fetchSaved();
+  }, [id, token]);
 
   const handleAddToCart = async () => {
     try {
       setAdding(true);
-      const token = localStorage.getItem("token");
       if (!token) {
         toast.error("You must be logged in to add to cart.");
         return;
       }
 
       const res = await axios.post(
-        "https://sierra-catalogue.onrender.com/api/cart/add",
-        {
-          listingId: id,
-          quantity: 1,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+        `${API_BASE}/cart/add`,
+        { listingId: id, quantity: 1 },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       toast.success(res.data.message || "Added to cart!");
@@ -37,6 +51,36 @@ const ListingCard = ({ title, description, price, images, stock, id }) => {
       toast.error("Failed to add to cart.");
     } finally {
       setAdding(false);
+    }
+  };
+
+  const handleToggleSave = async () => {
+    if (!token) {
+      toast.error("You must be logged in to save items.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      if (isSaved) {
+        await axios.delete(`${API_BASE}/saved/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        toast.info("Removed from saved listings.");
+      } else {
+        await axios.post(
+          `${API_BASE}/saved/${id}`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+        toast.success("Listing saved!");
+      }
+      setIsSaved(!isSaved);
+    } catch (err) {
+      console.error("Save toggle error:", err);
+      toast.error("Failed to update saved status.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -54,6 +98,16 @@ const ListingCard = ({ title, description, price, images, stock, id }) => {
             Out of Stock
           </span>
         )}
+
+        <button
+          onClick={handleToggleSave}
+          disabled={saving}
+          className={`absolute top-2 left-2 p-2 rounded-full ${
+            isSaved ? "bg-red-600 text-white" : "bg-gray-700 text-gray-200"
+          } hover:bg-red-500 transition`}
+        >
+          <FaHeart />
+        </button>
       </div>
 
       {/* Text Info */}
