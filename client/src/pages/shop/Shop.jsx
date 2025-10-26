@@ -1,67 +1,76 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { FiSliders } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
 import ListingCard from "../../component/ListingCard.jsx";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Loader from "../../component/Loader.jsx";
+import { motion, AnimatePresence } from "framer-motion";
+
+const debounce = (func, delay) => {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => func(...args), delay);
+  };
+};
 
 const Shop = () => {
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [gridLoading, setGridLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [addingId, setAddingId] = useState(null);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
-  // Fetch listings
-  const fetchListings = async (query = "", categories = []) => {
+  const fetchListings = useCallback(async (query = "", categories = []) => {
     try {
-      setLoading(true);
+      setGridLoading(true);
       const categoryQuery =
         categories.length > 0 ? `&categories=${categories.join(",")}` : "";
       const res = await axios.get(
         `https://sierra-catalogue.onrender.com/api/listings?limit=20&search=${query}${categoryQuery}`,
       );
-      setListings(res.data.listings);
+      setListings(res.data.listings || []);
     } catch (error) {
       console.error("Error fetching listings:", error);
+      toast.error("Failed to load products.");
     } finally {
-      setLoading(false);
+      setGridLoading(false);
     }
-  };
+  }, []);
 
-  // Fetch categories
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const res = await axios.get(
         "https://sierra-catalogue.onrender.com/api/category/",
       );
-      setCategories(res.data.categories);
+      setCategories(res.data.categories || []);
     } catch (error) {
       console.error("Error fetching categories:", error);
+      toast.error("Failed to fetch categories.");
     }
-  };
-
-  useEffect(() => {
-    fetchListings();
-    fetchCategories();
   }, []);
 
-  // Category selection
+  useEffect(() => {
+    fetchCategories();
+    fetchListings();
+  }, [fetchCategories, fetchListings]);
+
+  const handleSearchChange = debounce((value) => {
+    fetchListings(value, selectedCategories);
+  }, 400);
+
   const handleCategoryChange = (categoryId) => {
-    let updatedCategories;
-    if (selectedCategories.includes(categoryId)) {
-      updatedCategories = selectedCategories.filter((c) => c !== categoryId);
-    } else {
-      updatedCategories = [...selectedCategories, categoryId];
-    }
-    setSelectedCategories(updatedCategories);
-    fetchListings(search, updatedCategories);
+    const updated = selectedCategories.includes(categoryId)
+      ? selectedCategories.filter((id) => id !== categoryId)
+      : [...selectedCategories, categoryId];
+
+    setSelectedCategories(updated);
+    fetchListings(search, updated);
   };
 
-  // Add to cart
   const handleAddToCart = async (listingId) => {
     try {
       setAddingId(listingId);
@@ -73,15 +82,8 @@ const Shop = () => {
 
       const res = await axios.post(
         "https://sierra-catalogue.onrender.com/api/cart/add",
-        {
-          listingId,
-          quantity: 1,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+        { listingId, quantity: 1 },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       toast.success(res.data.message || "Added to cart!");
@@ -93,8 +95,6 @@ const Shop = () => {
     }
   };
 
-  if (loading) return <Loader />;
-
   return (
     <div className="flex flex-col lg:flex-row min-h-[49vh]">
       {/* Sidebar (Desktop) */}
@@ -104,23 +104,17 @@ const Shop = () => {
           <h3 className="text-2xl font-medium">Filters</h3>
         </div>
 
-        {/* Search */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            fetchListings(search, selectedCategories);
+        <input
+          className="bg-transparent border border-gray-700 p-3 outline-none w-full rounded-md"
+          type="search"
+          placeholder="Search products..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            handleSearchChange(e.target.value);
           }}
-        >
-          <input
-            className="bg-transparent border border-gray-700 p-3 outline-none w-full rounded-md"
-            type="search"
-            placeholder="Search products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </form>
+        />
 
-        {/* Categories */}
         <div className="flex flex-col gap-4">
           <h4 className="text-sm text-gray-400 uppercase font-medium mt-3">
             Categories
@@ -143,7 +137,7 @@ const Shop = () => {
         </div>
       </aside>
 
-      {/* Mobile Filter Button */}
+      {/* Mobile Header */}
       <div className="lg:hidden flex justify-between items-center px-4 py-3 border-b border-gray-700 bg-black/30 sticky top-[81px] z-60 backdrop-blur-sm">
         <h1 className="text-lg font-semibold">Shop</h1>
         <button
@@ -154,79 +148,103 @@ const Shop = () => {
         </button>
       </div>
 
-      {/* Mobile Filter Drawer */}
-      {mobileFilterOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-end z-30">
-          <div className="bg-neutral-900 w-3/4 sm:w-1/2 p-6 overflow-y-auto relative">
-            <IoClose
-              onClick={() => setMobileFilterOpen(false)}
-              className="absolute top-4 right-4 size-6 cursor-pointer"
-            />
-            <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <FiSliders /> Filters
-            </h3>
-
-            {/* Search */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                fetchListings(search, selectedCategories);
-                setMobileFilterOpen(false);
-              }}
-              className="mb-6"
+      {/* Animated Mobile Filter Drawer */}
+      <AnimatePresence>
+        {mobileFilterOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-end z-30"
+          >
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "tween", duration: 0.3 }}
+              className="bg-neutral-900 w-3/4 sm:w-1/2 p-6 overflow-y-auto relative"
             >
+              <IoClose
+                onClick={() => setMobileFilterOpen(false)}
+                className="absolute top-4 right-4 size-6 cursor-pointer"
+              />
+              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <FiSliders /> Filters
+              </h3>
+
               <input
-                className="bg-transparent border border-gray-700 p-3 outline-none w-full rounded-md"
+                className="bg-transparent border border-gray-700 p-3 outline-none w-full rounded-md mb-6"
                 type="search"
                 placeholder="Search products..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  handleSearchChange(e.target.value);
+                }}
               />
-            </form>
 
-            {/* Categories */}
-            <div className="flex flex-col gap-3">
-              <h4 className="text-sm text-gray-400 uppercase font-medium">
-                Categories
-              </h4>
-              {categories.length === 0 ? (
-                <p className="text-gray-500 text-sm">No categories available</p>
-              ) : (
-                categories.map((cat) => (
-                  <label key={cat._id} className="flex items-center gap-2">
-                    <input
-                      className="size-5 accent-primary-gold"
-                      type="checkbox"
-                      checked={selectedCategories.includes(cat._id)}
-                      onChange={() => handleCategoryChange(cat._id)}
-                    />
-                    {cat.name}
-                  </label>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+              <div className="flex flex-col gap-3">
+                <h4 className="text-sm text-gray-400 uppercase font-medium">
+                  Categories
+                </h4>
+                {categories.length === 0 ? (
+                  <p className="text-gray-500 text-sm">
+                    No categories available
+                  </p>
+                ) : (
+                  categories.map((cat) => (
+                    <label key={cat._id} className="flex items-center gap-2">
+                      <input
+                        className="size-5 accent-primary-gold"
+                        type="checkbox"
+                        checked={selectedCategories.includes(cat._id)}
+                        onChange={() => handleCategoryChange(cat._id)}
+                      />
+                      {cat.name}
+                    </label>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Main Shop Content */}
+      {/* Product Grid with animated filtering */}
       <div className="container mx-auto px-4 py-10">
         <h1 className="heading text-center mb-8 hidden lg:block">Shop</h1>
 
-        {listings.length === 0 ? (
+        {gridLoading ? (
+          <div className="flex justify-center py-10">
+            <Loader />
+          </div>
+        ) : listings.length === 0 ? (
           <p className="text-center text-gray-400">No products available.</p>
         ) : (
-          <div className="grid justify-center items-center grid-cols-[repeat(auto-fit,minmax(288px,max-content))] gap-6">
-            {listings.map((listing) => (
-              <ListingCard
-                key={listing._id}
-                id={listing._id}
-                {...listing}
-                onAddToCart={handleAddToCart}
-                adding={addingId === listing._id}
-              />
-            ))}
-          </div>
+          <motion.div
+            layout
+            className="grid justify-center items-center grid-cols-[repeat(auto-fit,minmax(288px,max-content))] gap-6"
+          >
+            <AnimatePresence>
+              {listings.map((listing) => (
+                <motion.div
+                  key={listing._id}
+                  layout
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <ListingCard
+                    id={listing._id}
+                    {...listing}
+                    onAddToCart={handleAddToCart}
+                    adding={addingId === listing._id}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         )}
       </div>
     </div>
