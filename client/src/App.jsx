@@ -203,7 +203,7 @@ const App = () => {
           <Route
             path="customer/orders"
             element={
-              <PrivateRoute allowedRoles={["vendor"]}>
+              <PrivateRoute allowedRoles={["customer"]}>
                 <CustomerOrder />
               </PrivateRoute>
             }
@@ -211,7 +211,7 @@ const App = () => {
           <Route
             path="customer/favorites"
             element={
-              <PrivateRoute allowedRoles={["vendor"]}>
+              <PrivateRoute allowedRoles={["customer"]}>
                 <CustomerFavorite />
               </PrivateRoute>
             }
