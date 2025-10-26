@@ -39,6 +39,7 @@ import VendorProduct from "./pages/dashboard/vendor/VendorProduct.jsx";
 import VendorShop from "./pages/dashboard/vendor/VendorShop.jsx";
 import VendorOrder from "./pages/dashboard/vendor/VendorOrder.jsx";
 import CustomerOrder from "./pages/dashboard/customer/CustomerOrder.jsx";
+import CustomerFavorite from "./pages/dashboard/customer/CustomerFavorite.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -199,8 +200,22 @@ const App = () => {
 
           {/* Customer Routes */}
           <Route path="customer" element={<Dashboard />} />
-          <Route path="customer/orders" element={<CustomerOrder />} />
-          <Route path="customer/favorites" element={<div>Favorites</div>} />
+          <Route
+            path="customer/orders"
+            element={
+              <PrivateRoute allowedRoles={["vendor"]}>
+                <CustomerOrder />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="customer/favorites"
+            element={
+              <PrivateRoute allowedRoles={["vendor"]}>
+                <CustomerFavorite />
+              </PrivateRoute>
+            }
+          />
           <Route path="customer/settings" element={<div>Settings</div>} />
 
           {/* General Routes */}
