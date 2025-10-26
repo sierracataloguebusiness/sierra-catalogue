@@ -21,8 +21,6 @@ dotenv.config();
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-
-// Resolve dirname (for ES Modules)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -53,11 +51,14 @@ app.use("/listings", express.static(path.join(__dirname, "listings")));
 
 // Serve frontend
 app.use(express.static(path.join(__dirname, 'client/dist')));
-console.log(path.join(__dirname, 'client/dist/index.html'))
+console.log(path.join(__dirname, 'client/dist/index.html'));
 
-// Catch-all route for SPA
-app.get('/.*/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/dist/index.html'));
+app.use((req, res, next) => {
+    if (req.method === "GET" && !req.path.startsWith("/api")) {
+        res.sendFile(path.join(__dirname, "client/dist", "index.html"));
+    } else {
+        next();
+    }
 });
 
 // Connect DB and start server
