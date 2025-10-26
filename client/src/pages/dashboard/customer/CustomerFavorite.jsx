@@ -21,10 +21,10 @@ const CustomerFavorite = () => {
     try {
       setLoading(true);
       const res = await axios.get(
-        "https://sierra-catalogue.onrender.com/api/favorites",
+        "https://sierra-catalogue.onrender.com/api/saved",
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      setFavorites(res.data.listings || []);
+      setFavorites(res.data.savedListings || []);
     } catch (err) {
       console.error("Error fetching favorites:", err);
       toast.error("Failed to load favorite listings.");
@@ -36,12 +36,12 @@ const CustomerFavorite = () => {
   const removeFavorite = async (listingId) => {
     try {
       setRemovingId(listingId);
-      await axios.delete(
-        `https://sierra-catalogue.onrender.com/api/favorites/${listingId}`,
+      const res = await axios.delete(
+        `https://sierra-catalogue.onrender.com/api/saved/${listingId}`,
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      toast.success("Removed from favorites");
-      setFavorites((prev) => prev.filter((l) => l._id !== listingId));
+      toast.success(res.data.message || "Removed from favorites");
+      setFavorites(res.data.savedListings || []);
     } catch (err) {
       console.error("Error removing favorite:", err);
       toast.error("Failed to remove from favorites.");
