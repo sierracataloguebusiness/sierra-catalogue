@@ -8,7 +8,15 @@ import logo from "/src/assets/Sierra Catalogue Logo.jpg";
 
 const API_BASE = "https://sierra-catalogue.onrender.com/api";
 
-const ListingCard = ({ title, description, price, images, stock, id }) => {
+const ListingCard = ({
+  title,
+  description,
+  price,
+  images,
+  stock,
+  id,
+  showFavorite = true,
+}) => {
   const [adding, setAdding] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -99,15 +107,17 @@ const ListingCard = ({ title, description, price, images, stock, id }) => {
           </span>
         )}
 
-        <button
-          onClick={handleToggleSave}
-          disabled={saving}
-          className={`absolute top-2 left-2 p-2 rounded-full ${
-            isSaved ? "bg-red-600 text-white" : "bg-gray-700 text-gray-200"
-          } hover:bg-red-500 transition`}
-        >
-          <FaHeart />
-        </button>
+        {showFavorite && (
+          <button
+            onClick={handleToggleSave}
+            disabled={saving}
+            className={`absolute top-2 left-2 p-2 rounded-full ${
+              isSaved ? "bg-red-600 text-white" : "bg-gray-700 text-gray-200"
+            } hover:bg-red-500 transition`}
+          >
+            <FaHeart />
+          </button>
+        )}
       </div>
 
       {/* Text Info */}

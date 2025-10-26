@@ -69,7 +69,7 @@ const CustomerFavorite = () => {
       <div className="grid justify-center items-center grid-cols-[repeat(auto-fit,minmax(288px,max-content))] gap-6">
         {favorites.map((listing) => (
           <div key={listing._id} className="relative">
-            <ListingCard {...listing} />
+            <ListingCard showFavorite={false} {...listing} />
             <button
               onClick={() => removeFavorite(listing._id)}
               disabled={removingId === listing._id}
