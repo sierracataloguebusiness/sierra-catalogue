@@ -142,28 +142,28 @@ export const deleteListing = async (req, res) => {
 
 export const getListings = async (req, res) => {
     try {
-        const { search, categories, limit = 20 } = req.query;
+        const { search, categories, limit = 20, page = 1 } = req.query;
 
         let filter = {};
+        if (search) filter.title = { $regex: search, $options: "i" };
+        if (categories) filter.categoryId = { $in: categories.split(",") };
 
-        if (search) {
-            filter.title = { $regex: search, $options: "i" };
-        }
-
-        if (categories) {
-            const categoryArray = categories.split(",");
-            filter.categoryId = { $in: categoryArray };
-        }
+        const total = await Listing.countDocuments(filter);
 
         const listings = await Listing.find(filter)
+            .skip((page - 1) * Number(limit))
             .limit(Number(limit))
             .populate("categoryId", "name")
             .populate("vendor", "name");
 
-        res.status(200).json({ listings });
+        res.status(200).json({
+            listings,
+            totalPages: Math.ceil(total / Number(limit)),
+            currentPage: Number(page),
+        });
     } catch (error) {
         console.error("Error fetching listings:", error);
-        res.status(500).json({ message: "Server error fetching listings"});
+        res.status(500).json({ message: "Server error fetching listings" });
     }
 };
 
