@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // Route imports
 import authRoutes from './routes/authRoutes.js';
@@ -19,23 +21,45 @@ import savedListingsRoutes from "./routes/savedListingsRoutes.js";
 
 dotenv.config();
 
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors({
-    origin: ['http://localhost:5173', 'https://sierra-catalogue.onrender.com'],
-    credentials: true,
-}));
-app.use(express.json());
+// ------------------------------
+// ✅ SECURE + FLEXIBLE CORS CONFIG
+// ------------------------------
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://sierra-catalogue.onrender.com',
+    'https://www.sierracatalogue.com',
+    'https://sierracatalogue.com',
+];
 
-// API Routes
+app.use(
+    cors({
+        origin: function (origin, callback) {
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                console.warn(`🚫 Blocked by CORS: ${origin}`);
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        credentials: true,
+    })
+);
+
+// ------------------------------
+// Middleware
+// ------------------------------
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// ------------------------------
+// API ROUTES
+// ------------------------------
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/listings', listingRoutes);
@@ -49,21 +73,33 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/vendor', vendorRoutes);
 app.use("/api/saved", savedListingsRoutes);
 
+// ------------------------------
+// Static files (images, etc.)
+// ------------------------------
 app.use("/listings", express.static(path.join(__dirname, "listings")));
 
-// Serve frontend
-app.use(express.static(path.join(__dirname, 'client/dist')));
-console.log(path.join(__dirname, 'client/dist/index.html'));
+// ------------------------------
+// FRONTEND BUILD SERVING
+// ------------------------------
+const clientDistPath = path.join(__dirname, 'client/dist');
+app.use(express.static(clientDistPath));
 
-app.use((req, res, next) => {
-    if (req.method === "GET" && !req.path.startsWith("/api")) {
-        res.sendFile(path.join(__dirname, "client/dist", "index.html"));
+app.get('*', (req, res, next) => {
+    if (!req.path.startsWith('/api')) {
+        res.sendFile(path.join(clientDistPath, 'index.html'));
     } else {
         next();
     }
 });
 
-// Connect DB and start server
+// ------------------------------
+// CONNECT DB + START SERVER
+// ------------------------------
 connectDB().then(() => {
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+    });
+}).catch((err) => {
+    console.error("❌ Database connection failed:", err);
+    process.exit(1);
 });
